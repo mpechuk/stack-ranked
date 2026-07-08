@@ -1,2 +1,78 @@
-STACK RANKED
-A GAME OF CORPORATE ASCENSION
+# STACK RANKED
+
+### A Game of Corporate Ascension
+
+A fully playable, single-page browser simulator of **Stack Ranked** — the
+engine-building, corporate-ladder satire game. Race up the org chart from Intern
+to CEO by banking Career Capital, hoarding Political Capital, surviving Office
+Chaos, and gaming the Quarterly Performance Review — all without burning out.
+
+**▶ Play it:** open `index.html` in any modern browser, or host it on GitHub
+Pages (see below). No build step, no server, no dependencies.
+
+---
+
+## What's in the box
+
+| File | Purpose |
+|---|---|
+| `index.html` | The whole game UI — setup screen, live dashboard, review & game-over modals. Self-contained (inline CSS/JS). |
+| `game.js` | The rules engine and AI. Zero DOM dependencies, so it can be unit-tested headlessly. |
+| `docs/STACK_RANKED_GAME_SPEC.md` | The implementation spec this build follows to the letter. |
+| `cards.json` | Raw card data (also embedded in `game.js`). |
+| `stack_ranked_balance_simulator.py` | The original Monte-Carlo balance tool (reference only). |
+
+## Features
+
+- **2–6 players**, any mix of **Human** (hot-seat) and **AI**. Watch an all-AI
+  game, play solo against bots, or pass-and-play with friends.
+- **Five AI archetypes** — Grinder, Politician, Balanced, Workaholic, Cautious —
+  each with a distinct playstyle.
+- **Both win conditions:** *Race to CEO* (first to the top wins) and
+  *The Long Game* (fixed 24 rounds, highest Final Score wins).
+- **All 101 cards implemented** — 30 Skills/Tools, 19 Projects (incl. the
+  evergreen *Reduce Technical Debt*), 30 Office Chaos events, 12 Mandatory
+  Trainings, and 10 Management Styles, each with its exact effect.
+- **Faithful rules:** the full round loop (Stand-Up → Work Block → Watercooler →
+  Cleanup), the exact 5-step Quarterly Review (eligibility-first promotion, the
+  independent CEO Board Vote, Meteoric Rise capped at VP, PIP/demotion, and the
+  Quarter-Marker-moves-last ordering), Burnout Crisis as an interrupt, Scope
+  Creep, tier unlocks, and every documented edge case from the spec's postmortem.
+- **Perfect information**, as the rules intend — every stat, board, tableau, and
+  the full activity log are visible to everyone.
+- Adjustable speed (Slow → Instant) for the AI turns.
+
+## How to play
+
+1. Pick a **win condition** and set up your **players** (name, Human/AI, and an
+   AI archetype).
+2. On your **Work Block**, spend Action Points on:
+   - **Hire** a Skill/Tool from the Job Board (pay Productivity).
+   - **Work a Project** (pay Productivity → gain Career Capital).
+   - **Network** (free: +2 Political Capital, +1 Career Capital).
+   - **Self-Care** (free: −2 Burnout).
+   - **Overtime** (once/round: +1 Action Point, +2 Burnout).
+3. Every 3rd round is a **Quarterly Performance Review** — promotions, PIPs, and
+   the CEO Board Vote. Career Capital gates every promotion; Compliance Badges
+   gate Director and VP.
+4. First player promoted to **CEO** wins (or highest Final Score in the Long
+   Game). Don't hit **10 Burnout** — that triggers a Crisis.
+
+## Host it on GitHub Pages
+
+This repo is already a static site — nothing to build.
+
+1. Push to GitHub (files must be at the repository root, as they are here).
+2. Go to **Settings → Pages**.
+3. Under **Build and deployment**, set **Source** = *Deploy from a branch*,
+   **Branch** = `main`, folder = `/ (root)`, then **Save**.
+4. Wait ~1 minute. Your game is live at
+   `https://<your-username>.github.io/<repo-name>/`.
+
+Because everything is plain HTML/JS with relative paths, it works identically
+whether opened from `file://`, a local static server, or GitHub Pages.
+
+---
+
+*Built from `docs/STACK_RANKED_GAME_SPEC.md`. Card text and flavor are part of
+the product and shown verbatim in-game.*
