@@ -1,0 +1,40 @@
+name: Deploy PR preview
+
+# Publishes a live preview of each pull request to
+#   https://<user>.github.io/<repo>/pr-preview/pr-<N>/
+# and posts a sticky comment with the link. The preview is removed
+# automatically when the PR is closed or merged.
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, closed]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: pr-preview-${{ github.event.number }}
+  cancel-in-progress: false
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    # Forked PRs get a read-only token, so they can't push the preview or
+    # comment. Skip them rather than fail loudly.
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Stage site
+        run: |
+          mkdir -p _site
+          cp index.html game.js _site/
+
+      - name: Deploy preview
+        uses: rossjrw/pr-preview-action@v1
+        with:
+          source-dir: _site
+          preview-branch: gh-pages
+          umbrella-dir: pr-preview
