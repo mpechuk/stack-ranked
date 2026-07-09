@@ -159,10 +159,12 @@
   .flag.task.has { color: var(--accent-2); border-color: #2f5c3a; background: #11201a; }
   .held-task {
     font-size: 11px; border: 1px solid #2f5c3a; background: #11201a; border-radius: 7px;
-    padding: 6px 8px; margin: 6px 0;
+    padding: 6px 8px; margin: 6px 0; max-height: 160px; overflow-y: auto;
   }
-  .ht-label { font-size: 9px; text-transform: uppercase; letter-spacing: .05em; color: var(--accent-2); }
-  .ht-name { font-weight: 650; margin: 2px 0; }
+  .ht-label { font-size: 9px; text-transform: uppercase; letter-spacing: .05em; color: var(--accent-2); margin-bottom: 3px; }
+  .ht-row { padding: 3px 0; border-top: 1px dashed #1f3d27; }
+  .ht-row:first-of-type { border-top: none; }
+  .ht-name { font-weight: 650; display: block; }
   .ht-meta { display: flex; justify-content: space-between; gap: 6px; color: var(--txt-dim); }
   .mgmt { font-size: 11px; color: var(--txt-dim); border-top: 1px dashed var(--line2); padding-top: 7px; margin-top: 2px; }
   .mgmt b { color: var(--txt); }
@@ -210,6 +212,16 @@
   .ap.on { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 8px -2px var(--accent); }
   .actbtns { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-top: 8px; }
   .actbtns .wide { grid-column: 1 / -1; }
+  .bl-label { font-size: 9px; text-transform: uppercase; letter-spacing: .05em; color: var(--accent-2); margin-top: 10px; }
+  .backlog-list { max-height: 220px; overflow-y: auto; margin-top: 4px; }
+  .bl-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    border: 1px solid var(--line2); border-radius: 7px; padding: 6px 8px; margin-bottom: 5px; background: #0d1620;
+  }
+  .bl-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .bl-name { font-weight: 650; font-size: 12px; }
+  .bl-meta { font-size: 10px; color: var(--txt-dim); }
+  .bl-row button { flex-shrink: 0; }
   .hint { font-size: 11px; color: var(--txt-dim); margin-top: 8px; min-height: 14px; }
   .ai-working { color: var(--accent-2); font-size: 13px; display: flex; align-items: center; gap: 8px; }
   .dot-pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--accent-2); animation: pulse 1s infinite; }
@@ -587,8 +599,9 @@
     var s = UI.activeState, p = t.player;
     if (act === "endturn") return endTurn();
     if (act === "work") {
-      if (t.ap < 1 || !p.heldTask || p.productivity < H.effectiveHeldTaskCost(p)) return;
-      var r = SR.actions.workProject(s, p);
+      var item = p.backlog[idx];
+      if (t.ap < 1 || !item || p.productivity < H.effectiveBacklogItemCost(p, item)) return;
+      var r = SR.actions.workProject(s, p, idx);
       if (r.ok) { t.ap -= 1; t.mustProjectFirst = false; }
     } else if (act === "hire") {
       if (t.ap < 1 || t.mustProjectFirst) return;
@@ -686,25 +699,25 @@
       var gainLabel = (gain >= 0 ? "+" : "") + gain + " CC";
 
       var flags = "";
-      flags += '<span class="flag task' + (p.heldTask ? " has" : "") + '">📋 ' + (p.heldTask ? 1 : 0) + " task</span>";
+      flags += '<span class="flag task' + (p.backlog.length ? " has" : "") + '">📋 Backlog: ' + p.backlog.length + "</span>";
       if (p.hasPip) flags += '<span class="flag pip">⚠ PIP</span>';
       if (p.employeeOfQuarterTokens) flags += '<span class="flag eoq">🏅 ' + p.employeeOfQuarterTokens + "</span>";
       if (p.immuneToDemotion) flags += '<span class="flag immune">🔒 Vested</span>';
       if (p.goldenParachuteArmed) flags += '<span class="flag para">🪂 Parachute</span>';
       if (p.skipActionRounds > 0) flags += '<span class="flag skip">⏭ Skip ' + p.skipActionRounds + "</span>";
 
-      var heldTaskHtml = "";
-      if (p.id === s.activePlayerId && p.heldTask) {
-        var htCard = p.heldTask.card;
-        var htCost = H.effectiveHeldTaskCost(p);
-        var htReward = "+" + htCard.reward.cc + " CC" +
-          (htCard.reward.pc ? ", +" + htCard.reward.pc + " PC" : "") +
-          (htCard.reward.badges ? ", +" + htCard.reward.badges + " Badge" : "") +
-          (htCard.reward.burnout ? ", +" + htCard.reward.burnout + " 🔥" : "");
-        heldTaskHtml =
-          '<div class="held-task"><div class="ht-label">📋 Task in hand</div>' +
-          '<div class="ht-name">' + esc(htCard.name) + "</div>" +
-          '<div class="ht-meta"><span class="ht-cost">' + htCost + ' P</span><span class="ht-reward">' + esc(htReward) + "</span></div></div>";
+      var backlogPanelHtml = "";
+      if (p.id === s.activePlayerId && p.backlog.length) {
+        var rows = p.backlog.map(function (item) {
+          var cost = H.effectiveBacklogItemCost(p, item);
+          var reward = "+" + item.card.reward.cc + " CC" +
+            (item.card.reward.pc ? ", +" + item.card.reward.pc + " PC" : "") +
+            (item.card.reward.badges ? ", +" + item.card.reward.badges + " Badge" : "") +
+            (item.card.reward.burnout ? ", +" + item.card.reward.burnout + " 🔥" : "");
+          return '<div class="ht-row"><span class="ht-name">' + esc(item.card.name) + "</span>" +
+            '<span class="ht-meta"><span class="ht-cost">' + cost + ' P</span><span class="ht-reward">' + esc(reward) + "</span></span></div>";
+        }).join("");
+        backlogPanelHtml = '<div class="held-task"><div class="ht-label">📋 Backlog (' + p.backlog.length + ")</div>" + rows + "</div>";
       }
 
       var chips = p.tableau.length ? p.tableau.map(function (cd) {
@@ -735,7 +748,7 @@
         '<div class="bar-name burn">Burnout</div>' +
         '<div class="bar burn-bar" style="margin-bottom:2px"><i style="width:' + burnPct + '%"></i></div>' +
         '<div class="flags">' + flags + "</div>" +
-        heldTaskHtml +
+        backlogPanelHtml +
         '<div class="mgmt"><b>' + esc(ms ? ms.name : "—") + "</b> · " + esc(ms ? ms.effect : "") + "</div>" +
         '<div class="tableau">' + chips + "</div>";
       host.appendChild(card);
@@ -814,17 +827,25 @@
       for (var k = 0; k < Math.max(t.ap, 0); k++) pips += '<span class="ap on"></span>';
       var netOk = H.canNetwork(s, p).ok, scOk = H.canSelfCare(s, p).ok, scCost = H.selfCareApCost(p);
       var block = t.mustProjectFirst;
-      var htOk = p.heldTask && p.productivity >= H.effectiveHeldTaskCost(p);
-      var workLabel = p.heldTask
-        ? (H.effectiveHeldTaskCost(p) + " P → +" + p.heldTask.card.reward.cc + " CC")
-        : "nothing in hand";
+      var backlogHtml = p.backlog.length ? p.backlog.map(function (item, i) {
+        var cost = H.effectiveBacklogItemCost(p, item);
+        var canWork = t.ap >= 1 && p.productivity >= cost;
+        var reward = "+" + item.card.reward.cc + " CC" +
+          (item.card.reward.pc ? ", +" + item.card.reward.pc + " PC" : "") +
+          (item.card.reward.badges ? ", +" + item.card.reward.badges + " Badge" : "") +
+          (item.card.reward.burnout ? ", +" + item.card.reward.burnout + " 🔥" : "");
+        return '<div class="bl-row"><div class="bl-info"><span class="bl-name">' + esc(item.card.name) + "</span>" +
+          '<span class="bl-meta">' + cost + " P → " + esc(reward) + "</span></div>" +
+          '<button data-act="work" data-idx="' + i + '"' + (canWork ? "" : " disabled") + ">Work</button></div>";
+      }).join("") : '<div class="hint">Backlog is empty — nothing to Work until next Stand-Up.</div>';
       host.innerHTML =
         '<div class="turn-who">▸ ' + esc(p.name) + "'s turn</div>" +
         '<div class="dim">' + esc(C.RUNG_NAMES[p.rung]) + " · " + p.productivity + " P available</div>" +
         '<div class="ap-pips">' + (t.ap > 0 ? pips : '<span class="faint">0 AP left</span>') + '<span class="faint" style="margin-left:6px">' + t.ap + " AP</span></div>" +
         (block ? '<div class="hint" style="color:var(--warn)">Micromanager: your first action must be Work a Project.</div>' : "") +
+        '<div class="bl-label">📋 Your Backlog (' + p.backlog.length + ")</div>" +
+        '<div class="backlog-list">' + backlogHtml + "</div>" +
         '<div class="actbtns">' +
-          '<button data-act="work"' + ((t.ap >= 1 && htOk) ? "" : " disabled") + ">Work Project<br><span class='faint'>" + esc(workLabel) + "</span></button>" +
           '<button data-act="network"' + ((t.ap >= 1 && netOk && !block) ? "" : " disabled") + ">Network<br><span class='faint'>+2 PC, +1 CC</span></button>" +
           '<button data-act="selfcare"' + ((t.ap >= scCost && scOk && !block) ? "" : " disabled") + ">Self-Care<br><span class='faint'>−2 🔥 (" + scCost + " AP)</span></button>" +
           '<button data-act="overtime"' + ((!p.overtimeUsedThisRound && !block) ? "" : " disabled") + ">Overtime<br><span class='faint'>+1 AP, +2 🔥</span></button>" +
