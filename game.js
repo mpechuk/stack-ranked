@@ -337,6 +337,7 @@
       hasPip: false,
       employeeOfQuarterTokens: 0,
       skipActionRounds: 0,
+      heldTask: null,                // { card, lockedScope } | null — claimed at Stand-Up, paid off via Work a Project
       managementStyle: null,        // set at setup
       tableau: [],                  // permanent skill defs
       goldenParachuteArmed: false,
@@ -538,10 +539,19 @@
     c += (mm(player).projectCostDelta || 0);
     return Math.max(1, c);
   }
+  function effectiveHeldTaskCost(player) {
+    const ht = player.heldTask;
+    if (!ht) return null;
+    // lockedScope is frozen at the moment the task was claimed (0 for Evergreen,
+    // which never scope-creeps); it does not keep accruing while held.
+    let c = ht.card.cost + ht.lockedScope;
+    if (hasSkill(player, "actually-reads-the-documentation")) c -= 1;
+    if (hasSkill(player, "whiteboard-diagram-enthusiast") && skillCount(player) >= 4) c -= 1;
+    c += (mm(player).projectCostDelta || 0);
+    return Math.max(1, c);
+  }
   function anyAffordableProject(state, player) {
-    return state.kanbanBoard.some(function (slot) {
-      return slot.card && player.productivity >= effectiveProjectCost(player, slot);
-    });
+    return !!player.heldTask && player.productivity >= effectiveHeldTaskCost(player);
   }
 
   /* ---------------------------------------------------------------------------
@@ -585,8 +595,53 @@
     return { ok: true };
   }
 
-  function doWorkProject(state, player, slotIndex) {
-    return completeProject(state, player, slotIndex);
+  // Claim a card from the Kanban Board into a player's hand, unpaid (no cost yet).
+  // Board-slot bookkeeping (Evergreen redraw / empty-until-Postmortem) mirrors
+  // completeProject's, since a claim removes the card from the board either way.
+  function claimTaskFromBoard(state, player, slotIndex) {
+    const slot = state.kanbanBoard[slotIndex];
+    if (!slot || !slot.card) return { ok: false, reason: "No project there." };
+    const card = slot.card;
+    player.heldTask = { card: card, lockedScope: slot.evergreen ? 0 : slot.scope };
+    if (slot.evergreen) {
+      state.evergreenDiscardPile.push(card);
+      state.kanbanBoard[slotIndex] = { card: drawEvergreen(state), scope: 0, unclaimed: 0, justRefilled: false, evergreen: true };
+    } else {
+      state.projectDiscardPile.push(card);
+      state.kanbanBoard[slotIndex] = { card: null, scope: 0, unclaimed: 0, justRefilled: false, evergreen: false };
+    }
+    log(state, player.name + " picks up “" + card.name + "” from the Kanban Board.", "muted");
+    return { ok: true };
+  }
+
+  // Pay off the task currently in a player's hand (claimed earlier, at Stand-Up
+  // or a prior round). Used both by the free Stand-Up settlement and by the
+  // Sprint's Work a Project action.
+  function completeHeldTask(state, player, costOverride) {
+    const ht = player.heldTask;
+    if (!ht) return { ok: false, reason: "No task in hand." };
+    const card = ht.card;
+    const cost = costOverride != null ? costOverride : effectiveHeldTaskCost(player);
+    if (player.productivity < cost) return { ok: false, reason: "Not enough Productivity." };
+    player.productivity -= cost;
+    applyProjectReward(state, player, card);
+    let extra = "";
+    const m = mm(player);
+    if (m.onProjectComplete) {
+      player.careerCapital = Math.max(0, player.careerCapital + m.onProjectComplete.cc);
+      player.politicalCapital += m.onProjectComplete.pc;
+      extra = " (Credit-Stealing Boss: " + m.onProjectComplete.cc + " CC, +" + m.onProjectComplete.pc + " PC)";
+    }
+    log(state, player.name + " completes “" + card.name + "” for " + cost + " P → +" +
+      card.reward.cc + " CC" + (card.reward.pc ? ", +" + card.reward.pc + " PC" : "") +
+      (card.reward.badges ? ", +" + card.reward.badges + " Badge" : "") +
+      (card.reward.burnout ? ", +" + card.reward.burnout + " Burnout" : "") + extra + ".", "action");
+    player.heldTask = null;
+    return { ok: true };
+  }
+
+  function doWorkProject(state, player) {
+    return completeHeldTask(state, player);
   }
 
   function doHire(state, player, boardIndex) {
@@ -790,6 +845,57 @@
       if (dbr > 0) addBurnout(state, p, dbr, "round");
     });
     log(state, "Stand-Up Meeting: income collected.", "income");
+  }
+
+  // Every player without a task in hand must pick one up from the Kanban
+  // Board (unpaid — claiming is free); resolved in First Player order since
+  // the board is shared. Anyone now holding a task who can currently afford
+  // it may settle it on the spot using this round's fresh Productivity,
+  // for free (no Action Point) — this can also be a task carried over,
+  // unpaid, from an earlier round.
+  async function assignAndSettleTasks(state, hooks) {
+    if (state.restrictions.skipIncome) return; // IT Outage skips all of Stand-Up
+    for (const p of turnOrder(state)) {
+      if (!p.heldTask) {
+        const slotIndex = await pickTaskToClaim(state, hooks, p);
+        if (slotIndex >= 0) claimTaskFromBoard(state, p, slotIndex);
+      }
+      if (p.heldTask && p.productivity >= effectiveHeldTaskCost(p)) {
+        const settle = (p.kind === "human" && hooks && hooks.decide)
+          ? await hooks.decide({
+              playerId: p.id, action: "settleTask",
+              prompt: p.name + " can finish “" + p.heldTask.card.name + "” right now for " +
+                effectiveHeldTaskCost(p) + " P (no Action Point needed). Complete it?"
+            })
+          : true; // AI always settles when it's free money — never a downside vs. paying via an AP later
+        if (settle) completeHeldTask(state, p);
+      }
+    }
+  }
+
+  function bestClaimIndex(state) {
+    let best = -1, bestVal = -Infinity;
+    state.kanbanBoard.forEach(function (slot, i) {
+      if (!slot.card) return;
+      const val = slot.card.reward.cc - (slot.card.reward.burnout || 0) * 0.6;
+      if (val > bestVal) { bestVal = val; best = i; }
+    });
+    return best;
+  }
+
+  async function pickTaskToClaim(state, hooks, player) {
+    const heuristic = bestClaimIndex(state);
+    if (heuristic < 0) return -1; // nothing available anywhere (all slots empty)
+    if (player.kind !== "human" || !hooks || !hooks.decide) return heuristic;
+    const answer = await hooks.decide({
+      playerId: player.id, action: "claimTask",
+      prompt: player.name + " has no task in hand — pick up a Project from the Kanban Board.",
+      options: state.kanbanBoard.map(function (slot, i) {
+        return slot.card ? { key: String(i), label: slot.card.name + " (" + effectiveProjectCost(player, slot) + " P)" } : null;
+      }).filter(Boolean)
+    });
+    const idx = typeof answer === "number" ? answer : parseInt(answer, 10);
+    return (Number.isInteger(idx) && state.kanbanBoard[idx] && state.kanbanBoard[idx].card) ? idx : heuristic;
   }
 
   /* --- Lunch ------------------------------------------------------------------ */
@@ -1282,15 +1388,15 @@
     return v;
   }
 
+  // There's only ever one Project a player can Work: whatever's in their
+  // hand (Sprint no longer picks a Kanban Board slot directly — that choice
+  // is made when the task is claimed, at Stand-Up). `index` is kept as a
+  // found/not-found flag (0 vs -1) so existing call sites don't need to change.
   function pickBestProject(state, player) {
-    let best = -1, bestVal = -Infinity;
-    state.kanbanBoard.forEach(function (slot, i) {
-      if (!slot.card) return;
-      if (player.productivity < effectiveProjectCost(player, slot)) return;
-      const val = slot.card.reward.cc - (slot.card.reward.burnout || 0) * 0.6;
-      if (val > bestVal) { bestVal = val; best = i; }
-    });
-    return { index: best, value: bestVal };
+    if (!anyAffordableProject(state, player)) return { index: -1, value: -Infinity };
+    const card = player.heldTask.card;
+    const val = card.reward.cc - (card.reward.burnout || 0) * 0.6;
+    return { index: 0, value: val };
   }
 
   async function aiTakeTurn(state, player, hooks) {
@@ -1310,7 +1416,7 @@
       // Micromanager forced project first
       if (mustProjectFirst) {
         const proj = pickBestProject(state, player);
-        if (proj.index >= 0) { doWorkProject(state, player, proj.index); ap -= 1; mustProjectFirst = false; }
+        if (proj.index >= 0) { doWorkProject(state, player); ap -= 1; mustProjectFirst = false; }
         else { mustProjectFirst = false; } // safety
         if (hooks && hooks.onChange) hooks.onChange(); await wait(hooks);
         continue;
@@ -1341,7 +1447,7 @@
       if (best <= 0) break;
 
       if (best === projVal && proj.index >= 0) {
-        doWorkProject(state, player, proj.index); ap -= 1;
+        doWorkProject(state, player); ap -= 1;
       } else if (best === bestSkillVal && bestSkill >= 0) {
         const r = doHire(state, player, bestSkill); ap -= 1;
         if (r.pending === "shipsItFriday") {
@@ -1419,6 +1525,10 @@
       await pause(hooks, "phase");
 
       incomePhase(state);
+      if (hooks.onChange) hooks.onChange();
+      await pause(hooks, "income");
+
+      await assignAndSettleTasks(state, hooks);
       if (hooks.onChange) hooks.onChange();
       await pause(hooks, "income");
 
@@ -1524,7 +1634,11 @@
       slug: slug
     },
     // Internal functions exposed for unit testing.
-    _internal: { runReview: runReview, addBurnout: addBurnout, resolveTraining: resolveTraining }
+    _internal: {
+      runReview: runReview, addBurnout: addBurnout, resolveTraining: resolveTraining,
+      claimTaskFromBoard: claimTaskFromBoard, completeHeldTask: completeHeldTask,
+      effectiveHeldTaskCost: effectiveHeldTaskCost, assignAndSettleTasks: assignAndSettleTasks
+    }
   };
 
   if (typeof module !== "undefined" && module.exports) module.exports = SR;

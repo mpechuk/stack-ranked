@@ -22,6 +22,7 @@ trainings, and quiet workplace despair.
   - [The Three Live Resources](#the-three-live-resources)
   - [The Two Permanent Trackers](#the-two-permanent-trackers)
   - [The Quarter Marker](#the-quarter-marker)
+  - [Your Task in Hand](#your-task-in-hand)
 - [Setup](#setup)
 - [How to Play a Round](#how-to-play-a-round)
   - [6.1 — Stand-Up Meeting (Income Phase)](#61-stand-up-meeting-income-phase)
@@ -45,10 +46,12 @@ New to Synergy Corp? Here's the entire game in four steps. Everything else in
 this rulebook is detail.
 
 1. **Stand-Up Meeting**: collect Productivity and Political Capital from your
-   tableau (plus 1 free Productivity just for showing up).
-2. **Sprint**: spend your Action Points to Hire a Skill card, Work a Project,
-   Network, or Self-Care. You may also take one Overtime action per round for
-   a bonus Action Point.
+   tableau (plus 1 free Productivity just for showing up). Then, if you don't
+   already have a task in hand, pick one up from the Kanban Board — and if
+   you can afford it right now, you may finish it on the spot, for free.
+2. **Sprint**: spend your Action Points to Hire a Skill card, Work a Project
+   (finish the task in your hand), Network, or Self-Care. You may also take
+   one Overtime action per round for a bonus Action Point.
 3. **Lunch**: draw an Office Chaos card and resolve it.
 4. **Postmortem**: refill the boards and pass the First Player token. Every
    3rd round is a Quarterly Performance Review — the top performer(s) may get
@@ -159,14 +162,23 @@ this Quarter — and it's the heart of your Review Score (see
 [Quarterly Performance Review](#quarterly-performance-review)). Move your
 Quarter Marker to match your current CC at the end of every Review.
 
+### Your Task in Hand
+
+You can hold exactly one Project at a time — a task you've picked up but
+haven't paid for yet. If you're ever empty-handed at the start of Stand-Up,
+picking one up isn't optional (see [6.1](#61-stand-up-meeting-income-phase)).
+Taking a task is free; paying its Productivity cost is what actually finishes
+it and earns the reward. You don't get (or need) a second task until you've
+finished the one you're holding.
+
 ---
 
 ## Setup
 
 1. Place the Career Ladder board where everyone can reach it. Each player
    takes a Desk mat, a pawn (placed on Intern), and starts with 0
-   Productivity, 0 Political Capital, 0 Burnout, 0 Career Capital, and 0
-   Compliance Badges.
+   Productivity, 0 Political Capital, 0 Burnout, 0 Career Capital, 0
+   Compliance Badges, and no task in hand.
 2. Shuffle the Management Style deck. Each player draws 1 card and keeps it
    face-up — everyone should be able to see everyone's boss.
 3. Shuffle the Tier 1 Skill/Tool cards and reveal 5 to form the Job Board.
@@ -194,6 +206,32 @@ Simultaneously, every player collects the Productivity and Political Capital
 shown on their Skill/Tool tableau, plus a flat +1 Productivity "showed up"
 bonus.
 
+Then, in First Player order (this part isn't simultaneous — everyone's
+reaching for the same Kanban Board):
+
+1. **Pick up a task.** If you don't currently have a task in hand, you must
+   take one Project card from the Kanban Board — your choice of any card
+   currently on the board. This is free; you are not paying its cost yet,
+   just claiming it. Taking it empties that slot exactly as if you'd
+   completed a Project there (a regular slot stays empty until the next
+   Postmortem refills it; the Evergreen slot instantly deals itself a
+   replacement — see [Deck Composition](#deck-composition) — which is why
+   there's always something to pick up even if every other slot is already
+   spoken for this Stand-Up). Whatever cost is showing on the card at the
+   moment you take it (including any Scope Creep it had already picked up)
+   is locked in — it won't creep any higher while you're holding it, even
+   though the slot that replaces it will start accruing its own Scope Creep
+   from scratch.
+2. **Settle it now, if you want and can.** If you're holding a task — one you
+   just picked up, or one you've been sitting on since an earlier round — and
+   you currently have enough Productivity to cover its (locked-in) cost, you
+   may pay it off right now and take the reward, exactly as Work a Project
+   would during your Sprint. The difference: doing it here at Stand-Up costs
+   no Action Point. There's rarely a reason to wait, unless you'd rather hold
+   onto that Productivity to Hire something this round instead. Either way,
+   once it's paid off you're empty-handed again until next Stand-Up forces a
+   new pickup.
+
 ### 6.2 — Sprint (Action Phase)
 
 In First Player order, each player spends Action Points one at a time. Your
@@ -210,9 +248,13 @@ Each Action Point buys one of the following:
 - **Hire** — pay a Skill/Tool card's Productivity cost to take it from the
   Job Board. One-Shot cards resolve immediately and are discarded; Permanent
   cards join your tableau.
-- **Work a Project** — pay a Project's Productivity cost to claim it from the
-  Kanban Board. Gain its Career Capital reward (and any other listed effects)
-  immediately.
+- **Work a Project** — pay the Productivity cost of the task currently in
+  your hand (the one you picked up at Stand-Up — see
+  [6.1](#61-stand-up-meeting-income-phase)). Gain its Career Capital reward
+  (and any other listed effects) immediately, then you're empty-handed until
+  next Stand-Up. If you already settled your task for free at Stand-Up this
+  round, you have nothing to Work this Sprint — spend the Action Point on
+  something else.
 - **Network** — no cost. Gain 2 Political Capital and 1 Career Capital.
 - **Self-Care** — no cost. Remove 2 Burnout.
 
@@ -678,7 +720,9 @@ written and see how it goes. That's what the simulation says it's like.
 
 ### Round Structure
 
-1. Stand-Up Meeting — collect tableau income + 1 free Productivity
+1. Stand-Up Meeting — collect tableau income + 1 free Productivity; if
+   empty-handed, pick up a task from the Kanban Board (free); settle it now
+   for free if you can afford it
 2. Sprint — spend Action Points (2 / 3 / 4 by rung); 1 free Overtime action
    available
 3. Lunch — draw & resolve 1 Office Chaos card
@@ -692,10 +736,17 @@ Mandatory Training.
 | Action | Cost | Effect |
 |---|---|---|
 | Hire | Card's Productivity cost | Take a Job Board card: One-Shot resolves now; Permanent joins tableau |
-| Work a Project | Project's Productivity cost | Gain its Career Capital reward + listed effects |
+| Work a Project | Held task's Productivity cost | Gain its Career Capital reward + listed effects; empty-handed until next Stand-Up |
 | Network | Free | +2 Political Capital, +1 Career Capital |
 | Self-Care | Free | −2 Burnout |
 | Overtime (once/round, not an AP) | +2 Burnout | +1 Action Point this round |
+
+### Task in Hand
+
+You hold at most one Project at a time. Empty-handed at Stand-Up → you must
+pick one up from the Kanban Board (free). Can afford its cost right then? You
+may settle it for free (no AP) instead of waiting for your Sprint's Work a
+Project (which still costs 1 AP for the same result).
 
 ### Review Score
 

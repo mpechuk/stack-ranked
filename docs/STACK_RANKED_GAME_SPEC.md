@@ -121,6 +121,7 @@ Player {
   hasPip: bool
   employeeOfQuarterTokens: int
   skipActionRounds: int          // >0 means "no Action Phase this round, then decrement"
+  heldTask: {card: CardRef, lockedScope: int} | null   // claimed at Stand-Up (5.1.2); paid off via Work a Project
   managementStyle: CardRef
   tableau: [CardRef]             // permanent Skill/Tool cards in play
   goldenParachuteArmed: bool     // true if holding an unused Golden Parachute Clause
@@ -168,7 +169,9 @@ purposes.
 A round always resolves these phases **in order**, fully completing one phase
 for all players before the next phase begins.
 
-### 5.1 — Stand-Up Meeting (Income Phase) — simultaneous, no player choice
+### 5.1 — Stand-Up Meeting (Income Phase)
+
+**5.1.1 — Income (simultaneous, no player choice)**
 For every player:
 ```
 player.productivity += sum(p.gain for p in player.tableau if p has a Productivity-per-round effect) + 1   // the flat "showed up" bonus
@@ -188,6 +191,51 @@ the specific moment its trigger occurs (Project completion, Burnout Crisis,
 Overtime, etc.) — read each effect string to classify it; they're written in
 plain language on purpose and none of them require inventing new mechanics
 beyond what's listed.
+
+**5.1.2 — Task Assignment & Settlement (sequential, in First Player order)**
+Immediately after Income, still within Stand-Up: for every player, in First
+Player order (this step is sequential, not simultaneous, because it draws
+from the shared Kanban Board — same reasoning as 5.2's Sprint):
+
+1. **Mandatory claim.** If `player.heldTask == null`, the player must
+   immediately take one card from the Kanban Board into their hand —
+   `player.heldTask = {card, lockedScope}`. This is a **claim, not a
+   completion**: no Productivity is paid yet. Removing the card from the
+   board follows the exact same slot mechanics as claiming during a Sprint
+   (5.2.2's "Work a Project" / 5.2.3): a non-Evergreen slot empties and isn't
+   refilled until the next Postmortem (5.4); the Evergreen slot immediately
+   redraws a replacement from its own pool (5.2.3) — which is what makes it
+   possible to satisfy this mandatory claim for every player even when all 4
+   non-Evergreen slots are already spoken for in the same Stand-Up (the
+   Evergreen slot can supply an unlimited number of sequential claims in a
+   single Stand-Up, since it never runs out). `lockedScope` is set to
+   whatever Scope Creep (5.2.4) that slot had accrued at the moment of
+   claiming (always 0 for the Evergreen slot, which is exempt) — it is
+   **frozen** from this point on and does not keep increasing while the task
+   sits in the player's hand, even after a new card refills that slot and
+   *its* Scope Creep starts accruing independently.
+2. **Optional free settlement.** If the player is now holding a task — whether
+   just claimed in step 1, or carried over unpaid from an earlier round — and
+   `player.productivity >= cost` (base `card.cost + lockedScope`, plus the
+   same discounts/penalties Work a Project already applies: Actually Reads
+   the Documentation, Whiteboard Diagram Enthusiast, management
+   `projectCostDelta`), the player may pay that cost immediately, right here
+   in Stand-Up, applying the reward exactly as Work a Project would (5.2.2).
+   **This costs no Action Point** — unlike completing it later during the
+   Sprint via Work a Project, which still costs 1 AP as normal. Settling now
+   is therefore never worse than waiting, so there's rarely a reason to
+   decline other than deliberately holding that Productivity for a Hire
+   instead this round. Whether or not they settle, `player.heldTask` becomes
+   `null` on settlement, and stays that way until it's mandatory again at the
+   *next* Stand-Up (settling early does not grant a second claim later in the
+   same round).
+3. If literally no card is available anywhere on the board to satisfy step 1
+   (every slot — including Evergreen — is empty), skip it silently; this
+   should not occur in practice given the Evergreen backstop above.
+
+This whole sub-phase (like Income) is skipped for a round in which
+`restrictions.skipIncome` is set (IT Outage) — Task Assignment & Settlement
+is part of the same Stand-Up phase.
 
 ### 5.2 — Sprint (Action Phase) — sequential, in First Player order
 
@@ -211,10 +259,17 @@ Income/Lunch/Postmortem.)
   Job Board. If `type == "One-Shot"`: resolve its `effect` immediately, then
   discard it. If `type == "Permanent"`: add it to the player's `tableau`
   (its ongoing effect now applies every future Income Phase / trigger).
-- **Work a Project**: pay a Kanban Board card's `cost` (Productivity) → apply
-  its `reward` (Career Capital + any other listed effects) to the player
-  immediately, then remove it from the board **except** the Evergreen card
-  (see 5.2.3).
+- **Work a Project**: pay the Productivity cost of the Project currently in
+  the player's hand (`player.heldTask` — claimed earlier at Stand-Up, see
+  5.1.2; cost is `card.cost + lockedScope`, plus the same discounts as
+  before) → apply its `reward` immediately, then clear `heldTask` to `null`.
+  Unavailable if the player has no task in hand (this can only happen if they
+  already settled it for free at this same round's Stand-Up — see 5.1.2 — in
+  which case they simply have nothing to Work this Sprint). The one exception
+  that still targets the Kanban Board directly, bypassing the hand entirely,
+  is **Ships It Friday at 5 PM** (Section 8): it completes any board Project
+  immediately at half cost, independent of whatever the player is currently
+  holding.
 - **Network**: no cost. `politicalCapital += 2`, `careerCapital += 1`.
 - **Self-Care**: no cost. `burnout = max(0, burnout - 2)`.
 - **Overtime** (once per player per round, doesn't consume an AP slot — check
@@ -445,7 +500,12 @@ significantly simplifies the online architecture:
 - Spectator mode is free (a spectator just receives the same broadcast).
 
 ### 7.2 — Turn Structure Recap (for architecture purposes)
-- **Income Phase**: simultaneous, fully deterministic, no player input required.
+- **Stand-Up (Income)**: the Income half (5.1.1) is simultaneous and fully
+  deterministic, no player input required. The Task Assignment & Settlement
+  half (5.1.2) that follows it is sequential by turn order, same as Action
+  Phase, since it draws from the shared Kanban Board — and needs a decision
+  from each player who's claiming a new task or deciding whether to settle
+  one for free.
 - **Action Phase**: sequential by turn order; each player's actions are
   discrete, individually-resolved events (good fit for an event-sourced or
   action-log architecture — replaying the log fully reconstructs state).
@@ -704,6 +764,30 @@ Review Score (Step 1) must be computed against the marker position left over
 from the *previous* Review. Moving the marker is explicitly the last
 sub-step (Step 5) of the current Review.
 
+**9.8 — Task Assignment & Settlement (5.1.2) decouples claiming from paying,
+and this measurably favors Productivity-heavy archetypes.** A "claim" (taking
+a card into `heldTask`) and a "completion" (paying for it) used to be the
+same atomic action, gated behind an Action Point. They are now two separate
+steps, and the settlement half is explicitly **free** (no AP) the moment it
+happens at Stand-Up — Work a Project during the Sprint still costs 1 AP for
+the exact same effect, so a rational player (and every AI archetype here)
+always settles at Stand-Up whenever affordable rather than waiting. Re-running
+the same five-archetype, one-of-each, 300-game sweep from Section 10 *after*
+adding this rule (still on the v3 numbers otherwise) shows a real shift:
+Workaholic and Grinder — the two archetypes that maximize raw Productivity
+throughput — jumped from a combined ~2% win rate to roughly a third of games
+*each*, while Balanced and Cautious dropped from a combined ~87% to roughly a
+quarter combined. This isn't a bug — it's the direct, correct consequence of
+handing every player a small amount of "free" (AP-less) Career Capital
+throughput every single round, and it disproportionately rewards whichever
+archetype has spare Productivity sitting around to cash in. If this shift is
+undesirable, the lever to pull is the free-ness of the Stand-Up settlement
+(e.g., require it cost something — a partial AP, a small Burnout tax, or
+restrict it to only the task claimed *that same* Stand-Up rather than any
+carried-over held task) — but that's a deliberate rebalancing decision for
+whoever owns the game's economy, not something to silently "fix" while
+implementing the rule as specified.
+
 ---
 
 ## 10. Relationship to the Existing Balance Simulator
@@ -755,12 +839,13 @@ Not answered by the ruleset itself — decide these before or during initial
 architecture work:
 
 1. **Real-time vs. async turn-based.** Nothing in the rules requires live
-   simultaneity except the Income/Lunch/Postmortem phases being
+   simultaneity except the Income (5.1.1)/Lunch/Postmortem phases being
    "simultaneous" in the sense of not depending on turn order — they don't
-   require players to be online at the same instant. A play-by-web async
-   model (get notified when it's your turn, act whenever) is fully viable
-   given Section 7.2's analysis, and may be an easier v1 than a live WebSocket
-   session.
+   require players to be online at the same instant. (Task Assignment &
+   Settlement, 5.1.2, and Action Phase both already resolve strictly by turn
+   order.) A play-by-web async model (get notified when it's your turn, act
+   whenever) is fully viable given Section 7.2's analysis, and may be an
+   easier v1 than a live WebSocket session.
 2. **Tech stack.** No constraint from the rules. A perfect-information,
    turn-based game with no real-time physics is comfortable in almost
    anything — pick based on team familiarity rather than game requirements.
