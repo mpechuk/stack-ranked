@@ -65,7 +65,7 @@ Companion files in this project (not required to read first, but useful):
 3. Shuffle Tier 1 Skill/Tool cards; reveal 5 face-up to form the **Job Board**
    (10 for 6-player games — see 7.4).
 4. Shuffle Early Project cards; reveal 4, plus the evergreen **Reduce Technical
-   Debt** card as a permanent 5th slot, to form the **Project Board**.
+   Debt** card as a permanent 5th slot, to form the **Kanban Board**.
 5. Shuffle the Office Chaos deck and the Mandatory Training deck separately (two
    independent face-down draw piles).
 6. Assign a random first player (any tiebreak method is fine online — no need to
@@ -90,7 +90,7 @@ odds and reshuffle-when-depleted behavior):
 
 > **Tier-unlock implementation note:** "Quarter 3" = once the Quarter-3 Review
 > has happened (i.e., starting round 7 onward, since reviews land on rounds 3,
-> 6, 9…). Practically: when refilling the Job Board or Project Board (Cleanup
+> 6, 9…). Practically: when refilling the Job Board or Kanban Board (Cleanup
 > phase, 5.4), if the current round number is ≥ 7, Tier 2 Skill and Mid Project
 > cards are eligible to be drawn into empty slots; if ≥ 13, Tier 3 Skill and
 > Late Project cards are also eligible. Simplest implementation: maintain a
@@ -137,7 +137,7 @@ GameState {
   players: [Player]              // turn order = seating order
   firstPlayerIndex: int          // rotates +1 (mod playerCount) every round
   jobBoard: [CardRef]            // 5 slots (10 at 6 players)
-  projectBoard: [CardRef]        // 5 slots, one of which is always the Evergreen card
+  kanbanBoard: [CardRef]        // 5 slots, one of which is always the Evergreen card
   projectUnclaimedRounds: map<boardSlotId, int>   // Scope Creep counters, per slot
   skillDrawPile / skillDiscardPile: [CardRef]
   projectDrawPile / projectDiscardPile: [CardRef]
@@ -209,7 +209,7 @@ Income/Watercooler/Cleanup.)
   Job Board. If `type == "One-Shot"`: resolve its `effect` immediately, then
   discard it. If `type == "Permanent"`: add it to the player's `tableau`
   (its ongoing effect now applies every future Income Phase / trigger).
-- **Work a Project**: pay a Project Board card's `cost` (Productivity) → apply
+- **Work a Project**: pay a Kanban Board card's `cost` (Productivity) → apply
   its `reward` (Career Capital + any other listed effects) to the player
   immediately, then remove it from the board **except** the Evergreen card
   (see 5.2.3).
@@ -231,7 +231,7 @@ treat it as an always-available repeatable action rather than a depleting board
 slot.
 
 **5.2.4 — Scope Creep**
-Track, per Project Board slot (excluding Evergreen), how many full rounds it
+Track, per Kanban Board slot (excluding Evergreen), how many full rounds it
 has sat unclaimed. Every time 2 full rounds pass with no claim, `cost += 1` for
 that slot (reward unchanged). Reset the counter to 0 whenever the slot is
 refilled with a new card. This is most simply implemented as a per-slot
@@ -267,7 +267,7 @@ text as the literal spec; nothing beyond what's written there needs to be
 inferred.
 
 ### 5.4 — Cleanup
-1. Refill the Job Board and Project Board back to full size (5 slots each,
+1. Refill the Job Board and Kanban Board back to full size (5 slots each,
    10 Job Board slots at 6 players — see 7.4), drawing from the appropriate
    tier-gated pool (see Section 3's tier-unlock note). Reset the Scope Creep
    counter to 0 for any newly-filled Project slot.
@@ -516,7 +516,7 @@ Field meanings:
       {"name": "The Bus Factor of One", "cost": 6, "type": "Permanent", "effect": "+3 Productivity/round. If you suffer a Burnout Crisis, lose double the usual Political Capital penalty.", "flavor": "If they quit, nothing ships again. Ever."},
       {"name": "Golden Handcuffs (Fully Vested)", "cost": 7, "type": "Permanent", "effect": "Ignore all PIP and demotion effects for the rest of the game.", "flavor": "The stock options mature in 18 months. So does nothing else."},
       {"name": "Rolodex of Every VP", "cost": 7, "type": "Permanent", "effect": "+4 Political Capital/round.", "flavor": "Knows a guy. Always knows a guy."},
-      {"name": "Ships It Friday at 5 PM", "cost": 6, "type": "One-Shot", "effect": "Immediately complete one Project on the Project Board at half its listed Productivity cost (round up).", "flavor": "The demo gods are watching. Ship it and pray."},
+      {"name": "Ships It Friday at 5 PM", "cost": 6, "type": "One-Shot", "effect": "Immediately complete one Project on the Kanban Board at half its listed Productivity cost (round up).", "flavor": "The demo gods are watching. Ship it and pray."},
       {"name": "The Exit Interview Isn't Scary Anymore", "cost": 6, "type": "One-Shot", "effect": "Immediately remove all your Burnout and gain 1 Compliance Badge.", "flavor": "Says everything they wish they'd said in every performance review \u2014 on the way out the door."},
       {"name": "The Fixer", "cost": 8, "type": "Permanent", "effect": "Whenever any other player suffers a Burnout Crisis, gain 2 Political Capital.", "flavor": "Somehow always available exactly when someone else's project catches fire."},
       {"name": "VP Whisperer", "cost": 7, "type": "Permanent", "effect": "+3 Productivity/round; +2 Political Capital/round.", "flavor": "Gets meetings on the calendar that shouldn't be mathematically possible."},
