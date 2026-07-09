@@ -135,6 +135,12 @@
   .bar > i { display: block; height: 100%; border-radius: 999px; }
   .cc-bar > i { background: linear-gradient(90deg, #8a6a12, var(--cc)); }
   .burn-bar > i { background: linear-gradient(90deg, #b5701f, var(--burn)); }
+  .gain-bar > i { background: linear-gradient(90deg, #1f7a3a, var(--good)); }
+  .bar-name { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--txt-faint); margin-bottom: 3px; }
+  .bar-name.cc { color: var(--cc); }
+  .bar-name.burn { color: var(--burn); }
+  .bar-name.gain { color: var(--good); }
+  .bar-name .bar-val { font-family: var(--mono); font-weight: 600; letter-spacing: 0; text-transform: none; }
   .cc-to { font-size: 11px; color: var(--txt-faint); margin-top: 3px; }
   .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 10px 0 6px; }
   .stat { background: var(--bg2); border: 1px solid var(--line); border-radius: 7px; padding: 5px 6px; text-align: center; }
@@ -641,6 +647,13 @@
       var pct = p.rung >= 6 ? 100 : Math.max(0, Math.min(100, (p.careerCapital / thr) * 100));
       var badgeReq = C.BADGE_REQ[nextRung];
       var burnPct = (p.burnout / 10) * 100;
+      var gain = p.careerCapital - p.quarterMarker;
+      // Bar spans 0 → CC still needed since the last review to hit the promotion threshold.
+      var gainNeeded = thr - p.quarterMarker;
+      var gainPct = p.rung >= 6 ? 100
+        : gainNeeded <= 0 ? (p.careerCapital >= thr ? 100 : 0)
+        : Math.max(0, Math.min(100, (gain / gainNeeded) * 100));
+      var gainLabel = (gain >= 0 ? "+" : "") + gain + " CC";
 
       var flags = "";
       if (p.hasPip) flags += '<span class="flag pip">⚠ PIP</span>';
@@ -663,14 +676,18 @@
           '<span class="tag kind ' + p.kind + '">' + (p.kind === "human" ? "Human" : "AI · " + (SR.ARCH[p.archetype] ? SR.ARCH[p.archetype].label : p.archetype)) + "</span></div>" +
         '<div class="rung-line"><span class="rung-name' + (p.rung === 6 ? " ceo" : "") + '">' + esc(C.RUNG_NAMES[p.rung]) + "</span>" +
           '<span class="cc-big">' + p.careerCapital + " CC</span></div>" +
+        '<div class="bar-name cc">Career Capital</div>' +
         '<div class="bar cc-bar"><i style="width:' + pct + '%"></i></div>' +
         '<div class="cc-to">' + esc(ccToNext) + "</div>" +
+        '<div class="bar-name gain">Since Last Review<span class="bar-val">' + gainLabel + "</span></div>" +
+        '<div class="bar gain-bar"><i style="width:' + gainPct + '%"></i></div>' +
         '<div class="stats">' +
           '<div class="stat p"><div class="v">' + p.productivity + '</div><div class="l">Prod</div></div>' +
           '<div class="stat pc"><div class="v">' + p.politicalCapital + '</div><div class="l">Pol.Cap</div></div>' +
           '<div class="stat burn"><div class="v">' + p.burnout + '</div><div class="l">Burnout</div></div>' +
           '<div class="stat badge"><div class="v">' + p.complianceBadges + '</div><div class="l">Badges</div></div>' +
         "</div>" +
+        '<div class="bar-name burn">Burnout</div>' +
         '<div class="bar burn-bar" style="margin-bottom:2px"><i style="width:' + burnPct + '%"></i></div>' +
         '<div class="flags">' + flags + "</div>" +
         '<div class="mgmt"><b>' + esc(ms ? ms.name : "—") + "</b> · " + esc(ms ? ms.effect : "") + "</div>" +
