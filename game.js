@@ -9,7 +9,7 @@
  *   hooks.log(entry)          - narrate a game event
  *   hooks.onChange()          - state changed; re-render
  *   hooks.wait(ms)            - pause for animation (no-op in Node)
- *   hooks.humanTurn(player)   - hand control to a human for their Work Block
+ *   hooks.humanTurn(player)   - hand control to a human for their Sprint
  *   hooks.decide(request)     - ask a human an in-flight question (returns answer)
  *   hooks.onReview(summary)   - a Quarterly Review resolved; show it
  *   hooks.onGameOver(state)   - the game ended
@@ -88,7 +88,19 @@
         {"name": "Negotiate the Vendor Contract (40 Pages of Terms)", "cost": 7, "reward": "10 Career Capital.", "flavor": "Nobody read past page 3. That's where the bad clause is."}
       ],
       "evergreen": [
-        {"name": "Reduce Technical Debt", "cost": 4, "reward": "5 Career Capital.", "flavor": "Perpetually 80% done. It has always been 80% done. It will always be 80% done.", "note": "Evergreen: after being claimed, this card is immediately reshuffled back into its slot instead of being replaced. It is exempt from Scope Creep."}
+        {"name": "Answer a “Quick Question” on Slack", "cost": 2, "reward": "3 Career Capital; +1 Burnout.", "flavor": "That was forty-five minutes ago. There are now six people in the thread.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
+        {"name": "Reduce Technical Debt", "cost": 4, "reward": "5 Career Capital; +1 Burnout.", "flavor": "Perpetually 80% done. It has always been 80% done. It will always be 80% done.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
+        {"name": "Untangle the Legacy Spaghetti (One More Time)", "cost": 5, "reward": "6 Career Capital; +1 Burnout.", "flavor": "Found a comment that says “DO NOT REMOVE, NOT SURE WHY.” Removed it anyway.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
+        {"name": "Reply to the Jira Comment From Six Months Ago", "cost": 1, "reward": "1 Career Capital; +1 Burnout.", "flavor": "The person who filed it left the company in Q2. The ticket did not.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
+        {"name": "Delete the Commented-Out Code From 2019", "cost": 2, "reward": "2 Career Capital; +1 Burnout.", "flavor": "It's not documentation. It was never documentation.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
+        {"name": "Un-hardcode the Hardcoded Value", "cost": 3, "reward": "3 Career Capital; +1 Burnout.", "flavor": "Replaced “prod-server-3” with a config flag that defaults to “prod-server-3.”", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
+        {"name": "Rotate the API Keys You Forgot About", "cost": 3, "reward": "4 Career Capital; +2 Burnout.", "flavor": "Rotated three keys. Broke a fourth integration nobody remembered existed.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
+        {"name": "Bump the Node Version (Nothing Breaks. Probably.)", "cost": 4, "reward": "4 Career Capital; +1 Burnout.", "flavor": "247 transitive dependencies quietly disagree.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
+        {"name": "Consolidate the Three Config Files Into One (Now Four)", "cost": 4, "reward": "4 Career Capital; +2 Burnout.", "flavor": "Progress, technically.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
+        {"name": "Archive the Zombie Microservice", "cost": 5, "reward": "7 Career Capital; +2 Burnout.", "flavor": "Nobody knows what calls it. Everybody's afraid to find out.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
+        {"name": "Migrate Off the Framework You Migrated To Last Year", "cost": 6, "reward": "7 Career Capital; +1 Burnout.", "flavor": "The last migration's postmortem recommended this framework.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
+        {"name": "Squash 40 Commits Into “misc fixes”", "cost": 6, "reward": "8 Career Capital; +2 Burnout.", "flavor": "git blame now blames everyone equally.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
+        {"name": "Finally Read the Incident Postmortem Action Items", "cost": 8, "reward": "10 Career Capital; +2 Burnout.", "flavor": "Item 1: “Add more monitoring.” Filed fourteen months ago. Still open.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."}
       ]
     },
     "events": [
@@ -284,8 +296,6 @@
     });
   })();
 
-  const EVERGREEN = DEFS[slug("Reduce Technical Debt")];
-
   function defsByCat(category, tierOrStage) {
     return Object.keys(DEFS).map(function (k) { return DEFS[k]; }).filter(function (d) {
       if (d.category !== category) return false;
@@ -379,6 +389,8 @@
       projectDiscardPile: [],
       projectReserveMid: projMid.slice(),
       projectReserveLate: projLate.slice(),
+      evergreenDrawPile: shuffle(defsByCat("project", "evergreen")),
+      evergreenDiscardPile: [],
       eventDrawPile: shuffle(defsByCat("event")),
       eventDiscardPile: [],
       trainingDrawPile: shuffle(defsByCat("training")),
@@ -411,7 +423,7 @@
     for (let i = 0; i < 4; i++) {
       state.kanbanBoard.push({ card: drawProject(state), scope: 0, unclaimed: 0, justRefilled: false, evergreen: false });
     }
-    state.kanbanBoard.push({ card: EVERGREEN, scope: 0, unclaimed: 0, justRefilled: false, evergreen: true });
+    state.kanbanBoard.push({ card: drawEvergreen(state), scope: 0, unclaimed: 0, justRefilled: false, evergreen: true });
 
     return state;
   }
@@ -429,6 +441,7 @@
   }
   function drawSkill(state) { return drawFrom("skillDrawPile", "skillDiscardPile", state); }
   function drawProject(state) { return drawFrom("projectDrawPile", "projectDiscardPile", state); }
+  function drawEvergreen(state) { return drawFrom("evergreenDrawPile", "evergreenDiscardPile", state); }
   function drawEvent(state) { return drawFrom("eventDrawPile", "eventDiscardPile", state); }
   function drawTraining(state) { return drawFrom("trainingDrawPile", "trainingDiscardPile", state); }
   function drawManagement(state) { return drawFrom("managementDrawPile", "managementDiscardPile", state); }
@@ -491,7 +504,7 @@
     player.politicalCapital = Math.max(0, player.politicalCapital - penalty);
     player.skipActionRounds = Math.max(player.skipActionRounds, 1);
     log(state, "🔥 BURNOUT CRISIS: " + player.name + " resets to " + BURNOUT_CRISIS_RESET +
-      " Burnout, loses " + penalty + " Political Capital, and skips their next Work Block.", "crisis");
+      " Burnout, loses " + penalty + " Political Capital, and skips their next Sprint.", "crisis");
     // The Fixer benefits from other players' crises
     state.players.forEach(function (other) {
       if (other === player) return;
@@ -562,7 +575,10 @@
       card.reward.cc + " CC" + (card.reward.pc ? ", +" + card.reward.pc + " PC" : "") +
       (card.reward.badges ? ", +" + card.reward.badges + " Badge" : "") +
       (card.reward.burnout ? ", +" + card.reward.burnout + " Burnout" : "") + extra + ".", "action");
-    if (!slot.evergreen) {
+    if (slot.evergreen) {
+      state.evergreenDiscardPile.push(card);
+      state.kanbanBoard[slotIndex] = { card: drawEvergreen(state), scope: 0, unclaimed: 0, justRefilled: false, evergreen: true };
+    } else {
       state.projectDiscardPile.push(card);
       state.kanbanBoard[slotIndex] = { card: null, scope: 0, unclaimed: 0, justRefilled: false, evergreen: false };
     }
@@ -776,12 +792,12 @@
     log(state, "Stand-Up Meeting: income collected.", "income");
   }
 
-  /* --- Watercooler ---------------------------------------------------------- */
-  async function watercooler(state, hooks) {
+  /* --- Lunch ------------------------------------------------------------------ */
+  async function lunch(state, hooks) {
     const card = drawEvent(state);
     state.currentEvent = card;
     if (!card) { log(state, "Office Chaos deck is empty.", "event"); return; }
-    log(state, "☕ Office Chaos — " + card.name + ": " + card.effect, "event");
+    log(state, "🍽️ Office Chaos — " + card.name + ": " + card.effect, "event");
 
     // AI Prompt Engineer hallucination triggers whenever an Office Chaos card is drawn.
     state.players.forEach(function (p) {
@@ -1016,9 +1032,9 @@
     }
   }
 
-  /* --- Cleanup + tier gating ------------------------------------------------ */
+  /* --- Postmortem + tier gating ----------------------------------------------- */
   function maybeMergeTiers(state) {
-    // Cleanup of round N fills the boards used in round N+1. Tier 2 / Mid must be
+    // Postmortem of round N fills the boards used in round N+1. Tier 2 / Mid must be
     // available starting round 7 (Q3), Tier 3 / Late starting round 13 (Q5).
     if (!state.tier2Merged && state.roundNumber >= 6) {
       state.skillDrawPile = shuffle(state.skillDrawPile.concat(state.skillReserve2));
@@ -1036,8 +1052,8 @@
     }
   }
 
-  async function cleanup(state, hooks) {
-    state.phase = "CLEANUP";
+  async function postmortem(state, hooks) {
+    state.phase = "POSTMORTEM";
     maybeMergeTiers(state);
 
     // 1. Refill boards
@@ -1414,7 +1430,7 @@
         state.activePlayerId = p.id;
         if (p.skipActionRounds > 0) {
           p.skipActionRounds -= 1;
-          log(state, p.name + " skips their Work Block (" + p.skipActionRounds + " left).", "muted");
+          log(state, p.name + " skips their Sprint (" + p.skipActionRounds + " left).", "muted");
           if (hooks.onChange) hooks.onChange();
           await pause(hooks, "phase");
           continue;
@@ -1428,16 +1444,16 @@
       }
       state.activePlayerId = null;
 
-      // Watercooler
-      state.phase = "WATERCOOLER";
+      // Lunch
+      state.phase = "LUNCH";
       if (hooks.onChange) hooks.onChange();
       await pause(hooks, "phase");
-      await watercooler(state, hooks);
+      await lunch(state, hooks);
       if (hooks.onChange) hooks.onChange();
       await pause(hooks, "event");
 
-      // Cleanup (+ review)
-      const summary = await cleanup(state, hooks);
+      // Postmortem (+ review)
+      const summary = await postmortem(state, hooks);
       if (hooks.onChange) hooks.onChange();
       if (summary && hooks.onReview) await hooks.onReview(summary);
 
