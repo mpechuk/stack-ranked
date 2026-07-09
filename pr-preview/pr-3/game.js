@@ -615,8 +615,8 @@
   }
 
   // Pay off the task currently in a player's hand (claimed earlier, at Stand-Up
-  // or a prior round). Used both by the free Stand-Up settlement and by the
-  // Sprint's Work a Project action.
+  // or a prior round). Only ever called from the Sprint's Work a Project
+  // action — Stand-Up claims a task but never pays for it.
   function completeHeldTask(state, player, costOverride) {
     const ht = player.heldTask;
     if (!ht) return { ok: false, reason: "No task in hand." };
@@ -849,11 +849,11 @@
 
   // Every player without a task in hand must pick one up from the Kanban
   // Board (unpaid — claiming is free); resolved in First Player order since
-  // the board is shared. Anyone now holding a task who can currently afford
-  // it may settle it on the spot using this round's fresh Productivity,
-  // for free (no Action Point) — this can also be a task carried over,
-  // unpaid, from an earlier round.
-  async function assignAndSettleTasks(state, hooks) {
+  // the board is shared. Paying for it only happens later, via Work a
+  // Project during the Sprint — Stand-Up never completes a task, so every
+  // player is guaranteed to be holding exactly one task by the time Stand-Up
+  // ends.
+  async function assignTasks(state, hooks) {
     if (state.restrictions.skipIncome) return; // IT Outage skips all of Stand-Up
     for (const p of turnOrder(state)) {
       state.activePlayerId = p.id;
@@ -861,17 +861,6 @@
       if (!p.heldTask) {
         const slotIndex = await pickTaskToClaim(state, hooks, p);
         if (slotIndex >= 0) claimTaskFromBoard(state, p, slotIndex);
-        if (hooks && hooks.onChange) hooks.onChange();
-      }
-      if (p.heldTask && p.productivity >= effectiveHeldTaskCost(p)) {
-        const settle = (p.kind === "human" && hooks && hooks.decide)
-          ? await hooks.decide({
-              playerId: p.id, action: "settleTask",
-              prompt: p.name + " can finish “" + p.heldTask.card.name + "” right now for " +
-                effectiveHeldTaskCost(p) + " P (no Action Point needed). Complete it?"
-            })
-          : true; // AI always settles when it's free money — never a downside vs. paying via an AP later
-        if (settle) completeHeldTask(state, p);
         if (hooks && hooks.onChange) hooks.onChange();
       }
     }
@@ -1533,7 +1522,7 @@
       if (hooks.onChange) hooks.onChange();
       await pause(hooks, "income");
 
-      await assignAndSettleTasks(state, hooks);
+      await assignTasks(state, hooks);
       if (hooks.onChange) hooks.onChange();
       await pause(hooks, "income");
 
@@ -1643,7 +1632,7 @@
     _internal: {
       runReview: runReview, addBurnout: addBurnout, resolveTraining: resolveTraining,
       claimTaskFromBoard: claimTaskFromBoard, completeHeldTask: completeHeldTask,
-      assignAndSettleTasks: assignAndSettleTasks
+      assignTasks: assignTasks
     }
   };
 
