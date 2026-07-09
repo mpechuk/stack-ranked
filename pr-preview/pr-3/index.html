@@ -155,6 +155,15 @@
   .flag.immune { color: var(--good); border-color: #245c2c; background: #10240f; }
   .flag.para { color: var(--accent); border-color: #2f4d80; background: #12203a; }
   .flag.skip { color: var(--warn); border-color: #5a4713; background: #241d09; }
+  .flag.task { color: var(--txt-faint); }
+  .flag.task.has { color: var(--accent-2); border-color: #2f5c3a; background: #11201a; }
+  .held-task {
+    font-size: 11px; border: 1px solid #2f5c3a; background: #11201a; border-radius: 7px;
+    padding: 6px 8px; margin: 6px 0;
+  }
+  .ht-label { font-size: 9px; text-transform: uppercase; letter-spacing: .05em; color: var(--accent-2); }
+  .ht-name { font-weight: 650; margin: 2px 0; }
+  .ht-meta { display: flex; justify-content: space-between; gap: 6px; color: var(--txt-dim); }
   .mgmt { font-size: 11px; color: var(--txt-dim); border-top: 1px dashed var(--line2); padding-top: 7px; margin-top: 2px; }
   .mgmt b { color: var(--txt); }
   .tableau { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 7px; }
@@ -373,7 +382,8 @@
 
   var UI = {
     activeState: null, config: null, hasHuman: false,
-    turn: null, endTurnResolve: null, speed: "normal"
+    turn: null, endTurnResolve: null, speed: "normal",
+    claim: null  // {req, resolve} while a human is picking up a task from the Kanban Board at Stand-Up
   };
 
   var SPEEDS = {
@@ -510,6 +520,7 @@
       },
       decide: function (req) {
         if (stale()) return Promise.resolve(defaultDecision(req));
+        if (req.action === "claimTask") return beginClaimDecision(req);
         return showDecision(req);
       },
       onReview: function (summary) {
@@ -548,17 +559,36 @@
     if (t.ap <= 0 && t.player.overtimeUsedThisRound) setTimeout(endTurn, 250);
   }
 
+  // Stand-Up: a human with no task in hand must pick one up from the Kanban
+  // Board. Resolved by clicking a "Take" button there (see renderKanbanBoard /
+  // onAction), not a modal — the board itself is the picker.
+  function beginClaimDecision(req) {
+    return new Promise(function (res) {
+      UI.claim = { req: req, resolve: res };
+      renderAll();
+    });
+  }
+
   function viewer() { return (UI.turn && UI.turn.active && UI.turn.player.kind === "human") ? UI.turn.player : null; }
 
   function onAction(act, idx) {
+    if (act === "take") {
+      var claim = UI.claim; if (!claim) return;
+      var cs = UI.activeState;
+      var cslot = cs.kanbanBoard[idx];
+      if (!cslot || !cslot.card) return;
+      var resolve = claim.resolve;
+      UI.claim = null;
+      renderAll();
+      resolve(idx);
+      return;
+    }
     var t = UI.turn; if (!t || !t.active) return;
     var s = UI.activeState, p = t.player;
     if (act === "endturn") return endTurn();
     if (act === "work") {
-      if (t.ap < 1) return;
-      var slot = s.kanbanBoard[idx];
-      if (!slot || !slot.card || p.productivity < H.effectiveProjectCost(p, slot)) return;
-      var r = SR.actions.workProject(s, p, idx);
+      if (t.ap < 1 || !p.heldTask || p.productivity < H.effectiveHeldTaskCost(p)) return;
+      var r = SR.actions.workProject(s, p);
       if (r.ok) { t.ap -= 1; t.mustProjectFirst = false; }
     } else if (act === "hire") {
       if (t.ap < 1 || t.mustProjectFirst) return;
@@ -656,11 +686,26 @@
       var gainLabel = (gain >= 0 ? "+" : "") + gain + " CC";
 
       var flags = "";
+      flags += '<span class="flag task' + (p.heldTask ? " has" : "") + '">📋 ' + (p.heldTask ? 1 : 0) + " task</span>";
       if (p.hasPip) flags += '<span class="flag pip">⚠ PIP</span>';
       if (p.employeeOfQuarterTokens) flags += '<span class="flag eoq">🏅 ' + p.employeeOfQuarterTokens + "</span>";
       if (p.immuneToDemotion) flags += '<span class="flag immune">🔒 Vested</span>';
       if (p.goldenParachuteArmed) flags += '<span class="flag para">🪂 Parachute</span>';
       if (p.skipActionRounds > 0) flags += '<span class="flag skip">⏭ Skip ' + p.skipActionRounds + "</span>";
+
+      var heldTaskHtml = "";
+      if (p.id === s.activePlayerId && p.heldTask) {
+        var htCard = p.heldTask.card;
+        var htCost = H.effectiveHeldTaskCost(p);
+        var htReward = "+" + htCard.reward.cc + " CC" +
+          (htCard.reward.pc ? ", +" + htCard.reward.pc + " PC" : "") +
+          (htCard.reward.badges ? ", +" + htCard.reward.badges + " Badge" : "") +
+          (htCard.reward.burnout ? ", +" + htCard.reward.burnout + " 🔥" : "");
+        heldTaskHtml =
+          '<div class="held-task"><div class="ht-label">📋 Task in hand</div>' +
+          '<div class="ht-name">' + esc(htCard.name) + "</div>" +
+          '<div class="ht-meta"><span class="ht-cost">' + htCost + ' P</span><span class="ht-reward">' + esc(htReward) + "</span></div></div>";
+      }
 
       var chips = p.tableau.length ? p.tableau.map(function (cd) {
         var meta = SR.SKILL_META[cd.id] || {};
@@ -690,6 +735,7 @@
         '<div class="bar-name burn">Burnout</div>' +
         '<div class="bar burn-bar" style="margin-bottom:2px"><i style="width:' + burnPct + '%"></i></div>' +
         '<div class="flags">' + flags + "</div>" +
+        heldTaskHtml +
         '<div class="mgmt"><b>' + esc(ms ? ms.name : "—") + "</b> · " + esc(ms ? ms.effect : "") + "</div>" +
         '<div class="tableau">' + chips + "</div>";
       host.appendChild(card);
@@ -723,18 +769,20 @@
 
   function renderKanbanBoard(s) {
     var v = viewer();
+    var claim = UI.claim;
+    var claimingPlayer = claim ? s.players.find(function (x) { return x.id === claim.req.playerId; }) : null;
+    var displayPlayer = claimingPlayer || v;
     var host = $("kanbanBoard"); host.innerHTML = "";
     s.kanbanBoard.forEach(function (slot, i) {
       if (!slot.card) { host.appendChild(el("div", "gcard empty", "empty slot")); return; }
       var card = slot.card;
-      var cost = v ? H.effectiveProjectCost(v, slot) : (card.cost + slot.scope);
-      var afford = v && v.productivity >= cost;
-      var canWork = UI.turn && UI.turn.active && v && UI.turn.ap >= 1 && afford;
-      var g = el("div", "gcard" + (slot.evergreen ? " evergreen hastype" : "") + (canWork ? " affordable" : ""));
+      var cost = displayPlayer ? H.effectiveProjectCost(displayPlayer, slot) : (card.cost + slot.scope);
+      var canTake = !!claimingPlayer; // taking is free — no affordability check, just "is a claim pending"
+      var g = el("div", "gcard" + (slot.evergreen ? " evergreen hastype" : "") + (canTake ? " affordable" : ""));
       var baseCost = card.cost + (slot.evergreen ? 0 : slot.scope);
       var costHtml = '<span class="n">' + cost + " P</span>" +
         (!slot.evergreen && slot.scope ? ' <span class="up">↑' + slot.scope + "</span>" : "") +
-        (v && cost !== baseCost ? ' <span class="faint">(base ' + card.cost + ")</span>" : "");
+        (displayPlayer && cost !== baseCost ? ' <span class="faint">(base ' + card.cost + ")</span>" : "");
       var rewardTxt = "+" + card.reward.cc + " CC" +
         (card.reward.pc ? ", +" + card.reward.pc + " PC" : "") +
         (card.reward.badges ? ", +" + card.reward.badges + " Badge" : "") +
@@ -745,7 +793,7 @@
         '<div class="reward">' + rewardTxt + "</div>" +
         '<div class="cf">' + esc(card.flavor) + "</div>" +
         '<div class="crow"><span class="cost">' + costHtml + "</span>" +
-          (v ? '<button data-act="work" data-idx="' + i + '"' + (canWork ? "" : " disabled") + ">Work</button>" : "") + "</div>";
+          (displayPlayer ? '<button data-act="take" data-idx="' + i + '"' + (canTake ? "" : " disabled") + ">Take</button>" : "") + "</div>";
       host.appendChild(g);
     });
   }
@@ -754,18 +802,29 @@
     var host = $("turnPanel");
     var t = UI.turn;
     if (s.status === "over") { host.innerHTML = '<div class="turn-who">Game over</div><div class="hint">See final standings.</div>'; return; }
-    if (t && t.active && t.player.kind === "human") {
+    if (UI.claim) {
+      var cp = s.players.find(function (x) { return x.id === UI.claim.req.playerId; });
+      host.innerHTML =
+        '<div class="turn-who">▸ ' + esc(cp ? cp.name : "") + "'s pickup</div>" +
+        '<div class="hint">' + esc(UI.claim.req.prompt) + "</div>" +
+        '<div class="hint" style="color:var(--accent-2)">Click “Take” on a card in the Kanban Board below.</div>';
+    } else if (t && t.active && t.player.kind === "human") {
       var p = t.player;
       var pips = "";
       for (var k = 0; k < Math.max(t.ap, 0); k++) pips += '<span class="ap on"></span>';
       var netOk = H.canNetwork(s, p).ok, scOk = H.canSelfCare(s, p).ok, scCost = H.selfCareApCost(p);
       var block = t.mustProjectFirst;
+      var htOk = p.heldTask && p.productivity >= H.effectiveHeldTaskCost(p);
+      var workLabel = p.heldTask
+        ? (H.effectiveHeldTaskCost(p) + " P → +" + p.heldTask.card.reward.cc + " CC")
+        : "nothing in hand";
       host.innerHTML =
         '<div class="turn-who">▸ ' + esc(p.name) + "'s turn</div>" +
         '<div class="dim">' + esc(C.RUNG_NAMES[p.rung]) + " · " + p.productivity + " P available</div>" +
         '<div class="ap-pips">' + (t.ap > 0 ? pips : '<span class="faint">0 AP left</span>') + '<span class="faint" style="margin-left:6px">' + t.ap + " AP</span></div>" +
         (block ? '<div class="hint" style="color:var(--warn)">Micromanager: your first action must be Work a Project.</div>' : "") +
         '<div class="actbtns">' +
+          '<button data-act="work"' + ((t.ap >= 1 && htOk) ? "" : " disabled") + ">Work Project<br><span class='faint'>" + esc(workLabel) + "</span></button>" +
           '<button data-act="network"' + ((t.ap >= 1 && netOk && !block) ? "" : " disabled") + ">Network<br><span class='faint'>+2 PC, +1 CC</span></button>" +
           '<button data-act="selfcare"' + ((t.ap >= scCost && scOk && !block) ? "" : " disabled") + ">Self-Care<br><span class='faint'>−2 🔥 (" + scCost + " AP)</span></button>" +
           '<button data-act="overtime"' + ((!p.overtimeUsedThisRound && !block) ? "" : " disabled") + ">Overtime<br><span class='faint'>+1 AP, +2 🔥</span></button>" +
