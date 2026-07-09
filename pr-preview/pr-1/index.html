@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Stack Ranked — Game Simulator</title>
+<!-- pr-preview-smoke-test-marker -->>
+<meta name="description" content="A playable browser simulator of Stack Ranked, the engine-building corporate-ladder game. Play against AI or hot-seat, race to CEO." />
+<style>
+  :root {
+    --bg: #0e1116;
+    --bg2: #161b22;
+    --panel: #1b222c;
+    --panel2: #212a36;
+    --line: #2b3542;
+    --line2: #384556;
+    --txt: #e6edf3;
+    --txt-dim: #9aa7b4;
+    --txt-faint: #6b7885;
+    --accent: #5b8cff;
+    --accent-2: #2ea6a0;
+    --cc: #e3b341;      /* Career Capital - gold */
+    --prod: #58a6ff;    /* Productivity - blue */
+    --pc: #bc8cff;      /* Political Capital - purple */
+    --burn: #f0883e;    /* Burnout - orange */
+    --badge: #3fb6c9;   /* Compliance - teal */
+    --good: #3fb950;
+    --bad: #f85149;
+    --warn: #d29922;
+    --radius: 10px;
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; }
+  body {
+    background: radial-gradient(1200px 600px at 80% -10%, #1a2230 0%, var(--bg) 55%) fixed;
+    color: var(--txt);
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3 { margin: 0; font-weight: 650; }
+  a { color: var(--accent); }
+  button {
+    font-family: inherit; font-size: 13px; color: var(--txt);
+    background: var(--panel2); border: 1px solid var(--line2);
+    border-radius: 8px; padding: 7px 12px; cursor: pointer;
+    transition: background .12s, border-color .12s, transform .06s;
+  }
+  button:hover:not(:disabled) { background: #2b3846; border-color: #4a5b70; }
+  button:active:not(:disabled) { transform: translateY(1px); }
+  button:disabled { opacity: .38; cursor: not-allowed; }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #0b1120; font-weight: 650; }
+  button.primary:hover:not(:disabled) { background: #6f9bff; }
+  select, input[type=text] {
+    font-family: inherit; font-size: 13px; color: var(--txt);
+    background: var(--bg2); border: 1px solid var(--line2);
+    border-radius: 7px; padding: 6px 9px;
+  }
+  .mono { font-family: var(--mono); }
+  .dim { color: var(--txt-dim); }
+  .faint { color: var(--txt-faint); }
+  .tag {
+    display: inline-block; font-size: 11px; font-weight: 600; letter-spacing: .02em;
+    padding: 2px 7px; border-radius: 999px; border: 1px solid var(--line2);
+    background: #0c1017; color: var(--txt-dim);
+  }
+
+  /* ---------- Setup screen ---------- */
+  #setup { max-width: 860px; margin: 0 auto; padding: 40px 20px 80px; }
+  .brand { text-align: center; margin-bottom: 6px; }
+  .brand h1 {
+    font-size: 44px; letter-spacing: -0.02em; line-height: 1;
+    background: linear-gradient(90deg, #fff, #9fc0ff 60%, var(--accent-2));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .brand .sub { color: var(--txt-dim); letter-spacing: .32em; font-size: 12px; text-transform: uppercase; margin-top: 8px; }
+  .card-box { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; margin-top: 22px; }
+  .card-box h2 { font-size: 15px; text-transform: uppercase; letter-spacing: .08em; color: var(--txt-dim); margin-bottom: 14px; }
+  .variant-row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .variant {
+    flex: 1 1 240px; border: 1px solid var(--line2); border-radius: 9px; padding: 14px; cursor: pointer;
+    background: var(--bg2); transition: border-color .12s, background .12s;
+  }
+  .variant.sel { border-color: var(--accent); background: #17233b; }
+  .variant b { display: block; margin-bottom: 4px; }
+  .prow { display: grid; grid-template-columns: 22px 1.4fr 1fr 1.3fr; gap: 10px; align-items: center; margin-bottom: 8px; }
+  .prow .seat { color: var(--txt-faint); font-family: var(--mono); text-align: center; }
+  .setup-actions { display: flex; align-items: center; gap: 14px; margin-top: 20px; flex-wrap: wrap; }
+  .count-ctl { display: flex; align-items: center; gap: 8px; }
+
+  /* ---------- Game screen ---------- */
+  #game { display: none; flex-direction: column; height: 100vh; }
+  .topbar {
+    display: flex; align-items: center; gap: 16px; padding: 10px 16px;
+    background: linear-gradient(180deg, #131922, #0f141b); border-bottom: 1px solid var(--line);
+    flex-wrap: wrap;
+  }
+  .topbar .logo { font-weight: 800; letter-spacing: .04em; font-size: 15px; }
+  .topbar .logo span { color: var(--accent-2); }
+  .phase-strip { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .phase-pill {
+    font-size: 11px; text-transform: uppercase; letter-spacing: .06em; padding: 3px 9px;
+    border-radius: 999px; border: 1px solid var(--line2); color: var(--txt-dim);
+  }
+  .phase-pill.on { background: var(--accent); border-color: var(--accent); color: #0b1120; font-weight: 700; }
+  .topbar .spacer { flex: 1; }
+  .topbar .ctrl { display: flex; align-items: center; gap: 8px; }
+
+  .layout { display: grid; grid-template-columns: 1fr 348px; gap: 0; flex: 1; min-height: 0; }
+  .main { overflow-y: auto; padding: 16px; }
+  .sidebar { border-left: 1px solid var(--line); display: flex; flex-direction: column; min-height: 0; background: #10151c; }
+
+  .section-title { font-size: 12px; text-transform: uppercase; letter-spacing: .09em; color: var(--txt-faint); margin: 4px 2px 10px; }
+
+  /* Player cards */
+  .players { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin-bottom: 22px; }
+  .pcard { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; position: relative; overflow: hidden; }
+  .pcard.active { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 6px 22px -12px var(--accent); }
+  .pcard.leader::after {
+    content: "LEADER"; position: absolute; top: 9px; right: -26px; transform: rotate(35deg);
+    background: var(--cc); color: #201800; font-size: 9px; font-weight: 800; padding: 2px 28px; letter-spacing: .08em;
+  }
+  .pcard .phead { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .pcard .pname { font-weight: 700; font-size: 15px; }
+  .pcard .kind { font-size: 10px; }
+  .kind.human { color: var(--accent); border-color: #2f4d80; background: #12203a; }
+  .kind.ai { color: var(--accent-2); border-color: #1f4b48; background: #0f2321; }
+  .rung-line { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px; }
+  .rung-name { font-weight: 600; }
+  .rung-name.ceo { color: var(--cc); }
+  .cc-big { font-family: var(--mono); font-size: 13px; color: var(--cc); }
+  .bar { height: 6px; background: #0b0f14; border-radius: 999px; overflow: hidden; border: 1px solid var(--line); }
+  .bar > i { display: block; height: 100%; border-radius: 999px; }
+  .cc-bar > i { background: linear-gradient(90deg, #8a6a12, var(--cc)); }
+  .burn-bar > i { background: linear-gradient(90deg, #b5701f, var(--burn)); }
+  .gain-bar > i { background: linear-gradient(90deg, #1f7a3a, var(--good)); }
+  .bar-name { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--txt-faint); margin-bottom: 3px; }
+  .bar-name.cc { color: var(--cc); }
+  .bar-name.burn { color: var(--burn); }
+  .bar-name.gain { color: var(--good); }
+  .bar-name .bar-val { font-family: var(--mono); font-weight: 600; letter-spacing: 0; text-transform: none; }
+  .cc-to { font-size: 11px; color: var(--txt-faint); margin-top: 3px; }
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 10px 0 6px; }
+  .stat { background: var(--bg2); border: 1px solid var(--line); border-radius: 7px; padding: 5px 6px; text-align: center; }
+  .stat .v { font-family: var(--mono); font-size: 16px; font-weight: 600; }
+  .stat .l { font-size: 9px; text-transform: uppercase; letter-spacing: .05em; color: var(--txt-faint); }
+  .stat.p .v { color: var(--prod); } .stat.pc .v { color: var(--pc); }
+  .stat.burn .v { color: var(--burn); } .stat.badge .v { color: var(--badge); }
+  .flags { display: flex; flex-wrap: wrap; gap: 5px; margin: 6px 0; min-height: 4px; }
+  .flag { font-size: 10px; padding: 1px 6px; border-radius: 5px; border: 1px solid var(--line2); }
+  .flag.pip { color: var(--bad); border-color: #5c2626; background: #2a1414; }
+  .flag.eoq { color: var(--cc); border-color: #5a4713; background: #241d09; }
+  .flag.immune { color: var(--good); border-color: #245c2c; background: #10240f; }
+  .flag.para { color: var(--accent); border-color: #2f4d80; background: #12203a; }
+  .flag.skip { color: var(--warn); border-color: #5a4713; background: #241d09; }
+  .mgmt { font-size: 11px; color: var(--txt-dim); border-top: 1px dashed var(--line2); padding-top: 7px; margin-top: 2px; }
+  .mgmt b { color: var(--txt); }
+  .tableau { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 7px; }
+  .chip {
+    font-size: 10px; padding: 2px 6px; border-radius: 6px; border: 1px solid var(--line2);
+    background: #0d1620; cursor: default; max-width: 100%;
+  }
+  .chip.prod { border-color: #24405f; } .chip.pc { border-color: #3d2c5c; }
+  .chip.burnrisk { border-color: #5a3a1b; }
+  .chip.special { border-color: #245c2c; color: #cfe9cf; }
+  .no-skills { font-size: 10px; color: var(--txt-faint); font-style: italic; }
+
+  /* Boards */
+  .board-wrap { margin-bottom: 22px; }
+  .board { display: grid; gap: 10px; }
+  .board.jobs { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
+  .board.projects { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+  .gcard {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 9px; padding: 10px;
+    display: flex; flex-direction: column; gap: 6px; position: relative; min-height: 96px;
+  }
+  .gcard.empty { align-items: center; justify-content: center; color: var(--txt-faint); font-style: italic; border-style: dashed; }
+  .gcard.evergreen { border-color: #2f5c3a; background: #11201a; }
+  .gcard.oneshot { border-color: #5a4713; }
+  .gcard.affordable { border-color: var(--accent-2); }
+  .gcard .cn { font-weight: 650; font-size: 13px; line-height: 1.25; }
+  .gcard.hastype .cn { padding-right: 72px; }
+  .gcard .ce { font-size: 11px; color: var(--txt-dim); }
+  .gcard .cf { font-size: 10px; color: var(--txt-faint); font-style: italic; }
+  .gcard .crow { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-top: auto; }
+  .cost { font-family: var(--mono); font-size: 12px; }
+  .cost .n { color: var(--prod); font-weight: 700; }
+  .cost .up { color: var(--bad); }
+  .reward { font-family: var(--mono); font-size: 12px; color: var(--cc); }
+  .ctype { position: absolute; top: 8px; right: 8px; font-size: 9px; }
+  .ctype.perm { color: var(--accent-2); } .ctype.os { color: var(--warn); }
+  .scope { font-size: 10px; color: var(--bad); }
+
+  /* Sidebar */
+  .turn-panel { padding: 14px; border-bottom: 1px solid var(--line); }
+  .turn-who { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+  .ap-pips { display: flex; gap: 5px; margin: 8px 0; align-items: center; flex-wrap: wrap; }
+  .ap { width: 15px; height: 15px; border-radius: 50%; border: 1px solid var(--line2); background: #0b0f14; }
+  .ap.on { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 8px -2px var(--accent); }
+  .actbtns { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-top: 8px; }
+  .actbtns .wide { grid-column: 1 / -1; }
+  .hint { font-size: 11px; color: var(--txt-dim); margin-top: 8px; min-height: 14px; }
+  .ai-working { color: var(--accent-2); font-size: 13px; display: flex; align-items: center; gap: 8px; }
+  .dot-pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--accent-2); animation: pulse 1s infinite; }
+  @keyframes pulse { 0%,100%{opacity:.25} 50%{opacity:1} }
+
+  .event-panel { padding: 12px 14px; border-bottom: 1px solid var(--line); }
+  .event-card { background: #1d1710; border: 1px solid #4a3a17; border-radius: 8px; padding: 10px; }
+  .event-card .en { font-weight: 700; color: var(--warn); font-size: 13px; }
+  .event-card .ee { font-size: 12px; color: var(--txt-dim); margin-top: 3px; }
+  .event-card .ef { font-size: 10px; color: var(--txt-faint); font-style: italic; margin-top: 4px; }
+
+  .log-panel { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+  .log-head { padding: 8px 14px; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--txt-faint); border-bottom: 1px solid var(--line); }
+  .log { flex: 1; overflow-y: auto; padding: 8px 12px; font-size: 12px; }
+  .log .le { padding: 2px 0; border-bottom: 1px solid #161d26; color: var(--txt-dim); }
+  .log .le .rd { color: var(--txt-faint); font-family: var(--mono); font-size: 10px; margin-right: 6px; }
+  .le.action { color: #cfe0f5; }
+  .le.income { color: var(--prod); }
+  .le.event { color: var(--warn); }
+  .le.promote { color: var(--good); font-weight: 600; }
+  .le.demote { color: var(--bad); }
+  .le.crisis { color: var(--burn); font-weight: 600; }
+  .le.win { color: var(--cc); font-weight: 700; }
+  .le.info { color: var(--txt); }
+  .le.muted { color: var(--txt-faint); }
+
+  /* Overlay / modals */
+  #overlay {
+    position: fixed; inset: 0; background: rgba(6,9,13,.72); backdrop-filter: blur(3px);
+    display: none; align-items: center; justify-content: center; z-index: 50; padding: 20px;
+  }
+  #overlay.on { display: flex; }
+  .modal {
+    background: var(--panel); border: 1px solid var(--line2); border-radius: 14px;
+    max-width: 720px; width: 100%; max-height: 88vh; overflow-y: auto; padding: 22px;
+    box-shadow: 0 30px 80px -20px #000;
+  }
+  .modal h2 { font-size: 20px; margin-bottom: 4px; }
+  .modal .msub { color: var(--txt-dim); margin-bottom: 16px; font-size: 13px; }
+  .opts { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+  .opts button { text-align: left; padding: 11px 14px; }
+
+  /* Review table */
+  table.rev { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.rev th, table.rev td { padding: 7px 8px; text-align: right; border-bottom: 1px solid var(--line); }
+  table.rev th:first-child, table.rev td:first-child { text-align: left; }
+  table.rev th { color: var(--txt-faint); font-size: 11px; text-transform: uppercase; letter-spacing: .05em; font-weight: 600; }
+  table.rev td.num { font-family: var(--mono); }
+  .rev-out { font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 6px; }
+  .rev-out.promote { color: var(--good); background: #10240f; }
+  .rev-out.demote { color: var(--bad); background: #2a1414; }
+  .rev-out.pip { color: var(--warn); background: #241d09; }
+  .rev-out.ceo { color: var(--cc); background: #241d09; }
+  .rev-out.eoq { color: var(--badge); background: #0f2321; }
+
+  .winner-banner { text-align: center; padding: 10px 0 18px; }
+  .winner-banner .crown { font-size: 42px; }
+  .winner-banner h2 { font-size: 26px; color: var(--cc); }
+  .final-list { display: flex; flex-direction: column; gap: 6px; margin: 8px 0 18px; }
+  .final-row { display: flex; align-items: center; gap: 10px; background: var(--bg2); border: 1px solid var(--line); border-radius: 8px; padding: 9px 12px; }
+  .final-row .rk { font-family: var(--mono); color: var(--txt-faint); width: 22px; }
+  .final-row.win { border-color: var(--cc); background: #1c1708; }
+  .final-row .fscore { margin-left: auto; font-family: var(--mono); color: var(--cc); font-weight: 700; }
+
+  @media (max-width: 820px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { border-left: none; border-top: 1px solid var(--line); max-height: 46vh; }
+    #game { height: auto; min-height: 100vh; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================ SETUP ============================ -->
+<div id="setup">
+  <div class="brand">
+    <h1>STACK RANKED</h1>
+    <div class="sub">A Game of Corporate Ascension</div>
+  </div>
+
+  <div class="card-box">
+    <h2>Win Condition</h2>
+    <div class="variant-row" id="variantRow">
+      <div class="variant sel" data-variant="race-to-ceo">
+        <b>🏁 Race to CEO</b>
+        <span class="dim">First player promoted to CEO wins. Ends the moment someone wins the board vote. (~25–35 rounds.)</span>
+      </div>
+      <div class="variant" data-variant="long-game">
+        <b>📊 The Long Game</b>
+        <span class="dim">Fixed 24 rounds. Highest Final Score wins even if nobody reaches CEO.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-box">
+    <h2>Players</h2>
+    <div class="count-ctl">
+      <label class="dim">Number of players</label>
+      <select id="pcount">
+        <option>2</option><option>3</option><option selected>4</option><option>5</option><option>6</option>
+      </select>
+      <span class="faint" style="margin-left:auto" id="countNote"></span>
+    </div>
+    <div id="playerRows" style="margin-top:14px"></div>
+  </div>
+
+  <div class="setup-actions">
+    <button class="primary" id="startBtn" style="font-size:15px;padding:11px 22px">Start Game ▸</button>
+    <button id="allAiBtn">Watch AI-only game</button>
+    <span class="faint">Perfect information: every stat, board, and card is public — as the rules intend.</span>
+  </div>
+</div>
+
+<!-- ============================ GAME ============================ -->
+<div id="game">
+  <div class="topbar">
+    <div class="logo">STACK<span>RANKED</span></div>
+    <div class="phase-strip" id="phaseStrip"></div>
+    <div class="spacer"></div>
+    <div class="ctrl">
+      <span class="tag" id="roundTag">Round 1</span>
+      <span class="tag" id="reviewTag"></span>
+      <label class="faint">Speed</label>
+      <select id="speedSel">
+        <option value="slow">Slow</option>
+        <option value="normal" selected>Normal</option>
+        <option value="fast">Fast</option>
+        <option value="instant">Instant</option>
+      </select>
+      <button id="newGameBtn">New Game</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <div class="main">
+      <div class="section-title">The Org Chart</div>
+      <div class="players" id="players"></div>
+
+      <div class="board-wrap">
+        <div class="section-title" id="jobTitle">Job Board — Skills &amp; Tools</div>
+        <div class="board jobs" id="jobBoard"></div>
+      </div>
+
+      <div class="board-wrap">
+        <div class="section-title">Project Board</div>
+        <div class="board projects" id="projectBoard"></div>
+      </div>
+    </div>
+
+    <div class="sidebar">
+      <div class="turn-panel" id="turnPanel"></div>
+      <div class="event-panel" id="eventPanel"></div>
+      <div class="log-panel">
+        <div class="log-head">Activity Log</div>
+        <div class="log" id="log"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="overlay"><div class="modal" id="modal"></div></div>
+
+<script src="game.js"></script>
+<script>
+(function () {
+  "use strict";
+  var SR = window.SR;
+  var C = SR.constants;
+  var H = SR.helpers;
+
+  var UI = {
+    activeState: null, config: null, hasHuman: false,
+    turn: null, endTurnResolve: null, speed: "normal"
+  };
+
+  var SPEEDS = {
+    slow:    { action: 850, phase: 650, income: 550, event: 1100, review: 2600 },
+    normal:  { action: 420, phase: 320, income: 260, event: 620,  review: 1500 },
+    fast:    { action: 170, phase: 130, income: 110, event: 260,  review: 750 },
+    instant: { action: 0,   phase: 0,   income: 0,   event: 0,    review: 150 }
+  };
+
+  var $ = function (id) { return document.getElementById(id); };
+  function esc(s) {
+    return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  }
+  function el(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
+
+  /* ------------------------------------------------------------------ SETUP */
+  var ARCH_OPTS = [
+    ["balanced", "Balanced — buys an engine, then works Projects & Networks"],
+    ["grinder", "Grinder — maximizes Career Capital through Projects"],
+    ["politician", "Politician — hoards Political Capital, Networks hard"],
+    ["workaholic", "Workaholic — Overtime + expensive Projects, ignores Burnout"],
+    ["cautious", "Cautious — Self-Cares early, avoids Overtime"]
+  ];
+  var DEFAULT_NAMES = ["You", "Riley (Grinder)", "Morgan (Politician)", "Casey (Workaholic)", "Jordan (Cautious)", "Sam (Balanced)"];
+  var DEFAULT_KIND = ["human", "ai", "ai", "ai", "ai", "ai"];
+  var DEFAULT_ARCH = ["balanced", "grinder", "politician", "workaholic", "cautious", "balanced"];
+
+  function renderPlayerRows() {
+    var n = parseInt($("pcount").value, 10);
+    var wrap = $("playerRows");
+    wrap.innerHTML = "";
+    for (var i = 0; i < n; i++) {
+      var row = el("div", "prow");
+      var archSel = ARCH_OPTS.map(function (o) {
+        return '<option value="' + o[0] + '"' + (o[0] === DEFAULT_ARCH[i] ? " selected" : "") + '>' + esc(o[1].split(" — ")[0]) + "</option>";
+      }).join("");
+      row.innerHTML =
+        '<div class="seat">' + (i + 1) + "</div>" +
+        '<input type="text" class="pname" value="' + esc(DEFAULT_NAMES[i]) + '" />' +
+        '<select class="pkind">' +
+          '<option value="human"' + (DEFAULT_KIND[i] === "human" ? " selected" : "") + ">Human</option>" +
+          '<option value="ai"' + (DEFAULT_KIND[i] === "ai" ? " selected" : "") + ">AI</option>" +
+        "</select>" +
+        '<select class="parch">' + archSel + "</select>";
+      wrap.appendChild(row);
+    }
+    syncArchVisibility();
+    updateCountNote();
+  }
+  function syncArchVisibility() {
+    var rows = $("playerRows").querySelectorAll(".prow");
+    rows.forEach(function (r) {
+      var kind = r.querySelector(".pkind").value;
+      r.querySelector(".parch").style.visibility = kind === "ai" ? "visible" : "hidden";
+    });
+  }
+  function updateCountNote() {
+    var n = parseInt($("pcount").value, 10);
+    var note = n === 6 ? "6-player: 2 promotion & 2 PIP slots, 10-card Job Board." :
+      (n === 2 ? "2-player: standard rules, 1 promotion slot." : "Standard rules, 1 promotion slot.");
+    $("countNote").textContent = note;
+  }
+
+  $("pcount").addEventListener("change", renderPlayerRows);
+  $("playerRows").addEventListener("change", function (e) {
+    if (e.target.classList.contains("pkind")) syncArchVisibility();
+  });
+  $("variantRow").addEventListener("click", function (e) {
+    var v = e.target.closest(".variant"); if (!v) return;
+    $("variantRow").querySelectorAll(".variant").forEach(function (x) { x.classList.remove("sel"); });
+    v.classList.add("sel");
+  });
+  $("allAiBtn").addEventListener("click", function () {
+    $("playerRows").querySelectorAll(".pkind").forEach(function (s) { s.value = "ai"; });
+    syncArchVisibility();
+    startGame();
+  });
+  $("startBtn").addEventListener("click", startGame);
+
+  function readConfig() {
+    var variant = $("variantRow").querySelector(".variant.sel").getAttribute("data-variant");
+    var rows = $("playerRows").querySelectorAll(".prow");
+    var players = [];
+    rows.forEach(function (r, i) {
+      var name = r.querySelector(".pname").value.trim() || ("Player " + (i + 1));
+      players.push({ name: name, kind: r.querySelector(".pkind").value, archetype: r.querySelector(".parch").value });
+    });
+    return { variant: variant, players: players };
+  }
+
+  renderPlayerRows();
+
+  /* ------------------------------------------------------------------ START */
+  function startGame() {
+    var config = readConfig();
+    UI.config = config;
+    UI.hasHuman = config.players.some(function (p) { return p.kind === "human"; });
+    UI.speed = $("speedSel").value;
+    var state = SR.newGame(config);
+    UI.activeState = state;
+    UI.turn = null;
+    $("setup").style.display = "none";
+    $("game").style.display = "flex";
+    $("log").innerHTML = "";
+    renderAll();
+    SR.play(state, makeHooks(state));
+  }
+
+  $("newGameBtn").addEventListener("click", function () {
+    UI.activeState = null;   // stale-out any running loop (its hooks become no-ops)
+    UI.turn = null;
+    if (UI.endTurnResolve) { var r = UI.endTurnResolve; UI.endTurnResolve = null; r(); } // let a parked turn unwind
+    hideModal();
+    $("game").style.display = "none";
+    $("setup").style.display = "block";
+  });
+  $("speedSel").addEventListener("change", function () { UI.speed = $("speedSel").value; });
+
+  /* ------------------------------------------------------------------ HOOKS */
+  function makeHooks(state) {
+    function stale() { return UI.activeState !== state; }
+    return {
+      log: function (entry) { if (stale()) return; appendLog(entry); },
+      onChange: function () { if (stale()) return; renderAll(); },
+      wait: function (key) {
+        if (stale()) return Promise.resolve();
+        var d = SPEEDS[UI.speed][key || "action"];
+        return new Promise(function (r) { setTimeout(r, d); });
+      },
+      humanTurn: function (player) {
+        if (stale()) return Promise.resolve();
+        return beginHumanTurn(state, player);
+      },
+      decide: function (req) {
+        if (stale()) return Promise.resolve(defaultDecision(req));
+        return showDecision(req);
+      },
+      onReview: function (summary) {
+        if (stale()) return Promise.resolve();
+        return showReview(summary);
+      },
+      onGameOver: function (st) {
+        if (stale()) return Promise.resolve();
+        return showGameOver(st);
+      }
+    };
+  }
+  function defaultDecision(req) {
+    if (req.action === "colleagueInterview") return "pc";
+    if (req.action === "discardSkill") return req.candidates && req.candidates[0] && req.candidates[0].id;
+    if (req.action === "therapyTarget") return null;
+    return false;
+  }
+
+  /* ------------------------------------------------- HUMAN TURN + ACTIONS */
+  function beginHumanTurn(state, player) {
+    var t = H.beginTurn(state, player);
+    UI.turn = { player: player, ap: t.ap, mustProjectFirst: t.mustProjectFirst, active: true };
+    renderAll();
+    return new Promise(function (res) { UI.endTurnResolve = res; });
+  }
+  function endTurn() {
+    if (!UI.turn) return;
+    UI.turn.active = false;
+    var r = UI.endTurnResolve; UI.endTurnResolve = null;
+    renderAll();
+    if (r) r();
+  }
+  function maybeAutoEnd() {
+    var t = UI.turn; if (!t || !t.active) return;
+    if (t.ap <= 0 && t.player.overtimeUsedThisRound) setTimeout(endTurn, 250);
+  }
+
+  function viewer() { return (UI.turn && UI.turn.active && UI.turn.player.kind === "human") ? UI.turn.player : null; }
+
+  function onAction(act, idx) {
+    var t = UI.turn; if (!t || !t.active) return;
+    var s = UI.activeState, p = t.player;
+    if (act === "endturn") return endTurn();
+    if (act === "work") {
+      if (t.ap < 1) return;
+      var slot = s.projectBoard[idx];
+      if (!slot || !slot.card || p.productivity < H.effectiveProjectCost(p, slot)) return;
+      var r = SR.actions.workProject(s, p, idx);
+      if (r.ok) { t.ap -= 1; t.mustProjectFirst = false; }
+    } else if (act === "hire") {
+      if (t.ap < 1 || t.mustProjectFirst) return;
+      var card = s.jobBoard[idx];
+      if (!card || p.productivity < H.effectiveHireCost(p, card)) return;
+      var hr = SR.actions.hire(s, p, idx);
+      if (hr.ok) {
+        t.ap -= 1;
+        if (hr.pending === "shipsItFriday") { renderAll(); return openShipsModal(p); }
+      }
+    } else if (act === "network") {
+      if (t.ap < 1 || t.mustProjectFirst) return;
+      if (SR.actions.network(s, p).ok) t.ap -= 1;
+    } else if (act === "selfcare") {
+      var cost = H.selfCareApCost(p);
+      if (t.ap < cost || t.mustProjectFirst) return;
+      if (SR.actions.selfCare(s, p).ok) t.ap -= cost;
+    } else if (act === "overtime") {
+      if (p.overtimeUsedThisRound || t.mustProjectFirst) return;
+      var ot = SR.actions.overtime(s, p);
+      if (ot.ok) t.ap += ot.grantAp;
+    }
+    renderAll();
+    maybeAutoEnd();
+  }
+
+  function openShipsModal(player) {
+    return new Promise(function (res) {
+      var s = UI.activeState;
+      var opts = "";
+      s.projectBoard.forEach(function (slot, i) {
+        if (!slot.card) return;
+        var half = Math.max(1, Math.ceil(slot.card.cost / 2));
+        var afford = player.productivity >= half;
+        opts += '<button data-ships="' + i + '"' + (afford ? "" : " disabled") + '>' +
+          "<b>" + esc(slot.card.name) + "</b> — pay " + half + " P → +" + slot.card.reward.cc + " CC</button>";
+      });
+      showModalHTML('<h2>Ships It Friday at 5 PM 🚀</h2>' +
+        '<div class="msub">Complete one Project at half its listed cost.</div>' +
+        '<div class="opts">' + opts + "</div>");
+      $("modal").querySelectorAll("[data-ships]").forEach(function (b) {
+        b.addEventListener("click", function () {
+          var i = parseInt(b.getAttribute("data-ships"), 10);
+          SR.actions.applyShipsItFriday(s, player, i);
+          hideModal(); renderAll(); maybeAutoEnd(); res();
+        });
+      });
+    });
+  }
+
+  /* ------------------------------------------------------------- RENDERING */
+  function renderAll() {
+    var s = UI.activeState; if (!s) return;
+    renderTop(s); renderPlayers(s); renderJobBoard(s); renderProjectBoard(s);
+    renderTurnPanel(s); renderEvent(s);
+  }
+
+  var PHASES = [["INCOME", "Stand-Up"], ["ACTION", "Work Block"], ["WATERCOOLER", "Watercooler"], ["CLEANUP", "Cleanup"], ["REVIEW", "Review"]];
+  function renderTop(s) {
+    var q = Math.floor((s.roundNumber - 1) / 3) + 1;
+    $("roundTag").textContent = "Round " + s.roundNumber + " · Q" + q;
+    var nextRev = (Math.floor((s.roundNumber - 1) / 3) + 1) * 3;
+    if (s.variant === "long-game") $("reviewTag").textContent = "Long Game · " + s.roundNumber + "/" + C.LONG_GAME_ROUNDS;
+    else $("reviewTag").textContent = "Next review: R" + nextRev;
+    $("phaseStrip").innerHTML = PHASES.map(function (ph) {
+      return '<span class="phase-pill' + (s.phase === ph[0] ? " on" : "") + '">' + ph[1] + "</span>";
+    }).join("");
+  }
+
+  function chipClass(meta) {
+    if (meta.burnout) return "chip burnrisk";
+    if (meta.oneShot || meta.immuneToDemotion || meta.fixerPcOnOthersCrisis) return "chip special";
+    if (meta.pc && !meta.p) return "chip pc";
+    if (meta.p) return "chip prod";
+    return "chip";
+  }
+
+  function renderPlayers(s) {
+    var lead = H.leaderRung(s);
+    var host = $("players"); host.innerHTML = "";
+    s.players.forEach(function (p) {
+      var card = el("div", "pcard" + (p.id === s.activePlayerId ? " active" : "") + (p.rung === lead && p.rung > 0 ? " leader" : ""));
+      // rung + CC progress
+      var nextRung = Math.min(p.rung + 1, 6);
+      var thr = C.CC_THRESHOLD[nextRung] || C.CC_THRESHOLD[6];
+      var pct = p.rung >= 6 ? 100 : Math.max(0, Math.min(100, (p.careerCapital / thr) * 100));
+      var badgeReq = C.BADGE_REQ[nextRung];
+      var burnPct = (p.burnout / 10) * 100;
+      var gain = p.careerCapital - p.quarterMarker;
+      // Bar spans 0 → CC still needed since the last review to hit the promotion threshold.
+      var gainNeeded = thr - p.quarterMarker;
+      var gainPct = p.rung >= 6 ? 100
+        : gainNeeded <= 0 ? (p.careerCapital >= thr ? 100 : 0)
+        : Math.max(0, Math.min(100, (gain / gainNeeded) * 100));
+      var gainLabel = (gain >= 0 ? "+" : "") + gain + " CC";
+
+      var flags = "";
+      if (p.hasPip) flags += '<span class="flag pip">⚠ PIP</span>';
+      if (p.employeeOfQuarterTokens) flags += '<span class="flag eoq">🏅 ' + p.employeeOfQuarterTokens + "</span>";
+      if (p.immuneToDemotion) flags += '<span class="flag immune">🔒 Vested</span>';
+      if (p.goldenParachuteArmed) flags += '<span class="flag para">🪂 Parachute</span>';
+      if (p.skipActionRounds > 0) flags += '<span class="flag skip">⏭ Skip ' + p.skipActionRounds + "</span>";
+
+      var chips = p.tableau.length ? p.tableau.map(function (cd) {
+        var meta = SR.SKILL_META[cd.id] || {};
+        return '<span class="' + chipClass(meta) + '" title="' + esc(cd.effect) + '">' + esc(cd.name) + "</span>";
+      }).join("") : '<span class="no-skills">no skills yet</span>';
+
+      var ms = p.managementStyle;
+      var ccToNext = p.rung >= 6 ? "CEO — maxed" :
+        (p.careerCapital + " / " + thr + " CC" + (badgeReq ? "  ·  " + H.effectiveBadges(p) + "/" + badgeReq + " badges" : ""));
+
+      card.innerHTML =
+        '<div class="phead"><span class="pname">' + esc(p.name) + "</span>" +
+          '<span class="tag kind ' + p.kind + '">' + (p.kind === "human" ? "Human" : "AI · " + (SR.ARCH[p.archetype] ? SR.ARCH[p.archetype].label : p.archetype)) + "</span></div>" +
+        '<div class="rung-line"><span class="rung-name' + (p.rung === 6 ? " ceo" : "") + '">' + esc(C.RUNG_NAMES[p.rung]) + "</span>" +
+          '<span class="cc-big">' + p.careerCapital + " CC</span></div>" +
+        '<div class="bar-name cc">Career Capital</div>' +
+        '<div class="bar cc-bar"><i style="width:' + pct + '%"></i></div>' +
+        '<div class="cc-to">' + esc(ccToNext) + "</div>" +
+        '<div class="bar-name gain">Since Last Review<span class="bar-val">' + gainLabel + "</span></div>" +
+        '<div class="bar gain-bar"><i style="width:' + gainPct + '%"></i></div>' +
+        '<div class="stats">' +
+          '<div class="stat p"><div class="v">' + p.productivity + '</div><div class="l">Prod</div></div>' +
+          '<div class="stat pc"><div class="v">' + p.politicalCapital + '</div><div class="l">Pol.Cap</div></div>' +
+          '<div class="stat burn"><div class="v">' + p.burnout + '</div><div class="l">Burnout</div></div>' +
+          '<div class="stat badge"><div class="v">' + p.complianceBadges + '</div><div class="l">Badges</div></div>' +
+        "</div>" +
+        '<div class="bar-name burn">Burnout</div>' +
+        '<div class="bar burn-bar" style="margin-bottom:2px"><i style="width:' + burnPct + '%"></i></div>' +
+        '<div class="flags">' + flags + "</div>" +
+        '<div class="mgmt"><b>' + esc(ms ? ms.name : "—") + "</b> · " + esc(ms ? ms.effect : "") + "</div>" +
+        '<div class="tableau">' + chips + "</div>";
+      host.appendChild(card);
+    });
+  }
+
+  function renderJobBoard(s) {
+    $("jobTitle").innerHTML = "Job Board — Skills &amp; Tools <span class='faint'>(" +
+      (s.tier2Merged ? (s.tier3Merged ? "Tiers 1–3" : "Tiers 1–2") : "Tier 1") + " in play)</span>";
+    var v = viewer();
+    var host = $("jobBoard"); host.innerHTML = "";
+    s.jobBoard.forEach(function (card, i) {
+      if (!card) { host.appendChild(el("div", "gcard empty", "—")); return; }
+      var meta = SR.SKILL_META[card.id] || {};
+      var cost = v ? H.effectiveHireCost(v, card) : card.cost;
+      var afford = v && v.productivity >= cost;
+      var isOne = card.type === "One-Shot";
+      var canBuy = UI.turn && UI.turn.active && v && !UI.turn.mustProjectFirst && UI.turn.ap >= 1 && afford;
+      var g = el("div", "gcard hastype" + (isOne ? " oneshot" : "") + (canBuy ? " affordable" : ""));
+      var costHtml = '<span class="n">' + cost + " P</span>" + (v && cost !== card.cost ? ' <span class="faint">(' + card.cost + ")</span>" : "");
+      g.innerHTML =
+        '<span class="ctype ' + (isOne ? "os" : "perm") + '">' + (isOne ? "ONE-SHOT" : "PERMANENT") + "</span>" +
+        '<div class="cn">' + esc(card.name) + "</div>" +
+        '<div class="ce">' + esc(card.effect) + "</div>" +
+        '<div class="cf">' + esc(card.flavor) + "</div>" +
+        '<div class="crow"><span class="cost">' + costHtml + "</span>" +
+          (v ? '<button data-act="hire" data-idx="' + i + '"' + (canBuy ? "" : " disabled") + ">Hire</button>" : "") + "</div>";
+      host.appendChild(g);
+    });
+  }
+
+  function renderProjectBoard(s) {
+    var v = viewer();
+    var host = $("projectBoard"); host.innerHTML = "";
+    s.projectBoard.forEach(function (slot, i) {
+      if (!slot.card) { host.appendChild(el("div", "gcard empty", "empty slot")); return; }
+      var card = slot.card;
+      var cost = v ? H.effectiveProjectCost(v, slot) : (card.cost + slot.scope);
+      var afford = v && v.productivity >= cost;
+      var canWork = UI.turn && UI.turn.active && v && UI.turn.ap >= 1 && afford;
+      var g = el("div", "gcard" + (slot.evergreen ? " evergreen hastype" : "") + (canWork ? " affordable" : ""));
+      var baseCost = card.cost + (slot.evergreen ? 0 : slot.scope);
+      var costHtml = '<span class="n">' + cost + " P</span>" +
+        (!slot.evergreen && slot.scope ? ' <span class="up">↑' + slot.scope + "</span>" : "") +
+        (v && cost !== baseCost ? ' <span class="faint">(base ' + card.cost + ")</span>" : "");
+      var rewardTxt = "+" + card.reward.cc + " CC" +
+        (card.reward.pc ? ", +" + card.reward.pc + " PC" : "") +
+        (card.reward.badges ? ", +" + card.reward.badges + " Badge" : "") +
+        (card.reward.burnout ? ", +" + card.reward.burnout + " 🔥" : "");
+      g.innerHTML =
+        (slot.evergreen ? '<span class="ctype perm">EVERGREEN ♻</span>' : "") +
+        '<div class="cn">' + esc(card.name) + "</div>" +
+        '<div class="reward">' + rewardTxt + "</div>" +
+        '<div class="cf">' + esc(card.flavor) + "</div>" +
+        '<div class="crow"><span class="cost">' + costHtml + "</span>" +
+          (v ? '<button data-act="work" data-idx="' + i + '"' + (canWork ? "" : " disabled") + ">Work</button>" : "") + "</div>";
+      host.appendChild(g);
+    });
+  }
+
+  function renderTurnPanel(s) {
+    var host = $("turnPanel");
+    var t = UI.turn;
+    if (s.status === "over") { host.innerHTML = '<div class="turn-who">Game over</div><div class="hint">See final standings.</div>'; return; }
+    if (t && t.active && t.player.kind === "human") {
+      var p = t.player;
+      var pips = "";
+      for (var k = 0; k < Math.max(t.ap, 0); k++) pips += '<span class="ap on"></span>';
+      var netOk = H.canNetwork(s, p).ok, scOk = H.canSelfCare(s, p).ok, scCost = H.selfCareApCost(p);
+      var block = t.mustProjectFirst;
+      host.innerHTML =
+        '<div class="turn-who">▸ ' + esc(p.name) + "'s turn</div>" +
+        '<div class="dim">' + esc(C.RUNG_NAMES[p.rung]) + " · " + p.productivity + " P available</div>" +
+        '<div class="ap-pips">' + (t.ap > 0 ? pips : '<span class="faint">0 AP left</span>') + '<span class="faint" style="margin-left:6px">' + t.ap + " AP</span></div>" +
+        (block ? '<div class="hint" style="color:var(--warn)">Micromanager: your first action must be Work a Project.</div>' : "") +
+        '<div class="actbtns">' +
+          '<button data-act="network"' + ((t.ap >= 1 && netOk && !block) ? "" : " disabled") + ">Network<br><span class='faint'>+2 PC, +1 CC</span></button>" +
+          '<button data-act="selfcare"' + ((t.ap >= scCost && scOk && !block) ? "" : " disabled") + ">Self-Care<br><span class='faint'>−2 🔥 (" + scCost + " AP)</span></button>" +
+          '<button data-act="overtime"' + ((!p.overtimeUsedThisRound && !block) ? "" : " disabled") + ">Overtime<br><span class='faint'>+1 AP, +2 🔥</span></button>" +
+          '<button class="primary" data-act="endturn">End Turn</button>' +
+        "</div>" +
+        '<div class="hint">' + turnHint(s, p, t) + "</div>";
+    } else if (t && t.active) {
+      host.innerHTML = '<div class="ai-working"><span class="dot-pulse"></span>' + esc(t.player.name) + " is working…</div>";
+    } else if (s.activePlayerId) {
+      var ap = s.players.find(function (x) { return x.id === s.activePlayerId; });
+      host.innerHTML = '<div class="ai-working"><span class="dot-pulse"></span>' + esc(ap ? ap.name : "AI") + " is working…</div>";
+    } else {
+      host.innerHTML = '<div class="dim">Resolving ' + phaseLabel(s.phase) + "…</div>";
+    }
+  }
+  function phaseLabel(ph) {
+    var m = { INCOME: "Stand-Up Meeting", ACTION: "Work Block", WATERCOOLER: "Watercooler Event", CLEANUP: "Cleanup", REVIEW: "Performance Review" };
+    return m[ph] || ph;
+  }
+  function turnHint(s, p, t) {
+    if (t.ap <= 0 && !p.overtimeUsedThisRound) return "Out of Action Points — take Overtime for one more, or End Turn.";
+    if (t.ap <= 0) return "Out of Action Points. End your turn.";
+    return "Hire skills, Work projects, Network, or Self-Care. " + t.ap + " AP remaining.";
+  }
+
+  function renderEvent(s) {
+    var host = $("eventPanel");
+    var ev = s.currentEvent;
+    if (!ev) { host.innerHTML = '<div class="faint" style="font-size:11px">No Office Chaos drawn yet.</div>'; return; }
+    host.innerHTML =
+      '<div class="event-card"><div class="en">☕ ' + esc(ev.name) + "</div>" +
+      '<div class="ee">' + esc(ev.effect) + "</div>" +
+      '<div class="ef">' + esc(ev.flavor) + "</div></div>";
+  }
+
+  var logHost = $("log");
+  function appendLog(entry) {
+    var d = el("div", "le " + (entry.cls || "info"));
+    d.innerHTML = '<span class="rd">R' + entry.round + "</span>" + esc(entry.text);
+    logHost.appendChild(d);
+    while (logHost.childNodes.length > 400) logHost.removeChild(logHost.firstChild);
+    logHost.scrollTop = logHost.scrollHeight;
+  }
+
+  // Event delegation for board + turn-panel buttons
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-act]"); if (!b) return;
+    if (b.hasAttribute("disabled")) return;
+    onAction(b.getAttribute("data-act"), parseInt(b.getAttribute("data-idx"), 10));
+  });
+
+  /* --------------------------------------------------------------- MODALS */
+  function showModalHTML(html) { $("modal").innerHTML = html; $("overlay").classList.add("on"); }
+  function hideModal() { $("overlay").classList.remove("on"); }
+
+  function showDecision(req) {
+    return new Promise(function (res) {
+      var p = null;
+      if (req.playerId) p = UI.activeState.players.find(function (x) { return x.id === req.playerId; });
+      var who = p ? esc(p.name) : "";
+      var body = "";
+      if (req.action === "colleagueInterview") {
+        body = req.options.map(function (o) { return '<button data-k="' + o.key + '">' + esc(o.label) + "</button>"; }).join("");
+      } else if (req.action === "discardSkill") {
+        body = req.candidates.map(function (c) { return '<button data-k="' + esc(c.id) + '">Discard: ' + esc(c.name) + "</button>"; }).join("");
+      } else if (req.action === "therapyTarget") {
+        body = req.candidates.map(function (c) { return '<button data-k="' + c.id + '">' + esc(c.name) + " <span class='faint'>(" + c.burnout + " 🔥)</span></button>"; }).join("");
+        body += '<button data-k="__none">Decline</button>';
+      } else {
+        body = '<button data-k="yes">Yes</button><button data-k="no">No</button>';
+      }
+      showModalHTML('<h2>' + esc(req.prompt) + "</h2>" +
+        (who ? '<div class="msub">Decision for ' + who + "</div>" : "") +
+        '<div class="opts">' + body + "</div>");
+      $("modal").querySelectorAll("[data-k]").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          var k = btn.getAttribute("data-k");
+          hideModal();
+          if (req.action === "colleagueInterview") return res(k);
+          if (req.action === "discardSkill") return res(k);
+          if (req.action === "therapyTarget") return res(k === "__none" ? null : k);
+          return res(k === "yes");
+        });
+      });
+    });
+  }
+
+  function outcomeBadge(sum, id) {
+    if (sum.newCeoId === id) return '<span class="rev-out ceo">👑 CEO</span>';
+    if (sum.promotedIds.indexOf(id) >= 0) return '<span class="rev-out promote">⬆ Promoted</span>';
+    if (sum.demotedIds.indexOf(id) >= 0) return '<span class="rev-out demote">⬇ Demoted</span>';
+    if (sum.pipIds.indexOf(id) >= 0) return '<span class="rev-out pip">⚠ PIP</span>';
+    if (sum.eoqIds.indexOf(id) >= 0) return '<span class="rev-out eoq">🏅 EoQ</span>';
+    return '<span class="faint">—</span>';
+  }
+  function showReview(summary) {
+    return new Promise(function (res) {
+      var s = UI.activeState;
+      var rows = summary.rows.slice().sort(function (a, b) { return b.score - a.score; });
+      var body = rows.map(function (r) {
+        var arrow = r.rungBefore !== r.rungAfter ? (" → " + C.RUNG_NAMES[r.rungAfter]) : "";
+        return "<tr><td>" + esc(r.name) + "</td>" +
+          '<td class="num">' + r.score + "</td>" +
+          '<td class="num">' + r.ccGained + "</td>" +
+          '<td class="num">' + r.pc + "</td>" +
+          '<td class="num">' + r.burnout + "</td>" +
+          "<td>" + esc(C.RUNG_NAMES[r.rungBefore]) + arrow + "</td>" +
+          "<td>" + outcomeBadge(summary, r.id) + "</td></tr>";
+      }).join("");
+      showModalHTML(
+        '<h2>📋 Quarterly Performance Review</h2>' +
+        '<div class="msub">Review #' + summary.reviewNumber + " · end of Round " + summary.round +
+          "  ·  Score = CC gained this Quarter + Political Capital − ⌊Burnout/4⌋</div>" +
+        '<table class="rev"><thead><tr><th>Employee</th><th>Score</th><th>ΔCC</th><th>Pol.Cap</th><th>🔥</th><th>Rung</th><th>Outcome</th></tr></thead>' +
+        "<tbody>" + body + "</tbody></table>" +
+        '<div class="opts" style="margin-top:16px"><button class="primary" id="revContinue">Continue ▸</button></div>');
+      var done = false;
+      function finish() { if (done) return; done = true; hideModal(); res(); }
+      var btn = $("revContinue"); if (btn) btn.addEventListener("click", finish);
+      if (!UI.hasHuman || s.status === "over" || summary.newCeoId) {
+        // Auto-advance for spectated games; still lingers briefly to read.
+        setTimeout(finish, SPEEDS[UI.speed].review);
+      }
+    });
+  }
+
+  function showGameOver(s) {
+    return new Promise(function (res) {
+      var standings = s.standings || H.computeStandings(s);
+      var winner = s.players.find(function (p) { return p.id === s.winnerId; });
+      var isRace = s.variant === "race-to-ceo";
+      var subtitle = isRace ? (winner && winner.rung === 6 ? "Promoted to CEO — the corporate ladder has a top rung after all." : "Game ended.")
+        : "The Long Game — highest Final Score after 24 rounds.";
+      var list = standings.map(function (st, i) {
+        var p = s.players.find(function (x) { return x.id === st.id; });
+        return '<div class="final-row' + (st.id === s.winnerId ? " win" : "") + '">' +
+          '<span class="rk">' + (i + 1) + "</span>" +
+          "<span><b>" + esc(st.name) + "</b> <span class='faint'>· " + esc(C.RUNG_NAMES[st.rung]) +
+            (p ? " · " + p.careerCapital + " CC" : "") + "</span></span>" +
+          '<span class="fscore">' + (isRace && st.id === s.winnerId ? "WINNER" : st.score.toFixed(1)) + "</span></div>";
+      }).join("");
+      showModalHTML(
+        '<div class="winner-banner"><div class="crown">' + (isRace ? "👑" : "🏆") + "</div>" +
+          "<h2>" + esc(winner ? winner.name : "Nobody") + " wins</h2>" +
+          '<div class="msub">' + esc(subtitle) + "</div></div>" +
+        '<div class="final-list">' + list + "</div>" +
+        '<div class="opts"><button class="primary" id="goNew">New Game</button></div>');
+      var b = $("goNew");
+      if (b) b.addEventListener("click", function () {
+        hideModal(); UI.activeState = null; UI.turn = null;
+        $("game").style.display = "none"; $("setup").style.display = "block"; res();
+      });
+    });
+  }
+})();
+</script>
+</body>
+</html>
