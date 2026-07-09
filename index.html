@@ -345,8 +345,8 @@
       </div>
 
       <div class="board-wrap">
-        <div class="section-title">Project Board</div>
-        <div class="board projects" id="projectBoard"></div>
+        <div class="section-title">Kanban Board</div>
+        <div class="board projects" id="kanbanBoard"></div>
       </div>
     </div>
 
@@ -556,7 +556,7 @@
     if (act === "endturn") return endTurn();
     if (act === "work") {
       if (t.ap < 1) return;
-      var slot = s.projectBoard[idx];
+      var slot = s.kanbanBoard[idx];
       if (!slot || !slot.card || p.productivity < H.effectiveProjectCost(p, slot)) return;
       var r = SR.actions.workProject(s, p, idx);
       if (r.ok) { t.ap -= 1; t.mustProjectFirst = false; }
@@ -589,7 +589,7 @@
     return new Promise(function (res) {
       var s = UI.activeState;
       var opts = "";
-      s.projectBoard.forEach(function (slot, i) {
+      s.kanbanBoard.forEach(function (slot, i) {
         if (!slot.card) return;
         var half = Math.max(1, Math.ceil(slot.card.cost / 2));
         var afford = player.productivity >= half;
@@ -612,7 +612,7 @@
   /* ------------------------------------------------------------- RENDERING */
   function renderAll() {
     var s = UI.activeState; if (!s) return;
-    renderTop(s); renderPlayers(s); renderJobBoard(s); renderProjectBoard(s);
+    renderTop(s); renderPlayers(s); renderJobBoard(s); renderKanbanBoard(s);
     renderTurnPanel(s); renderEvent(s);
   }
 
@@ -721,10 +721,10 @@
     });
   }
 
-  function renderProjectBoard(s) {
+  function renderKanbanBoard(s) {
     var v = viewer();
-    var host = $("projectBoard"); host.innerHTML = "";
-    s.projectBoard.forEach(function (slot, i) {
+    var host = $("kanbanBoard"); host.innerHTML = "";
+    s.kanbanBoard.forEach(function (slot, i) {
       if (!slot.card) { host.appendChild(el("div", "gcard empty", "empty slot")); return; }
       var card = slot.card;
       var cost = v ? H.effectiveProjectCost(v, slot) : (card.cost + slot.scope);

@@ -55,7 +55,7 @@
         {"name": "The Bus Factor of One", "cost": 6, "type": "Permanent", "effect": "+3 Productivity/round. If you suffer a Burnout Crisis, lose double the usual Political Capital penalty.", "flavor": "If they quit, nothing ships again. Ever."},
         {"name": "Golden Handcuffs (Fully Vested)", "cost": 7, "type": "Permanent", "effect": "Ignore all PIP and demotion effects for the rest of the game.", "flavor": "The stock options mature in 18 months. So does nothing else."},
         {"name": "Rolodex of Every VP", "cost": 7, "type": "Permanent", "effect": "+4 Political Capital/round.", "flavor": "Knows a guy. Always knows a guy."},
-        {"name": "Ships It Friday at 5 PM", "cost": 6, "type": "One-Shot", "effect": "Immediately complete one Project on the Project Board at half its listed Productivity cost (round up).", "flavor": "The demo gods are watching. Ship it and pray."},
+        {"name": "Ships It Friday at 5 PM", "cost": 6, "type": "One-Shot", "effect": "Immediately complete one Project on the Kanban Board at half its listed Productivity cost (round up).", "flavor": "The demo gods are watching. Ship it and pray."},
         {"name": "The Exit Interview Isn't Scary Anymore", "cost": 6, "type": "One-Shot", "effect": "Immediately remove all your Burnout and gain 1 Compliance Badge.", "flavor": "Says everything they wish they'd said in every performance review — on the way out the door."},
         {"name": "The Fixer", "cost": 8, "type": "Permanent", "effect": "Whenever any other player suffers a Burnout Crisis, gain 2 Political Capital.", "flavor": "Somehow always available exactly when someone else's project catches fire."},
         {"name": "VP Whisperer", "cost": 7, "type": "Permanent", "effect": "+3 Productivity/round; +2 Political Capital/round.", "flavor": "Gets meetings on the calendar that shouldn't be mathematically possible."},
@@ -369,7 +369,7 @@
       promotionSlots: n === 6 ? 2 : 1,
       jobBoardSize: n === 6 ? 10 : 5,
       jobBoard: [],
-      projectBoard: [],
+      kanbanBoard: [],
       // draw / discard piles
       skillDrawPile: shuffle(skillDraw),
       skillDiscardPile: [],
@@ -407,11 +407,11 @@
     // Job board
     for (let i = 0; i < state.jobBoardSize; i++) state.jobBoard.push(drawSkill(state));
 
-    // Project board: 4 early + evergreen fixed in slot 4
+    // Kanban board: 4 early + evergreen fixed in slot 4
     for (let i = 0; i < 4; i++) {
-      state.projectBoard.push({ card: drawProject(state), scope: 0, unclaimed: 0, justRefilled: false, evergreen: false });
+      state.kanbanBoard.push({ card: drawProject(state), scope: 0, unclaimed: 0, justRefilled: false, evergreen: false });
     }
-    state.projectBoard.push({ card: EVERGREEN, scope: 0, unclaimed: 0, justRefilled: false, evergreen: true });
+    state.kanbanBoard.push({ card: EVERGREEN, scope: 0, unclaimed: 0, justRefilled: false, evergreen: true });
 
     return state;
   }
@@ -526,7 +526,7 @@
     return Math.max(1, c);
   }
   function anyAffordableProject(state, player) {
-    return state.projectBoard.some(function (slot) {
+    return state.kanbanBoard.some(function (slot) {
       return slot.card && player.productivity >= effectiveProjectCost(player, slot);
     });
   }
@@ -544,7 +544,7 @@
   }
 
   function completeProject(state, player, slotIndex, costOverride) {
-    const slot = state.projectBoard[slotIndex];
+    const slot = state.kanbanBoard[slotIndex];
     if (!slot || !slot.card) return { ok: false, reason: "No project there." };
     const card = slot.card;
     const cost = costOverride != null ? costOverride : effectiveProjectCost(player, slot);
@@ -564,7 +564,7 @@
       (card.reward.burnout ? ", +" + card.reward.burnout + " Burnout" : "") + extra + ".", "action");
     if (!slot.evergreen) {
       state.projectDiscardPile.push(card);
-      state.projectBoard[slotIndex] = { card: null, scope: 0, unclaimed: 0, justRefilled: false, evergreen: false };
+      state.kanbanBoard[slotIndex] = { card: null, scope: 0, unclaimed: 0, justRefilled: false, evergreen: false };
     }
     return { ok: true };
   }
@@ -582,7 +582,7 @@
 
     // Ships It Friday needs an affordable target project or its hire is pointless.
     if (meta.oneShot === "shipsItFriday") {
-      const hasTarget = state.projectBoard.some(function (slot) {
+      const hasTarget = state.kanbanBoard.some(function (slot) {
         return slot.card && player.productivity - cost >= Math.max(1, Math.ceil(slot.card.cost / 2));
       });
       if (!hasTarget) return { ok: false, reason: "No Project you could afford at half cost." };
@@ -627,7 +627,7 @@
   }
 
   function applyShipsItFriday(state, player, slotIndex) {
-    const slot = state.projectBoard[slotIndex];
+    const slot = state.kanbanBoard[slotIndex];
     if (!slot || !slot.card) return { ok: false, reason: "No project there." };
     const half = Math.max(1, Math.ceil(slot.card.cost / 2));
     return completeProject(state, player, slotIndex, half);
@@ -1044,7 +1044,7 @@
     for (let i = 0; i < state.jobBoardSize; i++) {
       if (!state.jobBoard[i]) state.jobBoard[i] = drawSkill(state);
     }
-    state.projectBoard.forEach(function (slot) {
+    state.kanbanBoard.forEach(function (slot) {
       if (slot.evergreen) return;
       if (!slot.card) {
         slot.card = drawProject(state);
@@ -1055,7 +1055,7 @@
     });
 
     // 2. Scope Creep: slots left unclaimed accrue; +1 cost every 2 rounds unclaimed.
-    state.projectBoard.forEach(function (slot) {
+    state.kanbanBoard.forEach(function (slot) {
       if (slot.evergreen || !slot.card) return;
       if (slot.justRefilled) { slot.justRefilled = false; return; }
       slot.unclaimed += 1;
@@ -1268,7 +1268,7 @@
 
   function pickBestProject(state, player) {
     let best = -1, bestVal = -Infinity;
-    state.projectBoard.forEach(function (slot, i) {
+    state.kanbanBoard.forEach(function (slot, i) {
       if (!slot.card) return;
       if (player.productivity < effectiveProjectCost(player, slot)) return;
       const val = slot.card.reward.cc - (slot.card.reward.burnout || 0) * 0.6;
@@ -1356,7 +1356,7 @@
 
   function pickBestHalfProject(state, player) {
     let best = -1, bestVal = -Infinity;
-    state.projectBoard.forEach(function (slot, i) {
+    state.kanbanBoard.forEach(function (slot, i) {
       if (!slot.card) return;
       const half = Math.max(1, Math.ceil(slot.card.cost / 2));
       if (player.productivity < half) return;
