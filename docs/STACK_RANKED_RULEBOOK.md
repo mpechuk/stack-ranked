@@ -47,8 +47,8 @@ this rulebook is detail.
 
 1. **Stand-Up Meeting**: collect Productivity and Political Capital from your
    tableau (plus 1 free Productivity just for showing up). Then, if you don't
-   already have a task in hand, pick one up from the Kanban Board — and if
-   you can afford it right now, you may finish it on the spot, for free.
+   already have a task in hand, pick one up from the Kanban Board — you're
+   just claiming it, not paying for it yet.
 2. **Sprint**: spend your Action Points to Hire a Skill card, Work a Project
    (finish the task in your hand), Network, or Self-Care. You may also take
    one Overtime action per round for a bonus Action Point.
@@ -168,8 +168,10 @@ You can hold exactly one Project at a time — a task you've picked up but
 haven't paid for yet. If you're ever empty-handed at the start of Stand-Up,
 picking one up isn't optional (see [6.1](#61-stand-up-meeting-income-phase)).
 Taking a task is free; paying its Productivity cost is what actually finishes
-it and earns the reward. You don't get (or need) a second task until you've
-finished the one you're holding.
+it and earns the reward, and that only happens on your Sprint, via Work a
+Project (see [6.2](#62-sprint-action-phase)) — Stand-Up only ever hands you
+the task, never lets you pay for it. You don't get (or need) a second task
+until you've finished the one you're holding.
 
 ---
 
@@ -207,30 +209,24 @@ shown on their Skill/Tool tableau, plus a flat +1 Productivity "showed up"
 bonus.
 
 Then, in First Player order (this part isn't simultaneous — everyone's
-reaching for the same Kanban Board):
+reaching for the same Kanban Board): if you don't currently have a task in
+hand, you must take one Project card from the Kanban Board — your choice of
+any card currently on the board. This is free; you are not paying its cost
+yet, just claiming it. Taking it empties that slot exactly as if you'd
+completed a Project there (a regular slot stays empty until the next
+Postmortem refills it; the Evergreen slot instantly deals itself a
+replacement — see [Deck Composition](#deck-composition) — which is why
+there's always something to pick up even if every other slot is already
+spoken for this Stand-Up). Whatever cost is showing on the card at the
+moment you take it (including any Scope Creep it had already picked up) is
+locked in — it won't creep any higher while you're holding it, even though
+the slot that replaces it will start accruing its own Scope Creep from
+scratch.
 
-1. **Pick up a task.** If you don't currently have a task in hand, you must
-   take one Project card from the Kanban Board — your choice of any card
-   currently on the board. This is free; you are not paying its cost yet,
-   just claiming it. Taking it empties that slot exactly as if you'd
-   completed a Project there (a regular slot stays empty until the next
-   Postmortem refills it; the Evergreen slot instantly deals itself a
-   replacement — see [Deck Composition](#deck-composition) — which is why
-   there's always something to pick up even if every other slot is already
-   spoken for this Stand-Up). Whatever cost is showing on the card at the
-   moment you take it (including any Scope Creep it had already picked up)
-   is locked in — it won't creep any higher while you're holding it, even
-   though the slot that replaces it will start accruing its own Scope Creep
-   from scratch.
-2. **Settle it now, if you want and can.** If you're holding a task — one you
-   just picked up, or one you've been sitting on since an earlier round — and
-   you currently have enough Productivity to cover its (locked-in) cost, you
-   may pay it off right now and take the reward, exactly as Work a Project
-   would during your Sprint. The difference: doing it here at Stand-Up costs
-   no Action Point. There's rarely a reason to wait, unless you'd rather hold
-   onto that Productivity to Hire something this round instead. Either way,
-   once it's paid off you're empty-handed again until next Stand-Up forces a
-   new pickup.
+Stand-Up never lets you pay for it — that only happens on your Sprint, via
+Work a Project. Since every player either already has a task or is forced to
+pick one up here, everyone is guaranteed to be holding exactly one task by
+the time Stand-Up ends.
 
 ### 6.2 — Sprint (Action Phase)
 
@@ -250,11 +246,12 @@ Each Action Point buys one of the following:
   cards join your tableau.
 - **Work a Project** — pay the Productivity cost of the task currently in
   your hand (the one you picked up at Stand-Up — see
-  [6.1](#61-stand-up-meeting-income-phase)). Gain its Career Capital reward
-  (and any other listed effects) immediately, then you're empty-handed until
-  next Stand-Up. If you already settled your task for free at Stand-Up this
-  round, you have nothing to Work this Sprint — spend the Action Point on
-  something else.
+  [6.1](#61-stand-up-meeting-income-phase)). This is the only way to
+  actually pay for and finish a task — Stand-Up only ever hands you one.
+  Gain its Career Capital reward (and any other listed effects) immediately,
+  then you're empty-handed until next Stand-Up forces a new pickup. If
+  you've already Worked your Project once this Sprint, you have nothing
+  left to Work — spend the Action Point on something else.
 - **Network** — no cost. Gain 2 Political Capital and 1 Career Capital.
 - **Self-Care** — no cost. Remove 2 Burnout.
 
@@ -721,8 +718,8 @@ written and see how it goes. That's what the simulation says it's like.
 ### Round Structure
 
 1. Stand-Up Meeting — collect tableau income + 1 free Productivity; if
-   empty-handed, pick up a task from the Kanban Board (free); settle it now
-   for free if you can afford it
+   empty-handed, pick up a task from the Kanban Board (free — claim only,
+   no paying yet)
 2. Sprint — spend Action Points (2 / 3 / 4 by rung); 1 free Overtime action
    available
 3. Lunch — draw & resolve 1 Office Chaos card
@@ -744,9 +741,9 @@ Mandatory Training.
 ### Task in Hand
 
 You hold at most one Project at a time. Empty-handed at Stand-Up → you must
-pick one up from the Kanban Board (free). Can afford its cost right then? You
-may settle it for free (no AP) instead of waiting for your Sprint's Work a
-Project (which still costs 1 AP for the same result).
+pick one up from the Kanban Board (free — claim only). Paying for it and
+taking the reward only happens on your Sprint, via Work a Project (1 AP) —
+Stand-Up never completes it for you.
 
 ### Review Score
 

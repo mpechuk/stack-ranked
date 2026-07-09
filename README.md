@@ -49,7 +49,8 @@ Pages (see below). No build step, no server, no dependencies.
 1. Pick a **win condition** and set up your **players** (name, Human/AI, and an
    AI archetype).
 2. At **Stand-Up**, if you're empty-handed, pick up a task from the Kanban
-   Board (free) — and settle it on the spot for free if you can afford it.
+   Board (free — a claim, not a completion; you can't pay for it until your
+   Sprint).
 3. On your **Sprint**, spend Action Points on:
    - **Hire** a Skill/Tool from the Job Board (pay Productivity).
    - **Work a Project** (pay Productivity for the task in your hand → gain
