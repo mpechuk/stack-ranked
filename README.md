@@ -30,11 +30,13 @@ Pages (see below). No build step, no server, no dependencies.
   each with a distinct playstyle.
 - **Both win conditions:** *Race to CEO* (first to the top wins) and
   *The Long Game* (fixed 24 rounds, highest Final Score wins).
-- **All 101 cards implemented** — 30 Skills/Tools, 19 Projects (incl. the
-  evergreen *Reduce Technical Debt*), 30 Office Chaos events, 12 Mandatory
-  Trainings, and 10 Management Styles, each with its exact effect.
-- **Faithful rules:** the full round loop (Stand-Up → Work Block → Watercooler →
-  Cleanup), the exact 5-step Quarterly Review (eligibility-first promotion, the
+- **All 113 cards implemented** — 30 Skills/Tools, 31 Projects (incl. a
+  13-card evergreen pool — *Reduce Technical Debt* and its twelve siblings,
+  every one of them carrying a Burnout cost — that fills the Kanban Board's
+  permanent 5th slot), 30 Office Chaos events, 12 Mandatory Trainings, and 10
+  Management Styles, each with its exact effect.
+- **Faithful rules:** the full round loop (Stand-Up → Sprint → Lunch →
+  Postmortem), the exact 5-step Quarterly Review (eligibility-first promotion, the
   independent CEO Board Vote, Meteoric Rise capped at VP, PIP/demotion, and the
   Quarter-Marker-moves-last ordering), Burnout Crisis as an interrupt, Scope
   Creep, tier unlocks, and every documented edge case from the spec's postmortem.
@@ -46,7 +48,7 @@ Pages (see below). No build step, no server, no dependencies.
 
 1. Pick a **win condition** and set up your **players** (name, Human/AI, and an
    AI archetype).
-2. On your **Work Block**, spend Action Points on:
+2. On your **Sprint**, spend Action Points on:
    - **Hire** a Skill/Tool from the Job Board (pay Productivity).
    - **Work a Project** (pay Productivity → gain Career Capital).
    - **Network** (free: +2 Political Capital, +1 Career Capital).
