@@ -616,7 +616,7 @@
     renderTurnPanel(s); renderEvent(s);
   }
 
-  var PHASES = [["INCOME", "Stand-Up"], ["ACTION", "Work Block"], ["WATERCOOLER", "Watercooler"], ["CLEANUP", "Cleanup"], ["REVIEW", "Review"]];
+  var PHASES = [["INCOME", "Stand-Up"], ["ACTION", "Sprint"], ["LUNCH", "Lunch"], ["POSTMORTEM", "Postmortem"], ["REVIEW", "Review"]];
   function renderTop(s) {
     var q = Math.floor((s.roundNumber - 1) / 3) + 1;
     $("roundTag").textContent = "Round " + s.roundNumber + " · Q" + q;
@@ -782,7 +782,7 @@
     }
   }
   function phaseLabel(ph) {
-    var m = { INCOME: "Stand-Up Meeting", ACTION: "Work Block", WATERCOOLER: "Watercooler Event", CLEANUP: "Cleanup", REVIEW: "Performance Review" };
+    var m = { INCOME: "Stand-Up Meeting", ACTION: "Sprint", LUNCH: "Lunch", POSTMORTEM: "Postmortem", REVIEW: "Performance Review" };
     return m[ph] || ph;
   }
   function turnHint(s, p, t) {
