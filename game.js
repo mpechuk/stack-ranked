@@ -856,9 +856,12 @@
   async function assignAndSettleTasks(state, hooks) {
     if (state.restrictions.skipIncome) return; // IT Outage skips all of Stand-Up
     for (const p of turnOrder(state)) {
+      state.activePlayerId = p.id;
+      if (hooks && hooks.onChange) hooks.onChange();
       if (!p.heldTask) {
         const slotIndex = await pickTaskToClaim(state, hooks, p);
         if (slotIndex >= 0) claimTaskFromBoard(state, p, slotIndex);
+        if (hooks && hooks.onChange) hooks.onChange();
       }
       if (p.heldTask && p.productivity >= effectiveHeldTaskCost(p)) {
         const settle = (p.kind === "human" && hooks && hooks.decide)
@@ -869,8 +872,10 @@
             })
           : true; // AI always settles when it's free money — never a downside vs. paying via an AP later
         if (settle) completeHeldTask(state, p);
+        if (hooks && hooks.onChange) hooks.onChange();
       }
     }
+    state.activePlayerId = null;
   }
 
   function bestClaimIndex(state) {
@@ -1617,6 +1622,7 @@
       beginTurn: beginTurn,
       effectiveHireCost: effectiveHireCost,
       effectiveProjectCost: effectiveProjectCost,
+      effectiveHeldTaskCost: effectiveHeldTaskCost,
       selfCareApCost: selfCareApCost,
       canNetwork: canNetwork,
       canSelfCare: canSelfCare,
@@ -1637,7 +1643,7 @@
     _internal: {
       runReview: runReview, addBurnout: addBurnout, resolveTraining: resolveTraining,
       claimTaskFromBoard: claimTaskFromBoard, completeHeldTask: completeHeldTask,
-      effectiveHeldTaskCost: effectiveHeldTaskCost, assignAndSettleTasks: assignAndSettleTasks
+      assignAndSettleTasks: assignAndSettleTasks
     }
   };
 
