@@ -183,6 +183,11 @@
   .board { display: grid; gap: 10px; }
   .board.jobs { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
   .board.projects { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+  .kanban-skip-row { grid-column: 1 / -1; }
+  .kanban-skip-row button {
+    width: 100%; padding: 10px; border-style: dashed; color: var(--txt-dim);
+  }
+  .kanban-skip-row button:hover:not(:disabled) { color: var(--txt); }
   .gcard {
     background: var(--panel); border: 1px solid var(--line); border-radius: 9px; padding: 10px;
     display: flex; flex-direction: column; gap: 6px; position: relative; min-height: 96px;
@@ -618,6 +623,14 @@
       resolve(idx);
       return;
     }
+    if (act === "skip") {
+      var skipClaim = UI.claim; if (!skipClaim || !skipClaim.req.allowSkip) return;
+      var skipResolve = skipClaim.resolve;
+      UI.claim = null;
+      renderAll();
+      skipResolve("skip");
+      return;
+    }
     var t = UI.turn; if (!t || !t.active) return;
     var s = UI.activeState, p = t.player;
     if (act === "endturn") return endTurn();
@@ -832,6 +845,11 @@
           (displayPlayer ? '<button data-act="take" data-idx="' + i + '"' + (canTake ? "" : " disabled") + ">Take</button>" : "") + "</div>";
       host.appendChild(g);
     });
+    if (claim && claim.req.allowSkip) {
+      var skipRow = el("div", "kanban-skip-row");
+      skipRow.innerHTML = '<button data-act="skip">Skip — keep my Backlog as-is this round</button>';
+      host.appendChild(skipRow);
+    }
   }
 
   function renderTurnPanel(s) {
@@ -840,10 +858,13 @@
     if (s.status === "over") { host.innerHTML = '<div class="turn-who">Game over</div><div class="hint">See final standings.</div>'; return; }
     if (UI.claim) {
       var cp = s.players.find(function (x) { return x.id === UI.claim.req.playerId; });
+      var claimHint = UI.claim.req.allowSkip
+        ? "Click “Take” on a card in the Kanban Board below, or “Skip” to keep your Backlog as-is."
+        : "Click “Take” on a card in the Kanban Board below.";
       host.innerHTML =
         '<div class="turn-who">▸ ' + esc(cp ? cp.name : "") + "'s pickup</div>" +
         '<div class="hint">' + esc(UI.claim.req.prompt) + "</div>" +
-        '<div class="hint" style="color:var(--accent-2)">Click “Take” on a card in the Kanban Board below.</div>';
+        '<div class="hint" style="color:var(--accent-2)">' + claimHint + "</div>";
     } else if (t && t.active && t.player.kind === "human") {
       var p = t.player;
       var pips = "";

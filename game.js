@@ -860,29 +860,12 @@
     for (const p of turnOrder(state)) {
       state.activePlayerId = p.id;
       if (hooks && hooks.onChange) hooks.onChange();
-      const wantsToClaim = p.backlog.length === 0 || await decideClaimOrSkip(state, hooks, p);
-      if (wantsToClaim) {
-        const slotIndex = await pickTaskToClaim(state, hooks, p);
-        if (slotIndex >= 0) claimTaskFromBoard(state, p, slotIndex);
-      }
+      const mandatory = p.backlog.length === 0;
+      const slotIndex = await pickTaskToClaim(state, hooks, p, mandatory);
+      if (slotIndex >= 0) claimTaskFromBoard(state, p, slotIndex);
       if (hooks && hooks.onChange) hooks.onChange();
     }
     state.activePlayerId = null;
-  }
-
-  // Only asked when the player already has something in the backlog (an
-  // empty backlog has no choice — claiming is mandatory). AI always claims,
-  // preserving the archetype behavior/balance already measured and
-  // documented for the unconditional-claim design (spec Section 9.8) —
-  // this is a human-facing capability, not an AI strategy change.
-  async function decideClaimOrSkip(state, hooks, player) {
-    if (player.kind !== "human" || !hooks || !hooks.decide) return true;
-    const answer = await hooks.decide({
-      playerId: player.id, action: "claimOrSkip",
-      prompt: player.name + " already has " + player.backlog.length +
-        " task(s) in the backlog. Pick up another from the Kanban Board?"
-    });
-    return answer === true || answer === "yes";
   }
 
   function bestClaimIndex(state) {
@@ -895,17 +878,27 @@
     return best;
   }
 
-  async function pickTaskToClaim(state, hooks, player) {
+  // `mandatory` is false only when the player already has at least one
+  // backlog entry — in that case the request offers a "skip" choice
+  // alongside the board options. AI always claims (never voluntarily
+  // skips), preserving the archetype behavior/balance already measured and
+  // documented for the unconditional-claim design (spec Section 9.8) —
+  // skipping is a human-facing capability, not an AI strategy change.
+  async function pickTaskToClaim(state, hooks, player, mandatory) {
     const heuristic = bestClaimIndex(state);
     if (heuristic < 0) return -1; // nothing available anywhere (all slots empty)
     if (player.kind !== "human" || !hooks || !hooks.decide) return heuristic;
     const answer = await hooks.decide({
       playerId: player.id, action: "claimTask",
-      prompt: player.name + " picks up a Project from the Kanban Board for the backlog.",
+      prompt: mandatory
+        ? player.name + " has no task in hand — pick up a Project from the Kanban Board."
+        : player.name + " already has " + player.backlog.length + " task(s) — pick up another, or skip.",
+      allowSkip: !mandatory,
       options: state.kanbanBoard.map(function (slot, i) {
         return slot.card ? { key: String(i), label: slot.card.name + " (" + effectiveProjectCost(player, slot) + " P)" } : null;
       }).filter(Boolean)
     });
+    if (answer === "skip") return -1;
     const idx = typeof answer === "number" ? answer : parseInt(answer, 10);
     return (Number.isInteger(idx) && state.kanbanBoard[idx] && state.kanbanBoard[idx].card) ? idx : heuristic;
   }
