@@ -46,10 +46,10 @@ New to Synergy Corp? Here's the entire game in four steps. Everything else in
 this rulebook is detail.
 
 1. **Stand-Up Meeting**: collect Productivity and Political Capital from your
-   tableau (plus 1 free Productivity just for showing up). Then pick up one
-   more Project card from the Kanban Board into your Backlog — you always
-   take one, every Stand-Up, no matter how many you're already sitting on;
-   you're just claiming it, not paying for it yet.
+   tableau (plus 1 free Productivity just for showing up). Then pick up a
+   Project card from the Kanban Board into your Backlog — mandatory if it's
+   empty, optional (you may skip) if you already have at least one; you're
+   just claiming it, not paying for it yet.
 2. **Sprint**: spend your Action Points to Hire a Skill card, Work a Project
    (pay to finish any one entry in your Backlog — your choice which), Network,
    or Self-Care. You may also take one Overtime action per round for a bonus
@@ -167,9 +167,10 @@ Quarter Marker to match your current CC at the end of every Review.
 ### Your Backlog
 
 Your Backlog is every Project you've picked up but haven't paid for yet.
-There's no limit to how many you can hold. Every Stand-Up, you take one
-more card from the Kanban Board into your Backlog — always, whether you're
-currently sitting on zero or a dozen (see
+There's no limit to how many you can hold. If it's ever empty, picking up a
+card from the Kanban Board at Stand-Up isn't optional — the Backlog can
+never stay at zero. If you already have at least one entry, though, you may
+choose to pick up another anyway or skip it for the round (see
 [6.1](#61-stand-up-meeting-income-phase)). Taking a task is free; paying its
 Productivity cost is what actually finishes it and earns the reward, and
 that only happens on your Sprint, via Work a Project (see
@@ -216,21 +217,24 @@ shown on their Skill/Tool tableau, plus a flat +1 Productivity "showed up"
 bonus.
 
 Then, in First Player order (this part isn't simultaneous — everyone's
-reaching for the same Kanban Board): every player takes one Project card
-from the Kanban Board into their Backlog — your choice of any card
-currently on the board. This happens every single Stand-Up, for everyone,
-no matter how large a Backlog you're already carrying — there's no cap and
-no "only if you're empty-handed" exception. This is free; you are not
-paying its cost yet, just claiming it. Taking it empties that slot exactly
-as if you'd completed a Project there (a regular slot stays empty until the
-next Postmortem refills it; the Evergreen slot instantly deals itself a
-replacement — see [Deck Composition](#deck-composition) — which is why
-there's always something to pick up even if every other slot is already
-spoken for this Stand-Up). Whatever cost is showing on the card at the
-moment you take it (including any Scope Creep it had already picked up) is
-locked in for that entry — it won't creep any higher while it sits in your
-Backlog, even though the slot that replaces it will start accruing its own
-Scope Creep from scratch.
+reaching for the same Kanban Board): if your Backlog is empty, you must take
+one Project card from the Kanban Board — your Backlog can never stay at
+zero. If you already have at least one Backlog entry, you may take another
+if you want, or skip and leave your Backlog exactly as it is this round.
+There's no cap either way — a Backlog can grow as large as you're willing
+to let it.
+
+Taking a card is free; you are not paying its cost yet, just claiming it.
+Taking it empties that slot exactly as if you'd completed a Project there
+(a regular slot stays empty until the next Postmortem refills it; the
+Evergreen slot instantly deals itself a replacement — see
+[Deck Composition](#deck-composition) — which is why there's always
+something to pick up even if every other slot is already spoken for this
+Stand-Up). Whatever cost is showing on the card at the moment you take it
+(including any Scope Creep it had already picked up) is locked in for that
+entry — it won't creep any higher while it sits in your Backlog, even
+though the slot that replaces it will start accruing its own Scope Creep
+from scratch.
 
 Stand-Up never lets you pay for anything in your Backlog — that only
 happens on your Sprint, via Work a Project.
@@ -726,8 +730,9 @@ written and see how it goes. That's what the simulation says it's like.
 ### Round Structure
 
 1. Stand-Up Meeting — collect tableau income + 1 free Productivity; pick up
-   one more task from the Kanban Board into your Backlog (free — claim
-   only, no paying yet; happens every round, no cap)
+   a task from the Kanban Board into your Backlog (free — claim only, no
+   paying yet). Mandatory if your Backlog is empty; optional (may skip) if
+   you already have at least one entry. No cap either way.
 2. Sprint — spend Action Points (2 / 3 / 4 by rung); 1 free Overtime action
    available
 3. Lunch — draw & resolve 1 Office Chaos card
@@ -748,12 +753,13 @@ Mandatory Training.
 
 ### Your Backlog
 
-No size limit — every Stand-Up you take one more card into it, whether
-you're empty or overflowing (free — claim only). Paying for any entry and
-taking its reward only happens on your Sprint, via Work a Project (1 AP per
-entry) — Stand-Up never completes anything for you. You choose which entry
-to Work each time, and can clear more than one per Sprint if you have the
-AP and Productivity for it.
+No size limit. Empty at Stand-Up → you must take a card from the Kanban
+Board (free — claim only). Non-empty → taking another is your choice; skip
+it if you'd rather not grow your Backlog this round. Paying for any entry
+and taking its reward only happens on your Sprint, via Work a Project (1 AP
+per entry) — Stand-Up never completes anything for you. You choose which
+entry to Work each time, and can clear more than one per Sprint if you have
+the AP and Productivity for it.
 
 ### Review Score
 

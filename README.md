@@ -48,8 +48,9 @@ Pages (see below). No build step, no server, no dependencies.
 
 1. Pick a **win condition** and set up your **players** (name, Human/AI, and an
    AI archetype).
-2. At **Stand-Up**, pick up one more task from the Kanban Board into your
-   **Backlog** — every round, no cap (free — a claim, not a completion; you
+2. At **Stand-Up**, pick up a task from the Kanban Board into your
+   **Backlog** — mandatory if it's empty, optional (skippable) once you have
+   at least one, no cap either way (free — a claim, not a completion; you
    can't pay for it until your Sprint).
 3. On your **Sprint**, spend Action Points on:
    - **Hire** a Skill/Tool from the Job Board (pay Productivity).

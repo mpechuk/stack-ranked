@@ -195,13 +195,24 @@ beyond what's listed.
 **5.1.2 — Backlog Grooming (sequential, in First Player order)**
 Immediately after Income, still within Stand-Up: for every player, in First
 Player order (this step is sequential, not simultaneous, because it draws
-from the shared Kanban Board — same reasoning as 5.2's Sprint), take exactly
-one card from the Kanban Board into `player.backlog` —
-`player.backlog.push({card, lockedScope})`. This happens **unconditionally,
-every Stand-Up, for every player, regardless of how many entries are
-already in their backlog** — there is no cap, and no "only if empty" gate;
-a player who never Works anything will simply keep accumulating backlog
-entries round after round.
+from the shared Kanban Board — same reasoning as 5.2's Sprint):
+
+- If `player.backlog.length === 0`, claiming is **mandatory** — the backlog
+  may never be left at zero.
+- If `player.backlog.length > 0`, the player is **asked whether they want
+  to claim another entry this round or skip**. Declining leaves the backlog
+  unchanged this Stand-Up; accepting proceeds exactly like the mandatory
+  case below. AI players always accept (see the note at the end of this
+  section) — this choice is meaningful primarily for human players who may
+  prefer to focus on clearing an already-large backlog rather than growing
+  it further.
+
+Claiming (whether mandatory or accepted voluntarily) takes exactly one card
+from the Kanban Board into `player.backlog` —
+`player.backlog.push({card, lockedScope})`. There is still no size cap and
+no upper limit — a player who always accepts (or has an empty backlog every
+round) will keep accumulating entries just as before this skip option
+existed.
 
 This is a **claim, not a completion**: no Productivity is paid, and no
 reward is granted, at this point. Removing the card from the board follows
@@ -225,13 +236,22 @@ player this round; this should not occur in practice given the Evergreen
 backstop above.
 
 **Paying for a backlog entry never happens here.** Stand-Up only ever adds
-one; the only way to pay an entry's cost and collect its reward is the
-Sprint's Work a Project action (5.2.2), which still costs its normal 1 AP
-per entry worked, and the player chooses which entry (any order, not
-FIFO/LIFO). By construction, every player's backlog grows by exactly one
-entry every Stand-Up; whether it also shrinks that round depends entirely
-on how much AP and Productivity they spend Working entries during their
-Sprint.
+one (at most); the only way to pay an entry's cost and collect its reward
+is the Sprint's Work a Project action (5.2.2), which still costs its normal
+1 AP per entry worked, and the player chooses which entry (any order, not
+FIFO/LIFO). A player's backlog grows by at most one entry every Stand-Up
+(zero if they choose to skip while non-empty); whether it also shrinks that
+round depends entirely on how much AP and Productivity they spend Working
+entries during their Sprint.
+
+**Implementation note on the skip decision:** the reference AI always
+accepts the claim (never voluntarily skips) — the balance data in Section
+9.8 was measured under unconditional claiming and remains valid for AI-only
+or mixed games, since AI behavior is unchanged by this option. The skip
+choice is a capability for human players; nothing prevents implementing a
+smarter AI heuristic for it later (e.g., skip once the backlog already
+exceeds some multiple of the player's typical AP budget), but that's a
+deliberate future tuning decision, not assumed here.
 
 This whole sub-phase (like Income) is skipped for a round in which
 `restrictions.skipIncome` is set (IT Outage) — Backlog Grooming is part of
