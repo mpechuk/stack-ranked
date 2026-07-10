@@ -1,0 +1,1038 @@
+STACK RANKED — CARD ART GENERATION PROMPTS
+============================================
+Generated from cards.json. One image-generation prompt per card, each preceded
+by a reference line identifying the card (category, tier/subgroup, name,
+cost/type, and its effect + flavor text from cards.json) so you can match
+generated art back to the right entry.
+
+MASTER STYLE (baked into every prompt below, so each block is self-contained
+and can be pasted into an image model on its own):
+  Retro corporate-propaganda poster art, matching the box cover illustration —
+  bold black ink outlines, halftone screentone shading, worn paper-grain
+  texture, dramatic radiating sunburst linework in the background, satirical
+  heroic composition, screen-print poster look. Base palette of burnt orange,
+  cream, and navy, lifted with a category accent color (see below). No text,
+  no logos, no watermarks, no card frame — this is illustration only, the
+  layout/text is added separately.
+
+CATEGORY ACCENT COLORS (match the existing card-color coding used in the
+print-and-play PDF, so art mood ties back to card type at a glance):
+  Skill/Tool   -> cool steel-blue accent
+  Project      -> mossy corporate-green accent
+  Office Chaos -> alarm-red accent
+  Training     -> muted violet accent
+  Management   -> brass-gold accent
+
+FORMAT: landscape banner crop, roughly 5:2 aspect ratio (the physical card
+is poker-sized, 2.5in x 3.5in, with a wide illustration band across the top —
+see IMAGE_MAX_H in generate_print_and_play.py).
+
+Each entry below has a REFERENCE line (straight from cards.json) and a PROMPT
+you can paste as-is into an image-generation model.
+
+
+================================================================
+SKILLS / TOOLS — TIER 1
+================================================================
+
+------------------------------------------------------------
+[001] SKILL · Tier 1 · "Copy-Paste from Stack Overflow" — Cost 1, Permanent
+Effect: +1 Productivity/round.
+Flavor: "It worked on someone else's machine in 2019. Good enough."
+PROMPT:
+Scene: A triumphant employee stands atop a duct-taped, sparking laptop, hoisting a glowing scroll of green code copied straight out of a giant floating browser window stamped "STACK OVERFLOW — ANSWERED 2019."
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a cool steel-blue accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[002] SKILL · Tier 1 · "Ctrl+F Power User" — Cost 1, Permanent
+Effect: +1 Productivity/round.
+Flavor: "Never reads past the first match."
+PROMPT:
+Scene: A giant magnifying glass shaped like a search bar zooms triumphantly onto the very first highlighted word of an enormous unrolled document scroll, the rest of the pages trailing off into the distance completely blank and unread.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a cool steel-blue accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[003] SKILL · Tier 1 · "Free Snack Hoarder" — Cost 1, Permanent
+Effect: +1 Political Capital/round.
+Flavor: "Keeps granola bars in every drawer for emergency morale trades."
+PROMPT:
+Scene: A figure flings open a filing-cabinet drawer overflowing with granola bars like a treasure chest, golden light spilling out, grateful coworkers reaching toward it from every side.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a cool steel-blue accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[004] SKILL · Tier 1 · "Office Plant Whisperer" — Cost 1, Permanent
+Effect: +1 Political Capital/round.
+Flavor: "The only living thing in the office that's thriving."
+PROMPT:
+Scene: One glorious potted plant flourishes on a desk in a single sunbeam, leaves lush and bright, surrounded by a gray, wilted cubicle landscape; its proud caretaker waters it with quiet reverence.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a cool steel-blue accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[005] SKILL · Tier 1 · "Reply-All Enthusiast" — Cost 2, One-Shot
+Effect: Immediately: every other player gains 1 Burnout; you gain 2 Political Capital.
+Flavor: "Accidentally cc'd the whole company on a lunch order question. Iconic."
+PROMPT:
+Scene: A figure slams a glowing "REPLY ALL" button, sending a shockwave of exploding email envelopes rippling across a sea of flinching coworkers at their desks, while they triumphantly hold up a single lunch-order printout.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a cool steel-blue accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[006] SKILL · Tier 1 · "Emotional Support Rubber Duck" — Cost 2, Permanent
+Effect: Once per Quarter, take Overtime without gaining Burnout.
+Flavor: "It just listens. That's more than your manager does."
+PROMPT:
+Scene: A small glowing yellow rubber duck sits attentively under a tiny spotlight on a cluttered desk beside an exhausted worker still typing at midnight, its calm presence radiating out like a halo.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a cool steel-blue accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[007] SKILL · Tier 1 · ""Let's Take This Offline"" — Cost 2, Permanent
+Effect: +1 Political Capital/round. Once per Quarter, resolve a Mandatory Training without losing next round's Action Point (you still gain the Badge).
+Flavor: "Bought yourself three weeks. The meeting still happens eventually."
+PROMPT:
+Scene: A figure calmly shoves a swarm of meeting-invite envelopes off a cliff edge marked "OFFLINE," a looming storm-cloud labeled "MANDATORY TRAINING" held at bay just out of reach in the distance.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a cool steel-blue accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[008] SKILL · Tier 1 · "Standing Desk Enthusiast" — Cost 2, Permanent
+Effect: +1 Productivity/round. Ignore Burnout gained from Office Chaos cards.
+Flavor: "Won't stop talking about it, but their back does feel great."
+PROMPT:
+Scene: A figure stands proudly at an elevated standing desk like a pulpit, mid-lecture with one arm raised, radiating confident energy while a chaotic red storm swirls harmlessly around them without landing a hit.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a cool steel-blue accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[009] SKILL · Tier 1 · "LinkedIn Thought Leader" — Cost 2, Permanent
+Effect: +2 Political Capital/round; −1 Productivity/round.
+Flavor: "Posted "Hot take: communication is important." 40,000 impressions."
+PROMPT:
+Scene: A figure preaches from a soapbox made of a giant smartphone showing "40,000 IMPRESSIONS," arms raised to a cheering crowd of thumbs-up icons, while an actual laptop of unfinished work gathers dust behind them.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a cool steel-blue accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[010] SKILL · Tier 1 · "Regex Whisperer" — Cost 3, Permanent
+Effect: +3 Productivity/round; +1 Burnout/round.
+Flavor: "Nobody else can read their code. That's job security, right?"
+PROMPT:
+Scene: A hunched figure conjures a tangled, glowing web of cryptic slashes and symbols like an arcane sigil above their keyboard, coworkers recoiling in baffled awe at the incomprehensible glowing script.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a cool steel-blue accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[011] SKILL · Tier 1 · "Actually Reads the Documentation" — Cost 3, Permanent
+Effect: +1 Productivity/round. Your Projects cost 1 less Productivity (minimum 1).
+Flavor: "A hero nobody asked for."
+PROMPT:
+Scene: A lone figure sits in a small, quiet spotlight calmly reading a thick manual while surrounding coworkers panic and flail around burning deadlines, a faint unnoticed heroic cape fluttering behind them.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a cool steel-blue accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[012] SKILL · Tier 1 · "Master of Small Talk" — Cost 3, Permanent
+Effect: +2 Political Capital/round.
+Flavor: "Knows everyone's dog's name. Cannot recall a single deadline."
+PROMPT:
+Scene: A charismatic figure chats warmly at the watercooler, encircled by floating dog-face icons and coffee cups, while a forgotten calendar page marked "DEADLINE" drifts unnoticed out of frame behind them.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a cool steel-blue accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+
+================================================================
+SKILLS / TOOLS — TIER 2
+================================================================
+
+------------------------------------------------------------
+[013] SKILL · Tier 2 · "Scrum Master" — Cost 4, Permanent
+Effect: +2 Political Capital/round; −1 Productivity/round.
+Flavor: "Facilitates a 45-minute meeting to schedule a 15-minute meeting."
+PROMPT:
+Scene: A figure stands at a whiteboard covered in looping arrows and sticky notes, orchestrating an oversized clock that spins in slow circles, coworkers slumped around a conference table far larger than the meeting warrants.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a cool steel-blue accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[014] SKILL · Tier 2 · "Full-Stack, Full-Burnout" — Cost 4, Permanent
+Effect: +3 Productivity/round; +1 Burnout/round.
+Flavor: "Owns the frontend, backend, database, and the on-call phone."
+PROMPT:
+Scene: A frazzled figure juggles a browser window, a glowing database cylinder, a server rack, and a ringing red on-call phone all at once, small sparks of exhaustion flying off them.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a cool steel-blue accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[015] SKILL · Tier 2 · "AI Prompt Engineer" — Cost 4, Permanent
+Effect: +3 Productivity/round. Each time an Office Chaos card is drawn, flip a coin; on heads, discard 2 Productivity from your bank (a confident hallucination).
+Flavor: "Confidently hallucinated the entire Q3 roadmap."
+PROMPT:
+Scene: A confident figure gestures grandly at a glowing oracle-like orb projecting a beautifully rendered but subtly warped "Q3 ROADMAP" full of nonsensical icons and impossible arrows, entirely unaware anything is wrong.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a cool steel-blue accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[016] SKILL · Tier 2 · "Toxic Positivity Certification" — Cost 4, Permanent
+Effect: +2 Political Capital/round. You may not take Self-Care actions.
+Flavor: "Everything is a learning opportunity, including this."
+PROMPT:
+Scene: A relentlessly beaming figure holds up a sun-shaped "CERTIFIED" badge with an enormous grin, while just behind them a smaller, stress-cracked figure quietly needs a break they are not permitted to take.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a cool steel-blue accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[017] SKILL · Tier 2 · "The Brilliant Jerk" — Cost 5, Permanent
+Effect: +4 Productivity/round; −1 Political Capital/round.
+Flavor: "Ships incredible code. Has made three people cry this quarter."
+PROMPT:
+Scene: A lone genius ships glowing, flawless code from atop a mountain of monitors, unaware or uncaring of three tearful coworkers quietly walking away in the long shadow below.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a cool steel-blue accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[018] SKILL · Tier 2 · "Master Delegator" — Cost 5, Permanent
+Effect: +2 Productivity/round; +2 Political Capital/round.
+Flavor: "Has not personally touched a keyboard since 2021."
+PROMPT:
+Scene: A relaxed figure reclines with feet up on the desk, pointing regally, while an army of small worker-hands rises from below to type on a keyboard visibly untouched and dusty in front of them.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a cool steel-blue accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[019] SKILL · Tier 2 · "Buzzword Compiler" — Cost 4, Permanent
+Effect: +2 Political Capital/round; −1 Productivity/round.
+Flavor: "Synergizes core competencies to leverage actionable takeaways."
+PROMPT:
+Scene: A figure at a podium exhales a swirling cloud of jargon-word confetti ("SYNERGY," "LEVERAGE," "PARADIGM") dazzling an audience, while an actual task list sits untouched and quietly smoldering behind them.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a cool steel-blue accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[020] SKILL · Tier 2 · "Whiteboard Diagram Enthusiast" — Cost 4, Permanent
+Effect: +2 Productivity/round. If you have 4+ Skill cards in play, your Projects cost 1 less Productivity.
+Flavor: "The diagram has 14 boxes. Nobody knows what 6 of them mean."
+PROMPT:
+Scene: A figure gestures proudly at an enormous whiteboard covered in interlocking boxes and arrows forming an incomprehensible flowchart, coworkers squinting politely, clearly lost past the sixth box.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a cool steel-blue accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[021] SKILL · Tier 2 · "On-Call Pager Veteran" — Cost 5, Permanent
+Effect: +2 Productivity/round. Ignore the first Burnout you'd gain each Quarter.
+Flavor: "Has slept through three fire drills and one actual fire."
+PROMPT:
+Scene: A weary but unshaken figure sleeps peacefully in a chair clutching a glowing pager, alarm lights flashing and a small real flame flickering nearby without waking them.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a cool steel-blue accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[022] SKILL · Tier 2 · "Imposter Syndrome (Actually Very Competent)" — Cost 4, Permanent
+Effect: +2 Productivity/round; +1 Political Capital/round.
+Flavor: "Is, statistically, doing better than they think."
+PROMPT:
+Scene: A modest figure shrinks nervously in the foreground, hunched and unsure, while a confident glowing silhouette of themselves towers capably behind, effortlessly finishing impressive work.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a cool steel-blue accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+
+================================================================
+SKILLS / TOOLS — TIER 3
+================================================================
+
+------------------------------------------------------------
+[023] SKILL · Tier 3 · "The Bus Factor of One" — Cost 6, Permanent
+Effect: +3 Productivity/round. If you suffer a Burnout Crisis, lose double the usual Political Capital penalty.
+Flavor: "If they quit, nothing ships again. Ever."
+PROMPT:
+Scene: A single figure stands as the sole support beam holding up an entire teetering tower of servers and code, every surrounding desk conspicuously empty.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a cool steel-blue accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[024] SKILL · Tier 3 · "Golden Handcuffs (Fully Vested)" — Cost 7, Permanent
+Effect: Ignore all PIP and demotion effects for the rest of the game.
+Flavor: "The stock options mature in 18 months. So does nothing else."
+PROMPT:
+Scene: A content figure sits calmly wrapped in glowing golden shackles shaped like elegant jewelry, an upward-ticking stock certificate glowing beside them while storm clouds labeled with warning icons swirl but never quite touch them.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a cool steel-blue accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[025] SKILL · Tier 3 · "Rolodex of Every VP" — Cost 7, Permanent
+Effect: +4 Political Capital/round.
+Flavor: "Knows a guy. Always knows a guy."
+PROMPT:
+Scene: A figure fans out an enormous glowing rolodex of business cards like a peacock's tail, each card bearing a shadowy VP silhouette, confidently dialing an old rotary phone with a knowing smile.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a cool steel-blue accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[026] SKILL · Tier 3 · "Ships It Friday at 5 PM" — Cost 6, One-Shot
+Effect: Immediately complete one Project on the Kanban Board at half its listed Productivity cost (round up).
+Flavor: "The demo gods are watching. Ship it and pray."
+PROMPT:
+Scene: A figure hurls a glowing package stamped "DEPLOY" off a cliff edge as a clock strikes 5:00 on a Friday, both hands raised in prayer toward a stormy sky, sparks trailing off the falling package.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a cool steel-blue accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[027] SKILL · Tier 3 · "The Exit Interview Isn't Scary Anymore" — Cost 6, One-Shot
+Effect: Immediately remove all your Burnout and gain 1 Compliance Badge.
+Flavor: "Says everything they wish they'd said in every performance review — on the way out the door."
+PROMPT:
+Scene: A figure strides confidently through an open doorway into blinding daylight, tossing a heavy, flame-marked burnout backpack to the floor behind them while calmly holding up a single badge.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a cool steel-blue accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[028] SKILL · Tier 3 · "The Fixer" — Cost 8, Permanent
+Effect: Whenever any other player suffers a Burnout Crisis, gain 2 Political Capital.
+Flavor: "Somehow always available exactly when someone else's project catches fire."
+PROMPT:
+Scene: A cool, composed figure in sunglasses strolls calmly through background flames and panicking coworkers, casually pocketing glowing coins of political capital from the chaos around them.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a cool steel-blue accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[029] SKILL · Tier 3 · "VP Whisperer" — Cost 7, Permanent
+Effect: +3 Productivity/round; +2 Political Capital/round.
+Flavor: "Gets meetings on the calendar that shouldn't be mathematically possible."
+PROMPT:
+Scene: A figure holds an ornate glowing calendar bending and folding impossibly to fit far more meeting blocks than should exist, shadowy VP silhouettes nodding in approval around a conference table.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a cool steel-blue accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[030] SKILL · Tier 3 · "Golden Parachute Clause" — Cost 8, One-Shot
+Effect: Hold this card face-down in front of you. The next time you would be demoted, discard this instead and ignore the demotion.
+Flavor: "Negotiated on the way in. Nobody remembers why."
+PROMPT:
+Scene: A figure calmly holds a folded golden-parachute card face-down like a hidden ace, standing relaxed on a ledge directly above an open "DEMOTION" trapdoor, entirely unworried.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a cool steel-blue accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+
+================================================================
+PROJECTS — EARLY
+================================================================
+
+------------------------------------------------------------
+[031] PROJECT · Early · "Update the README (Nobody Reads It Anyway)" — Cost 2
+Reward: 3 Career Capital.
+Flavor: "Now technically documented."
+PROMPT:
+Scene: A figure staples a single crumpled page labeled "README" onto an enormous, ignored mountain of code files, a small proud spotlight shining on that one page alone.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a mossy corporate-green accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[032] PROJECT · Early · "Fix the Bug in Production (On a Friday)" — Cost 3
+Reward: 4 Career Capital; +1 Burnout.
+Flavor: "It's fine. Everything is fine."
+PROMPT:
+Scene: A figure presses a glowing "DEPLOY" button at 4:59 on a Friday afternoon with a forced calm smile, flames and warning sirens erupting from monitors behind them, a wall calendar circled "FRIDAY."
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a mossy corporate-green accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[033] PROJECT · Early · "Onboard the New Hire" — Cost 3
+Reward: 3 Career Capital; +1 Political Capital.
+Flavor: "They seem nice. Give it two Quarters."
+PROMPT:
+Scene: A veteran figure hands a wide-eyed new hire an oversized welcome badge and laptop, both smiling warmly, while a small hourglass labeled "2 QUARTERS" quietly looms in the background.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a mossy corporate-green accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[034] PROJECT · Early · "Clean Up the Shared Drive" — Cost 2
+Reward: 3 Career Capital.
+Flavor: "Found 40 folders named 'final_FINAL_v2.'"
+PROMPT:
+Scene: A figure wades through a towering, chaotic stack of folder icons labeled endless variations of "final," "FINAL," and "final_v2," triumphantly holding aloft one neatly organized folder.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a mossy corporate-green accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[035] PROJECT · Early · "Respond to the Simple Support Ticket" — Cost 2
+Reward: 2 Career Capital; +1 Political Capital.
+Flavor: "It was a browser cache issue. It's always a browser cache issue."
+PROMPT:
+Scene: A figure calmly points at a glowing "CLEAR CACHE" button as a panicked customer's flaming support ticket instantly extinguishes, a knowing smile exchanged between them.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a mossy corporate-green accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[036] PROJECT · Early · "Write the Sprint Retro Notes" — Cost 4
+Reward: 5 Career Capital.
+Flavor: "Action items: none of these will happen."
+PROMPT:
+Scene: A figure diligently writes on a scroll headed "ACTION ITEMS" while the ink fades to ghostly, invisible text just behind their pen, coworkers nodding solemnly in a circle of folding chairs.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a mossy corporate-green accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+
+================================================================
+PROJECTS — MID
+================================================================
+
+------------------------------------------------------------
+[037] PROJECT · Mid · "Migrate the Legacy Codebase" — Cost 6
+Reward: 8 Career Capital; +1 Burnout.
+Flavor: "Nobody who wrote the original code still works here."
+PROMPT:
+Scene: A lone figure spelunks with a lantern through a vast, cobwebbed ruin of ancient servers and fossilized code tablets, ghostly silhouettes of long-departed engineers fading into the walls around them.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a mossy corporate-green accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[038] PROJECT · Mid · "Launch the Feature Nobody Asked For" — Cost 5
+Reward: 7 Career Capital.
+Flavor: "It tested well with exactly one user: the VP's nephew."
+PROMPT:
+Scene: A figure unveils a shiny new feature on a spotlighted pedestal to a vast, empty auditorium, except for one lone teenager enthusiastically clapping in the front row.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a mossy corporate-green accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[039] PROJECT · Mid · "Respond to the RFP (Due Tomorrow, Started Today)" — Cost 5
+Reward: 6 Career Capital; +1 Political Capital.
+Flavor: "Yes, we can absolutely do all of this by Q2."
+PROMPT:
+Scene: A figure furiously types beneath a giant ticking clock labeled "DUE TOMORROW," papers flying everywhere, a confident thought-bubble above them promising an impossibly long checklist of deliverables.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a mossy corporate-green accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[040] PROJECT · Mid · "Survive the Compliance Audit" — Cost 6
+Reward: 7 Career Capital; 1 Compliance Badge.
+Flavor: "Everyone suddenly remembers where the fire extinguishers are."
+PROMPT:
+Scene: A figure stands at attention beside a gleaming, suspiciously spotless fire extinguisher while a stern auditor inspects with a clipboard, coworkers in the background hastily dusting other things off just out of view.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a mossy corporate-green accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[041] PROJECT · Mid · "Rebuild the CI/CD Pipeline (Third Time's the Charm)" — Cost 6
+Reward: 8 Career Capital; +1 Burnout.
+Flavor: "This one's permanent. Definitely. For real this time."
+PROMPT:
+Scene: A figure builds a glowing new pipeline structure atop the crumbled ruins of two nearly identical previous pipelines, hammer raised high, a hopeful hand-painted "THIRD TIME'S THE CHARM" banner overhead.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a mossy corporate-green accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[042] PROJECT · Mid · "Run the All-Hands Presentation" — Cost 5
+Reward: 6 Career Capital; +1 Political Capital.
+Flavor: "Slides are just screenshots of Slack messages, but with a logo now."
+PROMPT:
+Scene: A figure presents confidently at a podium in front of a giant screen displaying an obvious screenshotted chat conversation with a small logo awkwardly pasted in the corner, the audience half-attentive.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a mossy corporate-green accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+
+================================================================
+PROJECTS — LATE
+================================================================
+
+------------------------------------------------------------
+[043] PROJECT · Late · "Ship the Major Redesign Before the Conference" — Cost 8
+Reward: 11 Career Capital; +1 Burnout.
+Flavor: "The demo gods are watching. They are not merciful."
+PROMPT:
+Scene: A figure races against a giant countdown clock toward a glowing conference-stage banner, arms full of last-minute patches, dark stormy demo-god silhouettes looming ominously overhead.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a mossy corporate-green accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[044] PROJECT · Late · "Turn Around the Failing Division" — Cost 9
+Reward: 13 Career Capital.
+Flavor: "Everyone competent already quietly left. You didn't get the memo in time."
+PROMPT:
+Scene: A lone figure stands resolutely at the helm of a listing, half-sunk ship, patching leaks alone, while a line of lifeboats full of departing capable-looking silhouettes rows calmly away in the distance.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a mossy corporate-green accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[045] PROJECT · Late · "Land the Whale Client" — Cost 8
+Reward: 11 Career Capital; +2 Political Capital.
+Flavor: "They want it fully custom, half price, by Friday."
+PROMPT:
+Scene: A figure strains on a fishing line reeling in an enormous, ornate whale labeled "CLIENT," its side scrawled with impossible demands — "CUSTOM," "HALF PRICE," "FRIDAY" — sweat flying with effort.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a mossy corporate-green accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[046] PROJECT · Late · "Lead the Company-Wide Reorganization" — Cost 9
+Reward: 13 Career Capital; +1 Burnout.
+Flavor: "Nobody's title changed, but everyone's manager did. Twice."
+PROMPT:
+Scene: A figure spins a giant roulette-like org-chart wheel covered in identical name tags, manager boxes swapping rapidly around a static center of unchanged, dizzy employees.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a mossy corporate-green accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[047] PROJECT · Late · "Present to the Board (12 Minutes to Justify a Department)" — Cost 7
+Reward: 10 Career Capital; +2 Political Capital.
+Flavor: "They looked at their phones for eleven of them."
+PROMPT:
+Scene: A figure presents earnestly under a spotlight to a row of shadowy board-member silhouettes, each glowing faintly with their own phone screen, one lone attentive face visible in the crowd.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a mossy corporate-green accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[048] PROJECT · Late · "Negotiate the Vendor Contract (40 Pages of Terms)" — Cost 7
+Reward: 10 Career Capital.
+Flavor: "Nobody read past page 3. That's where the bad clause is."
+PROMPT:
+Scene: A figure signs a contract atop an enormous unrolled scroll of fine print stretching off into the distance, one ominous highlighted clause glowing faintly and unnoticed on page 3 behind them.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a mossy corporate-green accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+
+================================================================
+PROJECTS — EVERGREEN
+================================================================
+
+------------------------------------------------------------
+[049] PROJECT · Evergreen · "Answer a "Quick Question" on Slack" — Cost 2
+Reward: 3 Career Capital; +1 Burnout.
+Flavor: "That was forty-five minutes ago. There are now six people in the thread."
+PROMPT:
+Scene: A figure typing a "quick" reply as a chat thread balloons explosively upward into a tangled tower of overlapping message bubbles, six new coworker avatars piling in one after another.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a mossy corporate-green accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[050] PROJECT · Evergreen · "Reduce Technical Debt" — Cost 4
+Reward: 5 Career Capital; +1 Burnout.
+Flavor: "Perpetually 80% done. It has always been 80% done. It will always be 80% done."
+PROMPT:
+Scene: A figure endlessly pushes a boulder labeled "TECH DEBT" up a hill toward a sign reading "80%," the boulder perpetually rolling back just short of the summit, Sisyphus-style.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a mossy corporate-green accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[051] PROJECT · Evergreen · "Untangle the Legacy Spaghetti (One More Time)" — Cost 5
+Reward: 6 Career Capital; +1 Burnout.
+Flavor: "Found a comment that says "DO NOT REMOVE, NOT SURE WHY." Removed it anyway."
+PROMPT:
+Scene: A figure wrestles with a massive tangled knot of glowing spaghetti-like code strands, snipping away a small floating comment bubble reading "DO NOT REMOVE, NOT SURE WHY" with a pair of scissors.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a mossy corporate-green accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[052] PROJECT · Evergreen · "Reply to the Jira Comment From Six Months Ago" — Cost 1
+Reward: 1 Career Capital; +1 Burnout.
+Flavor: "The person who filed it left the company in Q2. The ticket did not."
+PROMPT:
+Scene: A figure blows a thick layer of dust off an ancient, cobwebbed ticket scroll glowing faintly, a translucent ghostly ex-employee waving farewell in the background while the ticket stubbornly remains.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a mossy corporate-green accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[053] PROJECT · Evergreen · "Delete the Commented-Out Code From 2019" — Cost 2
+Reward: 2 Career Capital; +1 Burnout.
+Flavor: "It's not documentation. It was never documentation."
+PROMPT:
+Scene: A figure drags a huge grayed-out, strikethrough block of ghostly code text toward a trash bin, a faint "2019" timestamp fading as it disappears from view.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a mossy corporate-green accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[054] PROJECT · Evergreen · "Un-hardcode the Hardcoded Value" — Cost 3
+Reward: 3 Career Capital; +1 Burnout.
+Flavor: "Replaced "prod-server-3" with a config flag that defaults to "prod-server-3.""
+PROMPT:
+Scene: A figure proudly swaps a rigid stone tablet reading "prod-server-3" for a shiny new toggle console — which itself is set to display "prod-server-3" — a subtle loop of string tying the two together.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a mossy corporate-green accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[055] PROJECT · Evergreen · "Rotate the API Keys You Forgot About" — Cost 3
+Reward: 4 Career Capital; +2 Burnout.
+Flavor: "Rotated three keys. Broke a fourth integration nobody remembered existed."
+PROMPT:
+Scene: A figure successfully turns three glowing ornate keys on a ring, while a fourth unnoticed connecting cable sparks and disconnects with a small puff of smoke in the background.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a mossy corporate-green accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[056] PROJECT · Evergreen · "Bump the Node Version (Nothing Breaks. Probably.)" — Cost 4
+Reward: 4 Career Capital; +1 Burnout.
+Flavor: "247 transitive dependencies quietly disagree."
+PROMPT:
+Scene: A figure nudges a single version-number dial upward with a nervous grin, while behind them a vast web of 247 tiny interconnected dependency nodes tremble and flicker in warning.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a mossy corporate-green accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[057] PROJECT · Evergreen · "Consolidate the Three Config Files Into One (Now Four)" — Cost 4
+Reward: 4 Career Capital; +2 Burnout.
+Flavor: "Progress, technically."
+PROMPT:
+Scene: A figure proudly merges three cluttered file-folder icons into one glowing folder, only for a fourth new folder to sprout immediately beside it, a resigned but hopeful shrug.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a mossy corporate-green accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[058] PROJECT · Evergreen · "Archive the Zombie Microservice" — Cost 5
+Reward: 7 Career Capital; +2 Burnout.
+Flavor: "Nobody knows what calls it. Everybody's afraid to find out."
+PROMPT:
+Scene: A figure cautiously nails shut a wooden crate over a faintly glowing, twitching microservice node, mysterious unlabeled cables disappearing off-panel into darkness all around it.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a mossy corporate-green accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[059] PROJECT · Evergreen · "Migrate Off the Framework You Migrated To Last Year" — Cost 6
+Reward: 7 Career Capital; +1 Burnout.
+Flavor: "The last migration's postmortem recommended this framework."
+PROMPT:
+Scene: A figure walks a well-worn circular path between two nearly identical framework-logo monoliths, a torn page reading "POSTMORTEM: SWITCH TO THIS ONE" blowing past from the previous cycle.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a mossy corporate-green accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[060] PROJECT · Evergreen · "Squash 40 Commits Into "misc fixes"" — Cost 6
+Reward: 8 Career Capital; +2 Burnout.
+Flavor: "git blame now blames everyone equally."
+PROMPT:
+Scene: A figure compresses a towering staircase of 40 labeled commit blocks into a single flattened block simply stamped "misc fixes," a cloud of anonymous pointing fingers hovering accusingly above it.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a mossy corporate-green accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[061] PROJECT · Evergreen · "Finally Read the Incident Postmortem Action Items" — Cost 8
+Reward: 10 Career Capital; +2 Burnout.
+Flavor: "Item 1: "Add more monitoring." Filed fourteen months ago. Still open."
+PROMPT:
+Scene: A figure blows dust off a thick, cobwebbed binder labeled "POSTMORTEM ACTION ITEMS," a single yellowed sticky note reading "Item 1: add more monitoring" glowing accusingly on the open page.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a mossy corporate-green accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+
+================================================================
+EVENTS (OFFICE CHAOS)
+================================================================
+
+------------------------------------------------------------
+[062] EVENT · "Reply-All Apocalypse"
+Effect: Every player gains 1 Burnout.
+Flavor: "247 replies. 246 said "please remove me from this thread.""
+PROMPT:
+Scene: A colossal explosion of email envelopes cascades across an entire office floor, every worker at their desk flinching in unison from the blast, one tiny envelope reading "please remove me" tumbling triumphantly through the wreckage.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with an alarm-red accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[063] EVENT · "All-Hands Meeting (Could Have Been an Email)"
+Effect: Every player loses 1 Productivity from this round's income.
+Flavor: "It was, in fact, an email."
+PROMPT:
+Scene: A packed auditorium of glazed-eyed employees stares at a giant projected slide that simply reads "COULD HAVE BEEN AN EMAIL," a single printed email page taped ironically over the corner of the screen.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with an alarm-red accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[064] EVENT · "Layoffs Loom (Just a Rumor... Probably)"
+Effect: Every player gains 1 Burnout. The First Player gains 1 Political Capital out of sheer relief.
+Flavor: "HR scheduled a "quick chat." Nobody is calm."
+PROMPT:
+Scene: A shadowy HR silhouette beckons from a doorway holding a folder, rows of employees at desks trading nervous sideways glances, one relieved figure quietly pocketing a coin at the front.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with an alarm-red accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[065] EVENT · "Quiet Quitting Goes Mainstream"
+Effect: Any player may decline their Overtime option this round to remove 1 Burnout instead.
+Flavor: "Doing exactly what's in the job description. Revolutionary."
+PROMPT:
+Scene: A figure calmly closes a laptop at the exact stroke of 5:00 on a wall clock, a small radiant halo of quiet defiance around them, while coworkers behind stay hunched over their desks working late.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with an alarm-red accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[066] EVENT · "Free Bagel Friday"
+Effect: Every player gains 1 Political Capital.
+Flavor: "Cinnamon raisin again. Someone doesn't respect the group chat's preferences."
+PROMPT:
+Scene: A tray of bagels is unveiled to a break room of employees, every face falling slightly at the same cinnamon-raisin variety yet again, one lone confetti popper going off in weak celebration.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with an alarm-red accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[067] EVENT · "Fire Drill"
+Effect: The player who used Overtime most recently gains 1 Burnout.
+Flavor: "Now standing in a parking lot with 200 coworkers you've never seen before."
+PROMPT:
+Scene: A crowd of employees stands awkwardly in a drizzly parking lot, faces unfamiliar to one another, one figure in front still clutching a coffee mug from their desk, alarm lights flashing atop the building behind them.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with an alarm-red accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[068] EVENT · "Surprise Reorg"
+Effect: Randomly choose two players; swap one Skill card between them.
+Flavor: "Nobody's job changed. Everybody's manager did."
+PROMPT:
+Scene: A giant spinning roulette wheel of org-chart boxes randomly swaps two employee name-tags mid-air between departments, both figures blinking in confusion as they pass each other.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with an alarm-red accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[069] EVENT · "Engagement Survey (Anonymous, Allegedly)"
+Effect: Every player gains 1 Political Capital.
+Flavor: "Question 14: 'I feel my work is valued.' Strongly Disagree."
+PROMPT:
+Scene: A figure drops a ballot into a glass box under a hovering, all-seeing eye icon labeled "ANONYMOUS," the paper visibly reading "Q14: I feel valued — STRONGLY DISAGREE" despite the label.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with an alarm-red accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[070] EVENT · "The Office Dog Visits"
+Effect: Each player may remove 1 Burnout.
+Flavor: "Best coworker on the payroll. Unfortunately unpaid."
+PROMPT:
+Scene: A golden-lit dog trots joyfully between cubicles, employees reaching out from their desks to pet it as it passes, a tiny unpaid "Employee of the Month" ribbon tied around its neck.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with an alarm-red accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[071] EVENT · "New CEO Announced"
+Effect: Each player with 5 or more Skill cards in play discards 1 of their choice.
+Flavor: "New broom, new org chart, same problems."
+PROMPT:
+Scene: A new silhouetted CEO figure sweeps a giant broom across an org chart, dust and old boxes flying, revealing the exact same tangled mess of names underneath.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with an alarm-red accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[072] EVENT · "WiFi Dies Mid-Demo"
+Effect: The First Player loses 1 Productivity.
+Flavor: "The client watched a loading spinner for four minutes."
+PROMPT:
+Scene: A presenter frozen mid-gesture in front of a giant screen showing only a spinning loading icon, a client silhouette on a video call visibly checking their watch.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with an alarm-red accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[073] EVENT · "Snack Wall Restocked"
+Effect: Every player gains 1 Productivity.
+Flavor: "Someone's hoarding the good granola bars again."
+PROMPT:
+Scene: A wall of snack shelves gleams triumphantly, freshly restocked, employees rushing toward it with outstretched arms, one silhouette already sneaking extra bars into a bag in the corner.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with an alarm-red accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[074] EVENT · "The Chair Finally Gets Fixed"
+Effect: Every player may remove 1 Burnout.
+Flavor: "After 11 months and 4 support tickets. A quiet miracle."
+PROMPT:
+Scene: A worker sits back in blissful relief in an office chair that no longer squeaks or wobbles, a small pile of four crumpled support-ticket papers and a wrench resting triumphantly beside it.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with an alarm-red accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[075] EVENT · "Casual Friday Goes Full Week"
+Effect: Every player gains 1 Political Capital.
+Flavor: "Nobody knows what 'business casual' means anymore. Everyone's relieved."
+PROMPT:
+Scene: A parade of employees in wildly mismatched outfits — pajama pants, a band t-shirt, one lone blazer — mingle confusedly but happily in a hallway, all equally unsure of the dress code.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with an alarm-red accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[076] EVENT · "Unlimited PTO (Policy, Not Practice)"
+Effect: No player may use the Self-Care action this round.
+Flavor: "Technically infinite. Practically, someone will ask why you're taking it."
+PROMPT:
+Scene: A figure reaches toward a glowing door labeled "UNLIMITED PTO" that recedes infinitely away down a forced-perspective hallway, side-eyeing cubicle coworkers following their every step.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with an alarm-red accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[077] EVENT · "Company Offsite in Cancun"
+Effect: The First Player gains 2 Productivity. Every other player gains 1 Burnout (FOMO).
+Flavor: "Mandatory fun. Fully mandatory."
+PROMPT:
+Scene: One triumphant figure lounges beachside with a cocktail under a "MANDATORY FUN" banner and palm trees, while back at the office everyone else peers enviously through a window at a tiny postcard on the wall.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with an alarm-red accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[078] EVENT · "IT Outage"
+Effect: Skip the Income Phase for every player this round.
+Flavor: "The ticket says 'Priority: Urgent.' The queue says 'Position: 214.'"
+PROMPT:
+Scene: Every employee across the office floor stares blankly at frozen, blue-error-screen monitors, a distant help-desk sign glowing ironically with the number "214."
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with an alarm-red accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[079] EVENT · "Late-Night CEO Email"
+Effect: Every player gains 1 Burnout.
+Flavor: "Sent 11:47 PM. Subject line: 'Quick thought 💡'"
+PROMPT:
+Scene: A phone buzzes on a nightstand in a dark bedroom, glowing with a notification titled "Quick thought" timestamped 11:47 PM, the sleeping recipient's eyes snapping open in dread.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with an alarm-red accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[080] EVENT · "Company-Wide Chat Outage"
+Effect: No player may take the Network action this round.
+Flavor: "Turns out everyone was just Slacking each other from three feet away."
+PROMPT:
+Scene: Two coworkers at adjacent desks turn and speak directly to each other in person for the first time in ages, visibly startled by each other's actual faces, laptops showing a "CHAT UNAVAILABLE" error.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with an alarm-red accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[081] EVENT · "Corporate Wellness Session"
+Effect: Every player may remove 1 Burnout, but loses 1 Productivity this round.
+Flavor: "A 20-minute breathing exercise squeezed between two deadlines."
+PROMPT:
+Scene: A circle of employees sit cross-legged mid-meditation with eyes closed, one arm still typing on a laptop balanced in their lap, a wellness instructor calmly guiding breathing beside a ticking deadline clock.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with an alarm-red accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[082] EVENT · "Viral Hustle Culture Post"
+Effect: Every player immediately resolves a Mandatory Training card, out of the normal cycle.
+Flavor: "'Sleep is for people who don't want it badly enough' — 2.1M likes."
+PROMPT:
+Scene: A giant glowing phone screen displays a smug motivational post with a soaring "2.1M LIKES" counter, while beneath it a line of exhausted employees drag themselves toward their desks at odd hours, eyes half-closed.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with an alarm-red accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[083] EVENT · "A Colleague's Job Interview (Elsewhere)"
+Effect: Each player chooses: gain 2 Political Capital (you covered for them), or gain 2 Productivity (you quietly took their tasks).
+Flavor: "They 'have a dentist appointment.' Everyone knows."
+PROMPT:
+Scene: A colleague slips out the office door in an unusually sharp suit carrying a portfolio folder, a row of coworkers exchanging sly knowing winks behind their monitors as if nothing's happening.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with an alarm-red accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[084] EVENT · "Open-Floor-Plan Renovation"
+Effect: Every player gains 1 Burnout.
+Flavor: "Now you can hear every phone call within 40 feet. Great for focus."
+PROMPT:
+Scene: Construction crews tear down the last cubicle wall, exposing a vast open floor of desks pressed uncomfortably close together, visible sound-wave ripples radiating out from every simultaneous phone call.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with an alarm-red accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[085] EVENT · "Catered Lunch (Actually Good This Time)"
+Effect: Every player gains 1 Productivity and 1 Political Capital.
+Flavor: "The good taco place. Morale is measurably higher."
+PROMPT:
+Scene: A cheerful crowd gathers eagerly around a catering table piled high with tacos, visibly brighter colors and higher spirits radiating from the group compared to a duller office in the background.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with an alarm-red accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[086] EVENT · "Server Room Overheats"
+Effect: Whoever has the most Skill cards in play loses 1 Productivity.
+Flavor: "It's always the one player with the biggest tableau."
+PROMPT:
+Scene: A server room glows red-hot with rippling heat waves, a single overloaded desk piled absurdly high with gadgets and tools visibly wilting under the thermal stress nearby.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with an alarm-red accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[087] EVENT · "The Standing Desk Convert"
+Effect: Each player who owns "Standing Desk Enthusiast" gains 1 extra Political Capital.
+Flavor: "They will tell you about it regardless."
+PROMPT:
+Scene: A cluster of employees now stand proudly at elevated standing desks in unified stance, one gesturing enthusiastically mid-monologue to a visibly trapped, politely nodding coworker.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with an alarm-red accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[088] EVENT · "The Spreadsheet Leaks Early"
+Effect: Every player gains 1 Political Capital.
+Flavor: "Someone found next Quarter's ranking spreadsheet. Everyone's recalculating."
+PROMPT:
+Scene: A giant glowing spreadsheet grid drifts loose from a laptop screen and floats across the office like a leaked banner, employees below craning their necks and scribbling their own recalculations on notepads.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with an alarm-red accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[089] EVENT · "Everything Is On Fire (Metaphorically, Probably)"
+Effect: Whoever has the most Burnout gains 1 more Burnout. Every other player gains 1 Political Capital in sympathy.
+Flavor: "It's always the same person's fire."
+PROMPT:
+Scene: One employee's desk is engulfed in cartoonish flames while sympathetic coworkers nearby offer supportive pats on the back, entirely unbothered by the literal fire beside them.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with an alarm-red accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[090] EVENT · "Therapy Benefit Actually Gets Used"
+Effect: Any one player may remove 2 Burnout.
+Flavor: "Covered at 60% after the deductible. Still worth it."
+PROMPT:
+Scene: A figure sits in a cozy therapist's chair, visibly lighter and unburdened, a small dark burnout-cloud lifting off their shoulders and drifting out through an open window.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with an alarm-red accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[091] EVENT · "National Cybersecurity Awareness Month (It's Also October)"
+Effect: Every player gains 1 Compliance Badge.
+Flavor: "The phishing test email had 12 typos. 30% of the company still clicked it."
+PROMPT:
+Scene: A giant glowing phishing email with obvious misspellings and a ticking countdown timer looms over a room of employees, roughly a third of them reaching eagerly toward it to click anyway.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with an alarm-red accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+
+================================================================
+TRAININGS (MANDATORY TRAINING)
+================================================================
+
+------------------------------------------------------------
+[092] TRAINING · "Anti-Harassment Training (The Annual Awkward One)"
+Effect: Standard.
+Flavor: "Same video. Same actor. Somehow one year older each time."
+PROMPT:
+Scene: Employees slump in folding chairs watching a projected training video, the same visibly aging actor frozen mid-gesture on screen, a stack of identical prior-year video tapes piled beside the projector.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a muted violet accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[093] TRAINING · "Cybersecurity Awareness: You Clicked the Phishing Link"
+Effect: Standard, plus +1 Burnout.
+Flavor: "The email was from 'IT Depatrment.' It had a countdown timer."
+PROMPT:
+Scene: A worker's mouse cursor hovers guiltily over a glowing email titled "IT Depatrment — URGENT" with a ticking countdown timer, a small alarm klaxon just beginning to sound behind the monitor.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a muted violet accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[094] TRAINING · "Data Privacy Training (Promises Retention By Lunch)"
+Effect: Standard.
+Flavor: "GDPR, CCPA, and six acronyms nobody in the room can define."
+PROMPT:
+Scene: A trainer gestures at a whiteboard cluttered with a tangled soup of acronyms, employees' eyes visibly glazing over, a lunch clock ticking hopefully in the corner of the room.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a muted violet accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[095] TRAINING · "DEI Refresher Course"
+Effect: Standard.
+Flavor: "The same slide deck as last year, with a new date in the corner."
+PROMPT:
+Scene: A presenter clicks through an identical slide deck, only the date in the corner of the projected slide visibly changing while every other element stays frozen exactly in place.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a muted violet accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[096] TRAINING · "Fire Safety Procedures (Nobody Remembers)"
+Effect: Standard.
+Flavor: "The evacuation map on the wall is for a building that no longer exists."
+PROMPT:
+Scene: Employees squint at a faded evacuation map on the wall depicting a building layout that clearly no longer matches their surroundings, its arrows confidently pointing toward a wall that wasn't there before.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a muted violet accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[097] TRAINING · "The Team Retreat (Trust Falls Included)"
+Effect: Standard, plus +1 Burnout.
+Flavor: "Someone did not get caught. It has changed the team dynamic permanently."
+PROMPT:
+Scene: A circle of coworkers attempt a trust fall, one figure clearly missed and sprawled on the grass, the rest of the group frozen in awkward, permanently altered tension.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a muted violet accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[098] TRAINING · "Information Security Awareness Month"
+Effect: Standard.
+Flavor: "Coincidentally also National Cybersecurity Awareness Month. Nobody planned this. Everyone's annoyed regardless."
+PROMPT:
+Scene: Two nearly identical banner posters overlap awkwardly on the same wall, employees walking past rolling their eyes at the redundant, unplanned overlap between them.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a muted violet accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[099] TRAINING · "New Manager Training ("Good Luck" Sendoff)"
+Effect: Gain 2 Compliance Badges instead of the usual 1.
+Flavor: "Four hours on feedback techniques. Zero minutes on the raise you were promised."
+PROMPT:
+Scene: A freshly minted manager receives a hearty handshake beneath a "GOOD LUCK!" banner while being ushered out a door, a torn "RAISE APPROVAL" paper conspicuously left behind on the training-room table.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a muted violet accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[100] TRAINING · "Bias Workshop (Everyone Assumes It's About Someone Else)"
+Effect: Standard.
+Flavor: "Full attendance. Zero self-recognition."
+PROMPT:
+Scene: A packed workshop room where every attendee is visibly nodding and gesturing knowingly at the person sitting next to them, each one utterly oblivious that the lesson applies to themselves too.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a muted violet accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[101] TRAINING · "Phishing Simulation Test (People Actually Failed)"
+Effect: Standard. Additionally, whoever has the least Political Capital also gains 1 Burnout.
+Flavor: "23% company-wide click rate. HR is 'concerned.'"
+PROMPT:
+Scene: A giant glowing "SIMULATED PHISHING TEST" banner watches over a room where a visible fraction of employees' cursors are already clicking a suspicious link, an anxious HR silhouette wringing its hands nearby.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a muted violet accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[102] TRAINING · "Ethics Training (Sponsored By the Thing That Caused It)"
+Effect: Standard.
+Flavor: "Scheduled the same week as the news story. Nobody mentions the news story."
+PROMPT:
+Scene: An "ETHICS TRAINING" banner hangs awkwardly beside a newspaper stand with a blurred, deliberately unmentioned scandal headline, employees pointedly avoiding eye contact with it as they file past.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a muted violet accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[103] TRAINING · "Unconscious Bias Training, Redux"
+Effect: Standard, plus +1 Political Capital.
+Flavor: "The sequel nobody asked for. Somehow longer than the original."
+PROMPT:
+Scene: A movie-sequel-style poster looms over a visibly wearier audience settling in for an even longer session, an hourglass beside them with extra sand freshly added.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a muted violet accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+
+================================================================
+MANAGEMENT STYLES
+================================================================
+
+------------------------------------------------------------
+[104] MANAGEMENT · "The Micromanager"
+Effect: Your first Action each round must be Work a Project if you can afford one; otherwise it is wasted.
+Flavor: "Wants a status update on the status update."
+PROMPT:
+Scene: A towering boss figure looms directly over a worker's shoulder at their desk, pointing insistently at a report titled "STATUS UPDATE" that itself contains a smaller nested "STATUS UPDATE" document inside it.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a brass-gold accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[105] MANAGEMENT · "The Absentee Boss"
+Effect: Gain 1 free Action Point each round. You may not take the Network action — your boss is never around to introduce you to anyone.
+Flavor: "Hasn't reviewed a time-off request since the reorg. Or approved one. Or seen one."
+PROMPT:
+Scene: An empty, dusty corner-office chair spins slowly on its own, cobwebs forming over an unopened stack of "TIME OFF REQUEST" folders on the desk, employees peering curiously through the glass door.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a brass-gold accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[106] MANAGEMENT · "The Credit-Stealing Boss"
+Effect: Whenever you complete a Project, lose 1 Career Capital but gain 1 Political Capital (sympathetic coworkers notice).
+Flavor: "Presented your work at the all-hands. Used the word 'we' a lot. Meant 'I.'"
+PROMPT:
+Scene: A boss stands at an all-hands podium proudly presenting a worker's project under a banner reading "OUR ACHIEVEMENT," while the actual exhausted creator stands quietly unacknowledged in the crowd below.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a brass-gold accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[107] MANAGEMENT · "The Chaotic Pivot-Happy Visionary"
+Effect: At the start of each Quarter, flip a coin: heads, gain 2 Productivity; tails, discard 1 Skill card.
+Flavor: "The strategy changed twice during this sentence."
+PROMPT:
+Scene: A boss gestures wildly at a whiteboard where a strategy arrow visibly changes direction twice mid-stroke, dizzy employees straining to follow the erratically zigzagging line.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a brass-gold accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[108] MANAGEMENT · "The Yes-Man Exec"
+Effect: Hiring Skill cards costs 1 less Productivity (minimum 1). Mandatory Training costs you 2 lost Action Points next round instead of 1.
+Flavor: "Agreed with the last three people who talked to him. In the same meeting."
+PROMPT:
+Scene: An exec nods enthusiastically in quadruplicate, each nodding head aimed at a different coworker voicing a contradicting opinion around one crowded meeting table.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a brass-gold accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[109] MANAGEMENT · "The Actually Supportive Manager"
+Effect: Gain 1 Political Capital every Income Phase. No drawback.
+Flavor: "Asked how you're doing and waited for the actual answer. Suspicious, but in a good way."
+PROMPT:
+Scene: A manager leans in warmly, genuinely listening as a worker answers "how are you doing," a small glowing halo of trust between them, cynical coworkers peeking around the corner in quiet disbelief.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a brass-gold accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[110] MANAGEMENT · "The Results-at-Any-Cost Boss"
+Effect: Overtime grants +1 extra Productivity, but also +1 extra Burnout, on top of its normal effect.
+Flavor: "Doesn't care how you hit the number. Cares extremely if you don't."
+PROMPT:
+Scene: A boss points forcefully at a soaring results graph while flames of burnout visibly lick up around the worker achieving it, the boss entirely unfazed by the fire right beside him.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a brass-gold accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[111] MANAGEMENT · "The Buzzword Machine"
+Effect: Network grants +1 extra Political Capital. Your Projects cost 1 more Productivity — nobody can define the deliverable.
+Flavor: "Wants to double-click on synergies before we boil the ocean."
+PROMPT:
+Scene: A boss speaks through a literal mechanical apparatus that stamps out buzzword gears and cogs labeled "SYNERGY" and "BOIL THE OCEAN," baffled workers trying to parse the clattering jargon machine.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a brass-gold accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[112] MANAGEMENT · "The Founder Who Refuses to Delegate"
+Effect: Gain 1 free Action Point each round. Self-Care costs 2 Action Points instead of 1.
+Flavor: "'We're moving fast' has justified everything since 2019."
+PROMPT:
+Scene: A founder sprints frantically in place, juggling every department's task at once — a code editor, a sales chart, an HR folder — a banner reading "MOVING FAST SINCE 2019" trailing behind like a cape.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a brass-gold accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[113] MANAGEMENT · "The Tenure-Not-Talent Manager"
+Effect: Compliance Badges count double toward promotion requirements. Hiring Skill cards costs 1 more Productivity.
+Flavor: "Been here 14 years. Still can't use the new expense software."
+PROMPT:
+Scene: A weathered manager proudly displays a "14 YEARS" service plaque on the wall while squinting in total confusion at a glowing modern expense-report interface on their screen.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a brass-gold accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[114] MANAGEMENT · "The Seagull Manager"
+Effect: At the start of each Quarter, flip a coin: heads, every other player gains 1 Burnout — you swooped in and stirred things up; tails, you gain 1 Political Capital — you flew off before anyone noticed.
+Flavor: "Flies in, makes a lot of noise, craps on the roadmap, and is gone before the retro."
+PROMPT:
+Scene: A seagull-like boss figure swoops dramatically down over a neat roadmap chart on a table, scattering papers and squawking chaos, already banking away toward the exit before anyone can react.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a brass-gold accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[115] MANAGEMENT · "The Mushroom Manager"
+Effect: +2 Productivity/round (fed on nothing, somehow still growing); −1 Political Capital/round (kept in the dark — nobody tells you anything).
+Flavor: "Kept in the dark and fed manure. Thriving, weirdly."
+PROMPT:
+Scene: A boss-shaped mushroom figure grows contentedly in a dim, shadowy office corner, rich dark soil at its base, oddly flourishing despite the total darkness around it.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a brass-gold accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[116] MANAGEMENT · "The Peter Principle"
+Effect: Your Action Points are always 2, no matter your rung — promoted well past their competence. Hiring Skill cards costs 1 less Productivity (overcompensates by throwing tools at the problem).
+Flavor: "Promoted three times. Still can't find the deploy script."
+PROMPT:
+Scene: A boss stands proudly atop a tall ladder of three stacked promotion plaques, gazing around in visible bewilderment at a glowing terminal window, the deploy script clearly nowhere to be found.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a brass-gold accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[117] MANAGEMENT · "The Always-On Boss"
+Effect: Overtime grants +1 extra Burnout, on top of its normal effect (always expects a same-night reply). Self-Care costs 2 Action Points instead of 1 (there's no such thing as fully logging off).
+Flavor: "Texts you at 11 PM. Reacts with a 👍 to your out-of-office reply."
+PROMPT:
+Scene: A boss's glowing phone sends a text at 11 PM to a sleeping employee's nightstand, instantly replying with a single thumbs-up emoji to the employee's "OUT OF OFFICE" auto-reply banner.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a brass-gold accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[118] MANAGEMENT · "The Nepotism Hire"
+Effect: +2 Political Capital/round (knows people); Hiring Skill cards costs 1 more Productivity (couldn't approve a headcount request to save their life).
+Flavor: "Turns out the CEO is their uncle. Nobody has said this out loud."
+PROMPT:
+Scene: A relaxed boss figure lounges casually while an ornate family-tree portrait on the wall behind them subtly connects to a shadowy "CEO" silhouette, coworkers exchanging silent knowing glances.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a brass-gold accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[119] MANAGEMENT · "The Consultant-Turned-Manager"
+Effect: Your Projects cost 1 less Productivity (loves a framework for everything); −1 Political Capital/round (nobody trusts the person who charges by the hour).
+Flavor: "Drew a 2x2 matrix. Nobody asked for the 2x2 matrix."
+PROMPT:
+Scene: A boss proudly unveils an elaborate glowing 2x2 matrix diagram on an easel to a bewildered room, a subtle hourly-rate ticker glowing faintly on their sleeve.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a brass-gold accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+
+================================================================
+END — 119 cards, 119 prompts.
+================================================================
