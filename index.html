@@ -351,6 +351,13 @@
         <option value="fast">Fast</option>
         <option value="instant">Instant</option>
       </select>
+      <label class="faint">Font Size</label>
+      <select id="fontSizeSel">
+        <option value="small">Small</option>
+        <option value="normal" selected>Normal</option>
+        <option value="large">Large</option>
+        <option value="xlarge">X-Large</option>
+      </select>
       <button id="newGameBtn">New Game</button>
     </div>
   </div>
@@ -397,6 +404,21 @@
     turn: null, endTurnResolve: null, speed: "normal",
     claim: null  // {req, resolve} while a human is picking up a task from the Kanban Board at Stand-Up
   };
+
+  var FONT_SIZES = { small: "85%", normal: "100%", large: "115%", xlarge: "130%" };
+  var FONT_SIZE_KEY = "sr-font-size";
+  function applyFontSize(key) {
+    if (!FONT_SIZES[key]) key = "normal";
+    document.documentElement.style.zoom = FONT_SIZES[key];
+    try { localStorage.setItem(FONT_SIZE_KEY, key); } catch (e) { /* storage unavailable — ignore */ }
+  }
+  (function initFontSize() {
+    var saved = "normal";
+    try { saved = localStorage.getItem(FONT_SIZE_KEY) || "normal"; } catch (e) { /* storage unavailable — ignore */ }
+    var sel = document.getElementById("fontSizeSel");
+    if (sel) sel.value = FONT_SIZES[saved] ? saved : "normal";
+    applyFontSize(saved);
+  })();
 
   var SPEEDS = {
     slow:    { action: 850, phase: 650, income: 550, event: 1100, review: 2600 },
@@ -514,6 +536,7 @@
     $("setup").style.display = "block";
   });
   $("speedSel").addEventListener("change", function () { UI.speed = $("speedSel").value; });
+  $("fontSizeSel").addEventListener("change", function () { applyFontSize($("fontSizeSel").value); });
 
   /* ------------------------------------------------------------------ HOOKS */
   function makeHooks(state) {
