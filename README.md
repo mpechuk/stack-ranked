@@ -21,6 +21,8 @@ Pages (see below). No build step, no server, no dependencies.
 | `docs/STACK_RANKED_GAME_SPEC.md` | The implementation spec this build follows to the letter. |
 | `cards.json` | Raw card data (also embedded in `game.js`). |
 | `stack_ranked_balance_simulator.py` | The original Monte-Carlo balance tool (reference only). |
+| `generate_print_and_play.py` | Regenerates `docs/Stack_Ranked_PrintAndPlay.pdf` straight from `cards.json` (`pip install reportlab pillow`, then `python3 generate_print_and_play.py`). |
+| `generate_rulebook_pdf.py` | Regenerates `docs/Stack_Ranked_Rulebook.pdf` straight from `docs/STACK_RANKED_RULEBOOK.md`, with a clickable table of contents and PDF bookmarks (`pip install reportlab markdown beautifulsoup4`, then `python3 generate_rulebook_pdf.py`). |
 
 ## Features
 
