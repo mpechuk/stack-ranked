@@ -1,0 +1,72 @@
+STACK RANKED — PLAYER MAT ART GENERATION PROMPTS
+==================================================
+Two image-generation prompts for the optional decorative art on the Player
+Desk Mat (see generate_player_mat.py): a HEADER BANNER that sits in the top
+band next to the mat title, and a full-bleed BACKGROUND TEXTURE that sits
+behind every tracker on the mat. Both are optional — the mat renders fine
+with neither (a plain placeholder box / flat cream fill is used instead).
+
+Save the generated files as:
+  mat-images/player-mat-header.png       (HEADER BANNER prompt below)
+  mat-images/player-mat-background.png   (BACKGROUND TEXTURE prompt below)
+
+MASTER STYLE (same family as card-art-prompts.txt, so the whole
+print-and-play kit — box cover, cards, and mat — reads as one product):
+  Retro corporate-propaganda poster art, matching the box cover illustration
+  (see docs/CoverV2.png) — bold black ink outlines, halftone screentone
+  shading, worn paper-grain texture, dramatic radiating sunburst linework,
+  satirical heroic composition, screen-print poster look. Base palette of
+  burnt orange, cream, and navy. No text, no logos, no watermarks — this is
+  illustration only, the mat's own labels/trackers are added separately by
+  the PDF generator on top.
+
+Render at high resolution (300 DPI at print size) so the PDF stays crisp:
+  Header banner: ~2550 x 480 px  (fills a ~5:1 landscape band)
+  Background texture: ~3300 x 2550 px (fills the full 11in x 8.5in mat)
+
+
+================================================================
+HEADER BANNER — mat-images/player-mat-header.png
+================================================================
+REFERENCE: Sits to the right of the navy "STACK RANKED / PLAYER DESK MAT"
+title plate, across the top of the mat. Same illustration family as the box
+cover (a duo triumphantly climbing a junk-office mountain into a sunrise) —
+this crop should feel like a continuation of that scene, not a new one.
+
+PROMPT:
+Scene: The same climbers from the Stack Ranked box cover — one hoisting a
+steaming coffee cup, the other a briefcase — now shown further along their
+ascent, striding across a wide ridge of stacked filing cabinets, monitors,
+and tangled cables toward a radiant sunrise on the horizon. Cropped as a
+wide horizontal banner focused on the mid-distance skyline and the
+sunburst, with the climbers as small triumphant silhouettes rather than the
+main focus (this crop needs to read well as a thin strip, not a portrait).
+Style: retro corporate-propaganda poster art (matching the box cover) —
+bold black ink outlines, halftone screentone shading, worn paper grain,
+radiating sunburst background, screen-print poster look. Palette: burnt
+orange, cream, and navy. Format: wide landscape banner crop (~5:1), no
+text/logos/watermarks.
+
+
+================================================================
+BACKGROUND TEXTURE — mat-images/player-mat-background.png
+================================================================
+REFERENCE: Sits behind every tracker, zone, and label on the mat — printed
+text and ink-outlined boxes are drawn directly on top of it, so this has to
+stay quiet and pale rather than being a full illustration.
+
+PROMPT:
+Scene: A subtle, mostly-empty aged cream paper background — faint worn
+paper-grain texture, a few very light halftone screentone patches, and
+extremely faint radiating sunburst linework fading in from one corner
+(echoing the box cover's sunrise), with a couple of small, low-contrast
+corporate-satire doodles (a tiny stapler, a coiled phone cord, a stack of
+paper) tucked unobtrusively near the edges, never in the center.
+Style: same retro corporate-propaganda poster family as the box cover, but
+rendered at very low contrast and high brightness overall — think "the box
+cover art, bleached down to 10-15% strength" — so black printed text and
+thin ink-outlined boxes placed on top stay fully legible everywhere on the
+page, including dead center. No strong dark shapes, no busy detail, no
+text/logos/watermarks. Palette: pale cream and warm off-white, with only
+whispers of burnt orange and navy. Format: landscape, US Letter proportions
+(~1.3:1), edge-to-edge (no border/frame baked in — the PDF adds its own).
