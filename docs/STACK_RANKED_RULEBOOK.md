@@ -100,7 +100,7 @@ climb.
   permanent 5th slot)
 - 30 Office Chaos cards
 - 12 Mandatory Training cards
-- 10 Management Style cards
+- 16 Management Style cards
 - Productivity cubes, Political Capital chips, Burnout track cubes (0–10 per
   player)
 - Career Capital trackers and Quarter Marker cubes (one pair per player)
@@ -123,7 +123,7 @@ multiple physical copies so the decks don't run dry:
 | Project — Evergreen | 13 | 13 (×1 each) | Own pool feeding the Kanban Board's permanent 5th slot — every design carries a Burnout cost; the slot is never removed from the board |
 | Office Chaos | 30 | 30 (×1 each) | Reshuffle discards when depleted |
 | Mandatory Training | 12 | 12 (×1 each) | Reshuffle discards when depleted |
-| Management Style | 10 | 10 (×1 each) | Reshuffle discards when depleted |
+| Management Style | 16 | 16 (×1 each) | Reshuffle discards when depleted |
 
 ---
 
@@ -380,13 +380,18 @@ Management Style card and keep it face-up on your Desk mat. It's a passive,
 asymmetric power that lasts until your next promotion or demotion — for
 better or (usually) worse.
 
-Full text for all 10 Management Style cards is in the
+Full text for all 16 Management Style cards is in the
 [Card Reference Appendix](#card-reference-appendix). A few highlights:
 
 - The Actually Supportive Manager is the only card in the deck with no
   drawback. Everyone will be suspicious of whoever draws it.
 - The Micromanager and The Founder Who Refuses to Delegate both look like
   upgrades and both come with a catch that shows up on your very next turn.
+- The Seagull Manager and The Mushroom Manager both punish being ignored by
+  leadership — one through random bursts of collateral damage, the other by
+  quietly starving you of Political Capital while your Productivity climbs.
+- The Peter Principle is the only card that touches Action Points directly:
+  it freezes them at 2 forever, no matter how many times you get promoted.
 - Getting promoted or demoted always means a new boss. There is no version of
   this game where you keep the manager you liked.
 
@@ -591,7 +596,7 @@ first Action Point next round, and gain 1 Compliance Badge.
 | Ethics Training (Sponsored By the Thing That Caused It) | Standard. | Scheduled the same week as the news story. Nobody mentions the news story. |
 | Unconscious Bias Training, Redux | Standard, plus +1 Political Capital. | The sequel nobody asked for. Somehow longer than the original. |
 
-### Management Style Cards (10)
+### Management Style Cards (16)
 
 | Name | Effect | Flavor |
 |---|---|---|
@@ -605,6 +610,12 @@ first Action Point next round, and gain 1 Compliance Badge.
 | The Buzzword Machine | Network grants +1 extra Political Capital. Your Projects cost 1 more Productivity — nobody can define the deliverable. | Wants to double-click on synergies before we boil the ocean. |
 | The Founder Who Refuses to Delegate | Gain 1 free Action Point each round. Self-Care costs 2 Action Points instead of 1. | "We're moving fast" has justified everything since 2019. |
 | The Tenure-Not-Talent Manager | Compliance Badges count double toward promotion requirements. Hiring Skill cards costs 1 more Productivity. | Been here 14 years. Still can't use the new expense software. |
+| The Seagull Manager | At the start of each Quarter, flip a coin: heads, every other player gains 1 Burnout — you swooped in and stirred things up; tails, you gain 1 Political Capital — you flew off before anyone noticed. | Flies in, makes a lot of noise, craps on the roadmap, and is gone before the retro. |
+| The Mushroom Manager | +2 Productivity/round (fed on nothing, somehow still growing); −1 Political Capital/round (kept in the dark — nobody tells you anything). | Kept in the dark and fed manure. Thriving, weirdly. |
+| The Peter Principle | Your Action Points are always 2, no matter your rung — promoted well past their competence. Hiring Skill cards costs 1 less Productivity (overcompensates by throwing tools at the problem). | Promoted three times. Still can't find the deploy script. |
+| The Always-On Boss | Overtime grants +1 extra Burnout, on top of its normal effect (always expects a same-night reply). Self-Care costs 2 Action Points instead of 1 (there's no such thing as fully logging off). | Texts you at 11 PM. Reacts with a 👍 to your out-of-office reply. |
+| The Nepotism Hire | +2 Political Capital/round (knows people); Hiring Skill cards costs 1 more Productivity (couldn't approve a headcount request to save their life). | Turns out the CEO is their uncle. Nobody has said this out loud. |
+| The Consultant-Turned-Manager | Your Projects cost 1 less Productivity (loves a framework for everything); −1 Political Capital/round (nobody trusts the person who charges by the hour). | Drew a 2x2 matrix. Nobody asked for the 2x2 matrix. |
 
 ---
 
