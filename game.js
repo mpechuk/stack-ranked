@@ -159,7 +159,13 @@
       {"name": "The Results-at-Any-Cost Boss", "effect": "Overtime grants +1 extra Productivity, but also +1 extra Burnout, on top of its normal effect.", "flavor": "Doesn't care how you hit the number. Cares extremely if you don't."},
       {"name": "The Buzzword Machine", "effect": "Network grants +1 extra Political Capital. Your Projects cost 1 more Productivity — nobody can define the deliverable.", "flavor": "Wants to double-click on synergies before we boil the ocean."},
       {"name": "The Founder Who Refuses to Delegate", "effect": "Gain 1 free Action Point each round. Self-Care costs 2 Action Points instead of 1.", "flavor": "“We're moving fast” has justified everything since 2019."},
-      {"name": "The Tenure-Not-Talent Manager", "effect": "Compliance Badges count double toward promotion requirements. Hiring Skill cards costs 1 more Productivity.", "flavor": "Been here 14 years. Still can't use the new expense software."}
+      {"name": "The Tenure-Not-Talent Manager", "effect": "Compliance Badges count double toward promotion requirements. Hiring Skill cards costs 1 more Productivity.", "flavor": "Been here 14 years. Still can't use the new expense software."},
+      {"name": "The Seagull Manager", "effect": "At the start of each Quarter, flip a coin: heads, every other player gains 1 Burnout — you swooped in and stirred things up; tails, you gain 1 Political Capital — you flew off before anyone noticed.", "flavor": "Flies in, makes a lot of noise, craps on the roadmap, and is gone before the retro."},
+      {"name": "The Mushroom Manager", "effect": "+2 Productivity/round (fed on nothing, somehow still growing); −1 Political Capital/round (kept in the dark — nobody tells you anything).", "flavor": "Kept in the dark and fed manure. Thriving, weirdly."},
+      {"name": "The Peter Principle", "effect": "Your Action Points are always 2, no matter your rung — promoted well past their competence. Hiring Skill cards costs 1 less Productivity (overcompensates by throwing tools at the problem).", "flavor": "Promoted three times. Still can't find the deploy script."},
+      {"name": "The Always-On Boss", "effect": "Overtime grants +1 extra Burnout, on top of its normal effect (always expects a same-night reply). Self-Care costs 2 Action Points instead of 1 (there's no such thing as fully logging off).", "flavor": "Texts you at 11 PM. Reacts with a 👍 to your out-of-office reply."},
+      {"name": "The Nepotism Hire", "effect": "+2 Political Capital/round (knows people); Hiring Skill cards costs 1 more Productivity (couldn't approve a headcount request to save their life).", "flavor": "Turns out the CEO is their uncle. Nobody has said this out loud."},
+      {"name": "The Consultant-Turned-Manager", "effect": "Your Projects cost 1 less Productivity (loves a framework for everything); −1 Political Capital/round (nobody trusts the person who charges by the hour).", "flavor": "Drew a 2x2 matrix. Nobody asked for the 2x2 matrix."}
     ]
   };
 
@@ -227,7 +233,13 @@
     "the-results-at-any-cost-boss": { overtimeExtraP: 1, overtimeExtraBurnout: 1 },
     "the-buzzword-machine": { networkExtraPc: 1, projectCostDelta: 1 },
     "the-founder-who-refuses-to-delegate": { freeAp: 1, selfCareApCost: 2 },
-    "the-tenure-not-talent-manager": { badgesCountDouble: true, skillHireDelta: 1 }
+    "the-tenure-not-talent-manager": { badgesCountDouble: true, skillHireDelta: 1 },
+    "the-seagull-manager": { seagullQuarterCoin: true },
+    "the-mushroom-manager": { pPerIncome: 2, pcPerIncome: -1 },
+    "the-peter-principle": { apFixed: 2, skillHireDelta: -1 },
+    "the-always-on-boss": { overtimeExtraBurnout: 1, selfCareApCost: 2 },
+    "the-nepotism-hire": { pcPerIncome: 2, skillHireDelta: 1 },
+    "the-consultant-turned-manager": { projectCostDelta: -1, pcPerIncome: -1 }
   };
 
   // Trainings: default is { badges: 1 } plus a one-round Action Point penalty.
@@ -758,11 +770,13 @@
    * ------------------------------------------------------------------------ */
   function beginTurn(state, player) {
     player.overtimeUsedThisRound = false;
-    let ap = AP_BY_RUNG[player.rung] + (mm(player).freeAp || 0) - (player.trainingApPenaltyNextRound || 0);
+    const m = mm(player);
+    const baseAp = m.apFixed != null ? m.apFixed : AP_BY_RUNG[player.rung];
+    let ap = baseAp + (m.freeAp || 0) - (player.trainingApPenaltyNextRound || 0);
     player.trainingApPenaltyNextRound = 0;
     if (ap < 0) ap = 0;
     let mustProjectFirst = false;
-    if (mm(player).forceFirstActionProject) {
+    if (m.forceFirstActionProject) {
       if (anyAffordableProject(state, player)) {
         mustProjectFirst = true;
       } else if (ap > 0) {
@@ -794,20 +808,34 @@
   function startQuarterEffects(state) {
     if (state.roundNumber % 3 !== 1) return;
     state.players.forEach(function (p) {
-      if (!mm(p).quarterCoin) return;
-      if (coin()) {
-        p.productivity += 2;
-        log(state, p.name + " (Chaotic Pivot-Happy Visionary) flips heads: +2 Productivity.", "muted");
-      } else {
-        if (p.tableau.length > 0) {
-          // Auto-discard the least valuable permanent skill (never Golden Handcuffs).
-          const idx = pickWorstSkillIndex(p);
-          const removed = p.tableau.splice(idx, 1)[0];
-          state.skillDiscardPile.push(removed);
-          if (removed.id === "golden-handcuffs-fully-vested") p.immuneToDemotion = false;
-          log(state, p.name + " (Chaotic Pivot-Happy Visionary) flips tails: discards “" + removed.name + "”.", "muted");
+      const m = mm(p);
+      if (m.quarterCoin) {
+        if (coin()) {
+          p.productivity += 2;
+          log(state, p.name + " (Chaotic Pivot-Happy Visionary) flips heads: +2 Productivity.", "muted");
         } else {
-          log(state, p.name + " (Chaotic Pivot-Happy Visionary) flips tails: no Skill to discard.", "muted");
+          if (p.tableau.length > 0) {
+            // Auto-discard the least valuable permanent skill (never Golden Handcuffs).
+            const idx = pickWorstSkillIndex(p);
+            const removed = p.tableau.splice(idx, 1)[0];
+            state.skillDiscardPile.push(removed);
+            if (removed.id === "golden-handcuffs-fully-vested") p.immuneToDemotion = false;
+            log(state, p.name + " (Chaotic Pivot-Happy Visionary) flips tails: discards “" + removed.name + "”.", "muted");
+          } else {
+            log(state, p.name + " (Chaotic Pivot-Happy Visionary) flips tails: no Skill to discard.", "muted");
+          }
+        }
+      }
+      if (m.seagullQuarterCoin) {
+        if (coin()) {
+          state.players.forEach(function (other) {
+            if (other === p) return;
+            addBurnout(state, other, 1, "management");
+          });
+          log(state, p.name + " (Seagull Manager) swoops in: every other player gains 1 Burnout.", "muted");
+        } else {
+          p.politicalCapital += 1;
+          log(state, p.name + " (Seagull Manager) flies off before anyone notices: +1 Political Capital.", "muted");
         }
       }
     });
@@ -838,6 +866,7 @@
       });
       const m = mm(p);
       if (m.pcPerIncome) dpc += m.pcPerIncome;
+      if (m.pPerIncome) dp += m.pPerIncome;
       dp += 1; // "showed up" bonus
       if (lead - p.rung >= 2) { dpc += 1; }
       p.productivity = Math.max(0, p.productivity + dp);
