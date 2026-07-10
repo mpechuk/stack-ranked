@@ -847,23 +847,42 @@
     log(state, "Stand-Up Meeting: income collected.", "income");
   }
 
-  // Every player picks up one more card from the Kanban Board into their
-  // backlog every single Stand-Up, unconditionally — not gated on whether
-  // they already have one (unpaid — claiming is free); resolved in First
-  // Player order since the board is shared. Paying for backlog entries only
+  // Every player with an empty backlog MUST pick up a card from the Kanban
+  // Board (unpaid — claiming is free) — the backlog can never be left at
+  // zero. A player who already has at least one backlog entry may instead
+  // choose to skip claiming another this round; resolved in First Player
+  // order since the board is shared. Paying for backlog entries only
   // happens later, via Work a Project during the Sprint — Stand-Up never
-  // completes a task. The backlog has no size cap; it grows by exactly 1
-  // per player per round unless they clear entries faster than that.
+  // completes a task. The backlog has no size cap; it grows by at most 1
+  // per player per round, less if they skip.
   async function assignTasks(state, hooks) {
     if (state.restrictions.skipIncome) return; // IT Outage skips all of Stand-Up
     for (const p of turnOrder(state)) {
       state.activePlayerId = p.id;
       if (hooks && hooks.onChange) hooks.onChange();
-      const slotIndex = await pickTaskToClaim(state, hooks, p);
-      if (slotIndex >= 0) claimTaskFromBoard(state, p, slotIndex);
+      const wantsToClaim = p.backlog.length === 0 || await decideClaimOrSkip(state, hooks, p);
+      if (wantsToClaim) {
+        const slotIndex = await pickTaskToClaim(state, hooks, p);
+        if (slotIndex >= 0) claimTaskFromBoard(state, p, slotIndex);
+      }
       if (hooks && hooks.onChange) hooks.onChange();
     }
     state.activePlayerId = null;
+  }
+
+  // Only asked when the player already has something in the backlog (an
+  // empty backlog has no choice — claiming is mandatory). AI always claims,
+  // preserving the archetype behavior/balance already measured and
+  // documented for the unconditional-claim design (spec Section 9.8) —
+  // this is a human-facing capability, not an AI strategy change.
+  async function decideClaimOrSkip(state, hooks, player) {
+    if (player.kind !== "human" || !hooks || !hooks.decide) return true;
+    const answer = await hooks.decide({
+      playerId: player.id, action: "claimOrSkip",
+      prompt: player.name + " already has " + player.backlog.length +
+        " task(s) in the backlog. Pick up another from the Kanban Board?"
+    });
+    return answer === true || answer === "yes";
   }
 
   function bestClaimIndex(state) {
