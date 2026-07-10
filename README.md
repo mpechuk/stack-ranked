@@ -23,6 +23,7 @@ Pages (see below). No build step, no server, no dependencies.
 | `stack_ranked_balance_simulator.py` | The original Monte-Carlo balance tool (reference only). |
 | `generate_print_and_play.py` | Regenerates `docs/Stack_Ranked_PrintAndPlay.pdf` straight from `cards.json` (`pip install reportlab pillow`, then `python3 generate_print_and_play.py`). |
 | `generate_rulebook_pdf.py` | Regenerates `docs/Stack_Ranked_Rulebook.pdf` straight from `docs/STACK_RANKED_RULEBOOK.md`, with a clickable table of contents and PDF bookmarks (`pip install reportlab markdown beautifulsoup4`, then `python3 generate_rulebook_pdf.py`). |
+| `generate_player_mat.py` | Regenerates `docs/Stack_Ranked_PlayerMat.pdf`, six copies of a landscape Player Desk mat (Career/Political Capital, Productivity, Burnout, Compliance Badges, a Management Style slot, and Tableau/Backlog zones) — optional header/background art, see `player-mat-art-prompts.txt` (`pip install reportlab pillow`, then `python3 generate_player_mat.py`). |
 
 ## Features
 
