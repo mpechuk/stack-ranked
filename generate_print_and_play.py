@@ -278,23 +278,36 @@ def draw_card(c, x_left, y_top, card, deck):
     content_w = CARD_W - 2 * PAD_X
     cursor = y_top - PAD_TOP
 
+    has_cost_circle = deck["has_cost"] and "cost" in card
+    circle_r = 9
+    reserved_w = (2 * circle_r + 6) if has_cost_circle else 0
+
     category_style = style("category", 7.5, 9, TA_CENTER, accent, bold=True)
     category = Paragraph(icon_tag(CATEGORY_EMOJI[deck["palette"]], 10) + deck["label"], category_style)
-    cw, ch = category.wrapOn(c, content_w, 20)
-    category.drawOn(c, x0 + PAD_X, cursor - ch)
+    label_x = x0 + PAD_X + reserved_w
+    label_w = content_w - reserved_w
+    cw, ch = category.wrapOn(c, label_w, 20)
+    category.drawOn(c, label_x, cursor - ch)
+
+    if has_cost_circle:
+        cx = x0 + PAD_X + circle_r
+        cy = cursor - ch / 2
+        c.setFillColor(accent)
+        c.circle(cx, cy, circle_r, stroke=0, fill=1)
+        c.setFillColor(HexColor("#ffffff"))
+        c.setFont("Helvetica-Bold", 10)
+        c.drawCentredString(cx, cy - 3.3, str(card["cost"]))
+
     cursor -= ch + 4
     c.setStrokeColor(accent)
     c.setLineWidth(0.5)
     c.line(x0 + PAD_X, cursor, x0 + CARD_W - PAD_X, cursor)
     cursor -= 8
 
-    if deck["has_cost"] and "cost" in card:
-        c.setFillColor(accent)
-        c.circle(x0 + CARD_W / 2, cursor - 6, 10, stroke=0, fill=1)
-        c.setFillColor(HexColor("#ffffff"))
-        c.setFont("Helvetica-Bold", 13)
-        c.drawCentredString(x0 + CARD_W / 2, cursor - 10.5, str(card["cost"]))
-        cursor -= 26
+    if card.get("image"):
+        img_h = draw_card_image(c, x0, cursor, content_w, card["image"])
+        if img_h:
+            cursor -= img_h + 6
 
     title = Paragraph(xml_escape(card["name"]), STYLE_TITLE)
     tw, th = title.wrapOn(c, content_w, 100)
@@ -315,11 +328,6 @@ def draw_card(c, x_left, y_top, card, deck):
         tgw, tgh = tag.wrapOn(c, content_w, 16)
         tag.drawOn(c, x0 + PAD_X, cursor - tgh)
         cursor -= tgh + 4
-
-    if card.get("image"):
-        img_h = draw_card_image(c, x0, cursor, content_w, card["image"])
-        if img_h:
-            cursor -= img_h + 6
 
     body_text = card.get(deck["reward_key"], "")
     body = Paragraph(build_body_markup(body_text), STYLE_BODY)

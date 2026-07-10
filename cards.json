@@ -1,7 +1,7 @@
 {
   "skills": {
     "tier1": [
-      {"name": "Copy-Paste from Stack Overflow", "cost": 1, "type": "Permanent", "effect": "+1 Productivity/round.", "flavor": "It worked on someone else's machine in 2019. Good enough."},
+      {"name": "Copy-Paste from Stack Overflow", "cost": 1, "type": "Permanent", "effect": "+1 Productivity/round.", "flavor": "It worked on someone else's machine in 2019. Good enough.", "image": "cards-images/copy-paste-from-stack-overflow.png"},
       {"name": "Ctrl+F Power User", "cost": 1, "type": "Permanent", "effect": "+1 Productivity/round.", "flavor": "Never reads past the first match."},
       {"name": "Free Snack Hoarder", "cost": 1, "type": "Permanent", "effect": "+1 Political Capital/round.", "flavor": "Keeps granola bars in every drawer for emergency morale trades."},
       {"name": "Office Plant Whisperer", "cost": 1, "type": "Permanent", "effect": "+1 Political Capital/round.", "flavor": "The only living thing in the office that's thriving."},
