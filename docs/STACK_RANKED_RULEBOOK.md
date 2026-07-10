@@ -22,6 +22,7 @@ trainings, and quiet workplace despair.
   - [The Three Live Resources](#the-three-live-resources)
   - [The Two Permanent Trackers](#the-two-permanent-trackers)
   - [The Quarter Marker](#the-quarter-marker)
+  - [Your Backlog](#your-backlog)
 - [Setup](#setup)
 - [How to Play a Round](#how-to-play-a-round)
   - [6.1 — Stand-Up Meeting (Income Phase)](#61-stand-up-meeting-income-phase)
@@ -45,10 +46,14 @@ New to Synergy Corp? Here's the entire game in four steps. Everything else in
 this rulebook is detail.
 
 1. **Stand-Up Meeting**: collect Productivity and Political Capital from your
-   tableau (plus 1 free Productivity just for showing up).
-2. **Sprint**: spend your Action Points to Hire a Skill card, Work a Project,
-   Network, or Self-Care. You may also take one Overtime action per round for
-   a bonus Action Point.
+   tableau (plus 1 free Productivity just for showing up). Then pick up a
+   Project card from the Kanban Board into your Backlog — mandatory if it's
+   empty, optional (you may skip) if you already have at least one; you're
+   just claiming it, not paying for it yet.
+2. **Sprint**: spend your Action Points to Hire a Skill card, Work a Project
+   (pay to finish any one entry in your Backlog — your choice which), Network,
+   or Self-Care. You may also take one Overtime action per round for a bonus
+   Action Point.
 3. **Lunch**: draw an Office Chaos card and resolve it.
 4. **Postmortem**: refill the boards and pass the First Player token. Every
    3rd round is a Quarterly Performance Review — the top performer(s) may get
@@ -159,14 +164,31 @@ this Quarter — and it's the heart of your Review Score (see
 [Quarterly Performance Review](#quarterly-performance-review)). Move your
 Quarter Marker to match your current CC at the end of every Review.
 
+### Your Backlog
+
+Your Backlog is every Project you've picked up but haven't paid for yet.
+There's no limit to how many you can hold. If it's ever empty, picking up a
+card from the Kanban Board at Stand-Up isn't optional — the Backlog can
+never stay at zero. If you already have at least one entry, though, you may
+choose to pick up another anyway or skip it for the round (see
+[6.1](#61-stand-up-meeting-income-phase)). Taking a task is free; paying its
+Productivity cost is what actually finishes it and earns the reward, and
+that only happens on your Sprint, via Work a Project (see
+[6.2](#62-sprint-action-phase)) — Stand-Up only ever adds to your Backlog,
+never lets you pay for anything in it. When you Work a Project, you choose
+which Backlog entry to pay off — cheapest, most valuable, whatever suits
+you — and if you have enough Action Points and Productivity, you can clear
+more than one in the same Sprint. Ignore your Backlog for too long, though,
+and it just keeps growing.
+
 ---
 
 ## Setup
 
 1. Place the Career Ladder board where everyone can reach it. Each player
    takes a Desk mat, a pawn (placed on Intern), and starts with 0
-   Productivity, 0 Political Capital, 0 Burnout, 0 Career Capital, and 0
-   Compliance Badges.
+   Productivity, 0 Political Capital, 0 Burnout, 0 Career Capital, 0
+   Compliance Badges, and an empty Backlog.
 2. Shuffle the Management Style deck. Each player draws 1 card and keeps it
    face-up — everyone should be able to see everyone's boss.
 3. Shuffle the Tier 1 Skill/Tool cards and reveal 5 to form the Job Board.
@@ -194,6 +216,29 @@ Simultaneously, every player collects the Productivity and Political Capital
 shown on their Skill/Tool tableau, plus a flat +1 Productivity "showed up"
 bonus.
 
+Then, in First Player order (this part isn't simultaneous — everyone's
+reaching for the same Kanban Board): if your Backlog is empty, you must take
+one Project card from the Kanban Board — your Backlog can never stay at
+zero. If you already have at least one Backlog entry, you may take another
+if you want, or skip and leave your Backlog exactly as it is this round.
+There's no cap either way — a Backlog can grow as large as you're willing
+to let it.
+
+Taking a card is free; you are not paying its cost yet, just claiming it.
+Taking it empties that slot exactly as if you'd completed a Project there
+(a regular slot stays empty until the next Postmortem refills it; the
+Evergreen slot instantly deals itself a replacement — see
+[Deck Composition](#deck-composition) — which is why there's always
+something to pick up even if every other slot is already spoken for this
+Stand-Up). Whatever cost is showing on the card at the moment you take it
+(including any Scope Creep it had already picked up) is locked in for that
+entry — it won't creep any higher while it sits in your Backlog, even
+though the slot that replaces it will start accruing its own Scope Creep
+from scratch.
+
+Stand-Up never lets you pay for anything in your Backlog — that only
+happens on your Sprint, via Work a Project.
+
 ### 6.2 — Sprint (Action Phase)
 
 In First Player order, each player spends Action Points one at a time. Your
@@ -210,9 +255,15 @@ Each Action Point buys one of the following:
 - **Hire** — pay a Skill/Tool card's Productivity cost to take it from the
   Job Board. One-Shot cards resolve immediately and are discarded; Permanent
   cards join your tableau.
-- **Work a Project** — pay a Project's Productivity cost to claim it from the
-  Kanban Board. Gain its Career Capital reward (and any other listed effects)
-  immediately.
+- **Work a Project** — choose any one entry in your Backlog (see
+  [Your Backlog](#your-backlog)) and pay its Productivity cost. This is the
+  only way to actually pay for and finish a task — Stand-Up only ever adds
+  to your Backlog, never pays for anything in it. Gain the Career Capital
+  reward (and any other listed effects) immediately, then that entry is
+  gone. You choose which entry to Work — cheapest, most valuable, whatever
+  — and if you have enough Action Points and Productivity, you can Work
+  more than one entry in the same Sprint. Unavailable only if your Backlog
+  is completely empty (rare — Stand-Up adds an entry every round).
 - **Network** — no cost. Gain 2 Political Capital and 1 Career Capital.
 - **Self-Care** — no cost. Remove 2 Burnout.
 
@@ -678,7 +729,10 @@ written and see how it goes. That's what the simulation says it's like.
 
 ### Round Structure
 
-1. Stand-Up Meeting — collect tableau income + 1 free Productivity
+1. Stand-Up Meeting — collect tableau income + 1 free Productivity; pick up
+   a task from the Kanban Board into your Backlog (free — claim only, no
+   paying yet). Mandatory if your Backlog is empty; optional (may skip) if
+   you already have at least one entry. No cap either way.
 2. Sprint — spend Action Points (2 / 3 / 4 by rung); 1 free Overtime action
    available
 3. Lunch — draw & resolve 1 Office Chaos card
@@ -692,10 +746,20 @@ Mandatory Training.
 | Action | Cost | Effect |
 |---|---|---|
 | Hire | Card's Productivity cost | Take a Job Board card: One-Shot resolves now; Permanent joins tableau |
-| Work a Project | Project's Productivity cost | Gain its Career Capital reward + listed effects |
+| Work a Project | Chosen Backlog entry's Productivity cost | Gain its Career Capital reward + listed effects; that entry leaves your Backlog |
 | Network | Free | +2 Political Capital, +1 Career Capital |
 | Self-Care | Free | −2 Burnout |
 | Overtime (once/round, not an AP) | +2 Burnout | +1 Action Point this round |
+
+### Your Backlog
+
+No size limit. Empty at Stand-Up → you must take a card from the Kanban
+Board (free — claim only). Non-empty → taking another is your choice; skip
+it if you'd rather not grow your Backlog this round. Paying for any entry
+and taking its reward only happens on your Sprint, via Work a Project (1 AP
+per entry) — Stand-Up never completes anything for you. You choose which
+entry to Work each time, and can clear more than one per Sprint if you have
+the AP and Productivity for it.
 
 ### Review Score
 

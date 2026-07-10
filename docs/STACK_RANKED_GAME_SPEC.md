@@ -121,6 +121,7 @@ Player {
   hasPip: bool
   employeeOfQuarterTokens: int
   skipActionRounds: int          // >0 means "no Action Phase this round, then decrement"
+  backlog: [{card: CardRef, lockedScope: int}]   // grows by 1 every Stand-Up (5.1.2), no size cap; any entry paid off via Work a Project, any order
   managementStyle: CardRef
   tableau: [CardRef]             // permanent Skill/Tool cards in play
   goldenParachuteArmed: bool     // true if holding an unused Golden Parachute Clause
@@ -168,7 +169,9 @@ purposes.
 A round always resolves these phases **in order**, fully completing one phase
 for all players before the next phase begins.
 
-### 5.1 — Stand-Up Meeting (Income Phase) — simultaneous, no player choice
+### 5.1 — Stand-Up Meeting (Income Phase)
+
+**5.1.1 — Income (simultaneous, no player choice)**
 For every player:
 ```
 player.productivity += sum(p.gain for p in player.tableau if p has a Productivity-per-round effect) + 1   // the flat "showed up" bonus
@@ -188,6 +191,71 @@ the specific moment its trigger occurs (Project completion, Burnout Crisis,
 Overtime, etc.) — read each effect string to classify it; they're written in
 plain language on purpose and none of them require inventing new mechanics
 beyond what's listed.
+
+**5.1.2 — Backlog Grooming (sequential, in First Player order)**
+Immediately after Income, still within Stand-Up: for every player, in First
+Player order (this step is sequential, not simultaneous, because it draws
+from the shared Kanban Board — same reasoning as 5.2's Sprint):
+
+- If `player.backlog.length === 0`, claiming is **mandatory** — the backlog
+  may never be left at zero.
+- If `player.backlog.length > 0`, the player is **asked whether they want
+  to claim another entry this round or skip**. Declining leaves the backlog
+  unchanged this Stand-Up; accepting proceeds exactly like the mandatory
+  case below. AI players always accept (see the note at the end of this
+  section) — this choice is meaningful primarily for human players who may
+  prefer to focus on clearing an already-large backlog rather than growing
+  it further.
+
+Claiming (whether mandatory or accepted voluntarily) takes exactly one card
+from the Kanban Board into `player.backlog` —
+`player.backlog.push({card, lockedScope})`. There is still no size cap and
+no upper limit — a player who always accepts (or has an empty backlog every
+round) will keep accumulating entries just as before this skip option
+existed.
+
+This is a **claim, not a completion**: no Productivity is paid, and no
+reward is granted, at this point. Removing the card from the board follows
+the exact same slot mechanics as claiming during a Sprint (5.2.2's "Work a
+Project" / 5.2.3): a non-Evergreen slot empties and isn't refilled until the
+next Postmortem (5.4); the Evergreen slot immediately redraws a replacement
+from its own pool (5.2.3) — which is what makes it possible to satisfy every
+player's claim in the same Stand-Up even when all 4 non-Evergreen slots are
+already spoken for (the Evergreen slot can supply an unlimited number of
+sequential claims in a single Stand-Up, since it never runs out).
+`lockedScope` is set to whatever Scope Creep (5.2.4) that slot had accrued
+at the moment of claiming (always 0 for the Evergreen slot, which is
+exempt) — it is **frozen** from this point on for that specific backlog
+entry and does not keep increasing while it sits in the backlog, even after
+a new card refills that slot and *its* Scope Creep starts accruing
+independently.
+
+If literally no card is available anywhere on the board to satisfy this
+(every slot — including Evergreen — is empty), skip it silently for that
+player this round; this should not occur in practice given the Evergreen
+backstop above.
+
+**Paying for a backlog entry never happens here.** Stand-Up only ever adds
+one (at most); the only way to pay an entry's cost and collect its reward
+is the Sprint's Work a Project action (5.2.2), which still costs its normal
+1 AP per entry worked, and the player chooses which entry (any order, not
+FIFO/LIFO). A player's backlog grows by at most one entry every Stand-Up
+(zero if they choose to skip while non-empty); whether it also shrinks that
+round depends entirely on how much AP and Productivity they spend Working
+entries during their Sprint.
+
+**Implementation note on the skip decision:** the reference AI always
+accepts the claim (never voluntarily skips) — the balance data in Section
+9.8 was measured under unconditional claiming and remains valid for AI-only
+or mixed games, since AI behavior is unchanged by this option. The skip
+choice is a capability for human players; nothing prevents implementing a
+smarter AI heuristic for it later (e.g., skip once the backlog already
+exceeds some multiple of the player's typical AP budget), but that's a
+deliberate future tuning decision, not assumed here.
+
+This whole sub-phase (like Income) is skipped for a round in which
+`restrictions.skipIncome` is set (IT Outage) — Backlog Grooming is part of
+the same Stand-Up phase.
 
 ### 5.2 — Sprint (Action Phase) — sequential, in First Player order
 
@@ -211,10 +279,23 @@ Income/Lunch/Postmortem.)
   Job Board. If `type == "One-Shot"`: resolve its `effect` immediately, then
   discard it. If `type == "Permanent"`: add it to the player's `tableau`
   (its ongoing effect now applies every future Income Phase / trigger).
-- **Work a Project**: pay a Kanban Board card's `cost` (Productivity) → apply
-  its `reward` (Career Capital + any other listed effects) to the player
-  immediately, then remove it from the board **except** the Evergreen card
-  (see 5.2.3).
+- **Work a Project**: choose **any one entry** in the player's own backlog
+  (`player.backlog` — accumulated at Stand-Up, see 5.1.2) and pay its
+  Productivity cost (`card.cost + lockedScope`, plus the same discounts as
+  before) → apply its `reward` immediately, then remove that entry from the
+  backlog. This is the **only** way to pay for and complete a backlog entry
+  — Stand-Up only ever adds one, never pays for one (5.1.2). The player is
+  free to pick whichever entry they want each time — cheapest, highest-value,
+  whatever — not restricted to a fixed order; a player with several
+  affordable entries and enough AP can Work more than one in the same
+  Sprint. Unavailable (nothing to Work) only if the backlog is completely
+  empty, which can only happen right after a Stand-Up that itself had
+  nothing available to assign (see 5.1.2's Evergreen-backstop note) — in
+  ordinary play the backlog is never empty for long, since Stand-Up adds an
+  entry every round. The one exception that still targets the Kanban Board
+  directly, bypassing the backlog entirely, is **Ships It Friday at 5 PM**
+  (Section 8): it completes any board Project immediately at half cost,
+  independent of the player's backlog.
 - **Network**: no cost. `politicalCapital += 2`, `careerCapital += 1`.
 - **Self-Care**: no cost. `burnout = max(0, burnout - 2)`.
 - **Overtime** (once per player per round, doesn't consume an AP slot — check
@@ -445,7 +526,11 @@ significantly simplifies the online architecture:
 - Spectator mode is free (a spectator just receives the same broadcast).
 
 ### 7.2 — Turn Structure Recap (for architecture purposes)
-- **Income Phase**: simultaneous, fully deterministic, no player input required.
+- **Stand-Up (Income)**: the Income half (5.1.1) is simultaneous and fully
+  deterministic, no player input required. The Backlog Grooming half (5.1.2)
+  that follows it is sequential by turn order, same as Action Phase, since it
+  draws from the shared Kanban Board — and needs a decision from every
+  player, every round, of which card to claim into their backlog.
 - **Action Phase**: sequential by turn order; each player's actions are
   discrete, individually-resolved events (good fit for an event-sourced or
   action-log architecture — replaying the log fully reconstructs state).
@@ -704,6 +789,45 @@ Review Score (Step 1) must be computed against the marker position left over
 from the *previous* Review. Moving the marker is explicitly the last
 sub-step (Step 5) of the current Review.
 
+**9.8 — Backlog Grooming (5.1.2) adds unconditionally every round with no
+size cap, and Work a Project can target any backlog entry — this changes
+the archetype balance from the v3 baseline, though choice among entries
+prevents the outright soft-lock an earlier single-held-task design had.**
+Two designs were tried here, in order, each simulated with the same
+five-archetype, one-of-each methodology as Section 10:
+
+- **v1 of this feature (superseded):** each player could hold at most one
+  task, claimed via a heuristic (`bestClaimIndex`) that always grabbed the
+  single highest-value available card with no regard for the claiming
+  player's Productivity income — and since a held task couldn't be
+  abandoned or swapped, a player assigned an expensive card they couldn't
+  afford was stuck with *only* that card until they somehow paid it off.
+  Instrumented: Politician held the exact same unpaid task for 23 of 24
+  rounds in a representative Long Game, consistently across repeated runs.
+  Win rates: Workaholic/Grinder ~30% each, Balanced/Cautious/Politician
+  ~13-14% each.
+- **Current design:** the one-task cap is gone. Every player's backlog
+  grows by exactly one entry every Stand-Up regardless of size (still via
+  `bestClaimIndex`, still with no regard for affordability), but Work a
+  Project can now pay off **any** backlog entry, not just the most recent
+  or most valuable one — so a player who can't afford their priciest entry
+  can simply Work a cheaper one instead. This removes the multi-round
+  soft-lock: the same instrumentation now shows every archetype making
+  steady Career Capital progress, though low-Productivity archetypes
+  (Politician especially) still end a 24-round game with a visibly larger,
+  more slowly-draining backlog (15-19 entries typical) than
+  Productivity-heavy ones (Workaholic, often single digits) — which reads
+  as an intentional, on-theme consequence ("the backlog always grows")
+  rather than a bug. Win rates over a 300-game sweep: Workaholic ~27%,
+  Grinder/Politician ~23% each, Balanced ~17%, Cautious ~11% — closer to
+  even than v1 of this feature, though still not a match for the v3
+  baseline (Balanced 51%, Cautious 36%, Grinder+Workaholic under 2%
+  combined) from before this feature existed at all. Whether that
+  remaining gap is worth a further rebalance (e.g., retuning the claim
+  heuristic, or the AI's Work-vs-Hire-vs-Network weighting now that
+  Working can happen many times per Sprint) is a follow-up decision, not
+  something addressed here.
+
 ---
 
 ## 10. Relationship to the Existing Balance Simulator
@@ -755,12 +879,13 @@ Not answered by the ruleset itself — decide these before or during initial
 architecture work:
 
 1. **Real-time vs. async turn-based.** Nothing in the rules requires live
-   simultaneity except the Income/Lunch/Postmortem phases being
+   simultaneity except the Income (5.1.1)/Lunch/Postmortem phases being
    "simultaneous" in the sense of not depending on turn order — they don't
-   require players to be online at the same instant. A play-by-web async
-   model (get notified when it's your turn, act whenever) is fully viable
-   given Section 7.2's analysis, and may be an easier v1 than a live WebSocket
-   session.
+   require players to be online at the same instant. (Backlog Grooming,
+   5.1.2, and Action Phase both already resolve strictly by turn order.) A
+   play-by-web async model (get notified when it's your turn, act
+   whenever) is fully viable given Section 7.2's analysis, and may be an
+   easier v1 than a live WebSocket session.
 2. **Tech stack.** No constraint from the rules. A perfect-information,
    turn-based game with no real-time physics is comfortable in almost
    anything — pick based on team familiarity rather than game requirements.

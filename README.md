@@ -48,16 +48,21 @@ Pages (see below). No build step, no server, no dependencies.
 
 1. Pick a **win condition** and set up your **players** (name, Human/AI, and an
    AI archetype).
-2. On your **Sprint**, spend Action Points on:
+2. At **Stand-Up**, pick up a task from the Kanban Board into your
+   **Backlog** — mandatory if it's empty, optional (skippable) once you have
+   at least one, no cap either way (free — a claim, not a completion; you
+   can't pay for it until your Sprint).
+3. On your **Sprint**, spend Action Points on:
    - **Hire** a Skill/Tool from the Job Board (pay Productivity).
-   - **Work a Project** (pay Productivity → gain Career Capital).
+   - **Work a Project** (pay Productivity for any one entry in your Backlog,
+     your choice → gain Career Capital).
    - **Network** (free: +2 Political Capital, +1 Career Capital).
    - **Self-Care** (free: −2 Burnout).
    - **Overtime** (once/round: +1 Action Point, +2 Burnout).
-3. Every 3rd round is a **Quarterly Performance Review** — promotions, PIPs, and
+4. Every 3rd round is a **Quarterly Performance Review** — promotions, PIPs, and
    the CEO Board Vote. Career Capital gates every promotion; Compliance Badges
    gate Director and VP.
-4. First player promoted to **CEO** wins (or highest Final Score in the Long
+5. First player promoted to **CEO** wins (or highest Final Score in the Long
    Game). Don't hit **10 Burnout** — that triggers a Crisis.
 
 ## Host it on GitHub Pages

@@ -337,6 +337,7 @@
       hasPip: false,
       employeeOfQuarterTokens: 0,
       skipActionRounds: 0,
+      backlog: [],                   // [{ card, lockedScope }] — grows by 1 every Stand-Up, paid off (any entry, any order) via Work a Project
       managementStyle: null,        // set at setup
       tableau: [],                  // permanent skill defs
       goldenParachuteArmed: false,
@@ -538,10 +539,18 @@
     c += (mm(player).projectCostDelta || 0);
     return Math.max(1, c);
   }
+  function effectiveBacklogItemCost(player, item) {
+    if (!item) return null;
+    // lockedScope is frozen at the moment the task was claimed (0 for Evergreen,
+    // which never scope-creeps); it does not keep accruing while held.
+    let c = item.card.cost + item.lockedScope;
+    if (hasSkill(player, "actually-reads-the-documentation")) c -= 1;
+    if (hasSkill(player, "whiteboard-diagram-enthusiast") && skillCount(player) >= 4) c -= 1;
+    c += (mm(player).projectCostDelta || 0);
+    return Math.max(1, c);
+  }
   function anyAffordableProject(state, player) {
-    return state.kanbanBoard.some(function (slot) {
-      return slot.card && player.productivity >= effectiveProjectCost(player, slot);
-    });
+    return player.backlog.some(function (item) { return player.productivity >= effectiveBacklogItemCost(player, item); });
   }
 
   /* ---------------------------------------------------------------------------
@@ -585,8 +594,54 @@
     return { ok: true };
   }
 
-  function doWorkProject(state, player, slotIndex) {
-    return completeProject(state, player, slotIndex);
+  // Claim a card from the Kanban Board into a player's backlog, unpaid (no
+  // cost yet). Board-slot bookkeeping (Evergreen redraw / empty-until-Postmortem)
+  // mirrors completeProject's, since a claim removes the card from the board
+  // either way.
+  function claimTaskFromBoard(state, player, slotIndex) {
+    const slot = state.kanbanBoard[slotIndex];
+    if (!slot || !slot.card) return { ok: false, reason: "No project there." };
+    const card = slot.card;
+    player.backlog.push({ card: card, lockedScope: slot.evergreen ? 0 : slot.scope });
+    if (slot.evergreen) {
+      state.evergreenDiscardPile.push(card);
+      state.kanbanBoard[slotIndex] = { card: drawEvergreen(state), scope: 0, unclaimed: 0, justRefilled: false, evergreen: true };
+    } else {
+      state.projectDiscardPile.push(card);
+      state.kanbanBoard[slotIndex] = { card: null, scope: 0, unclaimed: 0, justRefilled: false, evergreen: false };
+    }
+    log(state, player.name + " picks up “" + card.name + "” from the Kanban Board.", "muted");
+    return { ok: true };
+  }
+
+  // Pay off one entry in a player's backlog (claimed earlier, at Stand-Up or
+  // a prior round). Only ever called from the Sprint's Work a Project
+  // action — Stand-Up claims tasks but never pays for them.
+  function completeBacklogItem(state, player, backlogIndex, costOverride) {
+    const item = player.backlog[backlogIndex];
+    if (!item) return { ok: false, reason: "No task there." };
+    const card = item.card;
+    const cost = costOverride != null ? costOverride : effectiveBacklogItemCost(player, item);
+    if (player.productivity < cost) return { ok: false, reason: "Not enough Productivity." };
+    player.productivity -= cost;
+    applyProjectReward(state, player, card);
+    let extra = "";
+    const m = mm(player);
+    if (m.onProjectComplete) {
+      player.careerCapital = Math.max(0, player.careerCapital + m.onProjectComplete.cc);
+      player.politicalCapital += m.onProjectComplete.pc;
+      extra = " (Credit-Stealing Boss: " + m.onProjectComplete.cc + " CC, +" + m.onProjectComplete.pc + " PC)";
+    }
+    log(state, player.name + " completes “" + card.name + "” for " + cost + " P → +" +
+      card.reward.cc + " CC" + (card.reward.pc ? ", +" + card.reward.pc + " PC" : "") +
+      (card.reward.badges ? ", +" + card.reward.badges + " Badge" : "") +
+      (card.reward.burnout ? ", +" + card.reward.burnout + " Burnout" : "") + extra + ".", "action");
+    player.backlog.splice(backlogIndex, 1);
+    return { ok: true };
+  }
+
+  function doWorkProject(state, player, backlogIndex) {
+    return completeBacklogItem(state, player, backlogIndex);
   }
 
   function doHire(state, player, boardIndex) {
@@ -790,6 +845,62 @@
       if (dbr > 0) addBurnout(state, p, dbr, "round");
     });
     log(state, "Stand-Up Meeting: income collected.", "income");
+  }
+
+  // Every player with an empty backlog MUST pick up a card from the Kanban
+  // Board (unpaid — claiming is free) — the backlog can never be left at
+  // zero. A player who already has at least one backlog entry may instead
+  // choose to skip claiming another this round; resolved in First Player
+  // order since the board is shared. Paying for backlog entries only
+  // happens later, via Work a Project during the Sprint — Stand-Up never
+  // completes a task. The backlog has no size cap; it grows by at most 1
+  // per player per round, less if they skip.
+  async function assignTasks(state, hooks) {
+    if (state.restrictions.skipIncome) return; // IT Outage skips all of Stand-Up
+    for (const p of turnOrder(state)) {
+      state.activePlayerId = p.id;
+      if (hooks && hooks.onChange) hooks.onChange();
+      const mandatory = p.backlog.length === 0;
+      const slotIndex = await pickTaskToClaim(state, hooks, p, mandatory);
+      if (slotIndex >= 0) claimTaskFromBoard(state, p, slotIndex);
+      if (hooks && hooks.onChange) hooks.onChange();
+    }
+    state.activePlayerId = null;
+  }
+
+  function bestClaimIndex(state) {
+    let best = -1, bestVal = -Infinity;
+    state.kanbanBoard.forEach(function (slot, i) {
+      if (!slot.card) return;
+      const val = slot.card.reward.cc - (slot.card.reward.burnout || 0) * 0.6;
+      if (val > bestVal) { bestVal = val; best = i; }
+    });
+    return best;
+  }
+
+  // `mandatory` is false only when the player already has at least one
+  // backlog entry — in that case the request offers a "skip" choice
+  // alongside the board options. AI always claims (never voluntarily
+  // skips), preserving the archetype behavior/balance already measured and
+  // documented for the unconditional-claim design (spec Section 9.8) —
+  // skipping is a human-facing capability, not an AI strategy change.
+  async function pickTaskToClaim(state, hooks, player, mandatory) {
+    const heuristic = bestClaimIndex(state);
+    if (heuristic < 0) return -1; // nothing available anywhere (all slots empty)
+    if (player.kind !== "human" || !hooks || !hooks.decide) return heuristic;
+    const answer = await hooks.decide({
+      playerId: player.id, action: "claimTask",
+      prompt: mandatory
+        ? player.name + " has no task in hand — pick up a Project from the Kanban Board."
+        : player.name + " already has " + player.backlog.length + " task(s) — pick up another, or skip.",
+      allowSkip: !mandatory,
+      options: state.kanbanBoard.map(function (slot, i) {
+        return slot.card ? { key: String(i), label: slot.card.name + " (" + effectiveProjectCost(player, slot) + " P)" } : null;
+      }).filter(Boolean)
+    });
+    if (answer === "skip") return -1;
+    const idx = typeof answer === "number" ? answer : parseInt(answer, 10);
+    return (Number.isInteger(idx) && state.kanbanBoard[idx] && state.kanbanBoard[idx].card) ? idx : heuristic;
   }
 
   /* --- Lunch ------------------------------------------------------------------ */
@@ -1282,12 +1393,18 @@
     return v;
   }
 
+  // There's only ever one Project a player can Work: whatever's in their
+  // hand (Sprint no longer picks a Kanban Board slot directly — that choice
+  // is made when the task is claimed, at Stand-Up). `index` is kept as a
+  // found/not-found flag (0 vs -1) so existing call sites don't need to change.
+  // Best AFFORDABLE entry in the player's own backlog to Work right now.
+  // `index` is a backlog index (not a board index) — Sprint picks from what
+  // was already claimed at Stand-Up, not from the shared Kanban Board.
   function pickBestProject(state, player) {
     let best = -1, bestVal = -Infinity;
-    state.kanbanBoard.forEach(function (slot, i) {
-      if (!slot.card) return;
-      if (player.productivity < effectiveProjectCost(player, slot)) return;
-      const val = slot.card.reward.cc - (slot.card.reward.burnout || 0) * 0.6;
+    player.backlog.forEach(function (item, i) {
+      if (player.productivity < effectiveBacklogItemCost(player, item)) return;
+      const val = item.card.reward.cc - (item.card.reward.burnout || 0) * 0.6;
       if (val > bestVal) { bestVal = val; best = i; }
     });
     return { index: best, value: bestVal };
@@ -1422,6 +1539,10 @@
       if (hooks.onChange) hooks.onChange();
       await pause(hooks, "income");
 
+      await assignTasks(state, hooks);
+      if (hooks.onChange) hooks.onChange();
+      await pause(hooks, "income");
+
       // Action phase
       state.phase = "ACTION";
       const order = turnOrder(state);
@@ -1507,6 +1628,7 @@
       beginTurn: beginTurn,
       effectiveHireCost: effectiveHireCost,
       effectiveProjectCost: effectiveProjectCost,
+      effectiveBacklogItemCost: effectiveBacklogItemCost,
       selfCareApCost: selfCareApCost,
       canNetwork: canNetwork,
       canSelfCare: canSelfCare,
@@ -1524,7 +1646,11 @@
       slug: slug
     },
     // Internal functions exposed for unit testing.
-    _internal: { runReview: runReview, addBurnout: addBurnout, resolveTraining: resolveTraining }
+    _internal: {
+      runReview: runReview, addBurnout: addBurnout, resolveTraining: resolveTraining,
+      claimTaskFromBoard: claimTaskFromBoard, completeBacklogItem: completeBacklogItem,
+      assignTasks: assignTasks
+    }
   };
 
   if (typeof module !== "undefined" && module.exports) module.exports = SR;
