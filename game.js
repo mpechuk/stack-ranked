@@ -166,6 +166,26 @@
       {"name": "The Always-On Boss", "effect": "Overtime grants +1 extra Burnout, on top of its normal effect (always expects a same-night reply). Self-Care costs 2 Action Points instead of 1 (there's no such thing as fully logging off).", "flavor": "Texts you at 11 PM. Reacts with a 👍 to your out-of-office reply."},
       {"name": "The Nepotism Hire", "effect": "+2 Political Capital/round (knows people); Hiring Skill cards costs 1 more Productivity (couldn't approve a headcount request to save their life).", "flavor": "Turns out the CEO is their uncle. Nobody has said this out loud."},
       {"name": "The Consultant-Turned-Manager", "effect": "Your Projects cost 1 less Productivity (loves a framework for everything); −1 Political Capital/round (nobody trusts the person who charges by the hour).", "flavor": "Drew a 2x2 matrix. Nobody asked for the 2x2 matrix."}
+    ],
+    "feedback": [
+        {"name": "Exceeds Expectations", "polarity": "positive", "value": 2, "effect": "+2 Political points during the Review to whoever holds this card.", "flavor": "Hit every goal and then invented three more to hit. Nobody asked, but here we are."},
+        {"name": "Goes Above and Beyond", "polarity": "positive", "value": 2, "effect": "+2 Political points during the Review to whoever holds this card.", "flavor": "Answered a Slack at 2 a.m. once. It comes up in every review now."},
+        {"name": "A True Team Player", "polarity": "positive", "value": 2, "effect": "+2 Political points during the Review to whoever holds this card.", "flavor": "Brought donuts to the retro. The retro was about layoffs, but still."},
+        {"name": "Highly Visible Impact", "polarity": "positive", "value": 2, "effect": "+2 Political points during the Review to whoever holds this card.", "flavor": "The dashboard is green. Nobody checks what it measures, but it's green."},
+        {"name": "Strong Executive Presence", "polarity": "positive", "value": 2, "effect": "+2 Political points during the Review to whoever holds this card.", "flavor": "Says 'let me push back on that' with total confidence and no follow-up."},
+        {"name": "Consistently Delivers", "polarity": "positive", "value": 2, "effect": "+2 Political points during the Review to whoever holds this card.", "flavor": "Delivers consistently, if not necessarily what was asked for."},
+        {"name": "Great Culture Add", "polarity": "positive", "value": 2, "effect": "+2 Political points during the Review to whoever holds this card.", "flavor": "Laughs at the CEO's jokes at exactly the right volume."},
+        {"name": "Promotion-Ready", "polarity": "positive", "value": 2, "effect": "+2 Political points during the Review to whoever holds this card.", "flavor": "Has been promotion-ready for six quarters. The ladder is just crowded."},
+        {"name": "The Team Depends on Them", "polarity": "positive", "value": 2, "effect": "+2 Political points during the Review to whoever holds this card.", "flavor": "Load-bearing employee. HR has flagged this as a risk, admiringly."},
+        {"name": "Needs to Improve Communication", "polarity": "constructive", "value": -2, "effect": "-2 Political points during the Review to whoever holds this card.", "flavor": "Sends a 400-word Slack that could have been 'ok.' Or vice versa."},
+        {"name": "Struggles with Ambiguity", "polarity": "constructive", "value": -2, "effect": "-2 Political points during the Review to whoever holds this card.", "flavor": "Asked for 'requirements.' In this economy."},
+        {"name": "Not a Culture Fit", "polarity": "constructive", "value": -2, "effect": "-2 Political points during the Review to whoever holds this card.", "flavor": "Logs off at 5. Suspicious. Un-American, even."},
+        {"name": "Lacks Executive Presence", "polarity": "constructive", "value": -2, "effect": "-2 Political points during the Review to whoever holds this card.", "flavor": "Said 'I don't know' in a meeting. Out loud. On purpose."},
+        {"name": "Room for Growth", "polarity": "constructive", "value": -2, "effect": "-2 Political points during the Review to whoever holds this card.", "flavor": "Endless, breathtaking room. Vistas of it. So much room."},
+        {"name": "Doesn't Take Feedback Well", "polarity": "constructive", "value": -2, "effect": "-2 Political points during the Review to whoever holds this card.", "flavor": "Took the feedback fine. Just didn't agree, which is worse."},
+        {"name": "Siloed and Territorial", "polarity": "constructive", "value": -2, "effect": "-2 Political points during the Review to whoever holds this card.", "flavor": "Owns the one system nobody else understands. Weirdly protective of the job security."},
+        {"name": "Missed Key Deliverables", "polarity": "constructive", "value": -2, "effect": "-2 Political points during the Review to whoever holds this card.", "flavor": "The deliverable was 'vibes.' The vibes were, per the review, off."},
+        {"name": "Let's Circle Back on This", "polarity": "constructive", "value": -2, "effect": "-2 Political points during the Review to whoever holds this card.", "flavor": "We will not be circling back. We both know that."}
     ]
   };
 
@@ -182,6 +202,38 @@
   const BURNOUT_CRISIS_RESET = 6;
   const LONG_GAME_ROUNDS = 24;
   const SAFETY_CAP = 60; // hard stop so a pathological game can't loop forever
+
+  /* Rule toggles + tuning knobs for the two variant rules (Feedback deck and
+   * Collaborative Projects). Defaults ON. Every numeric here is a balance dial
+   * exercised by the Monte-Carlo harness (stack_ranked_montecarlo.js); the
+   * values below are the tuned defaults that harness settled on. */
+  const DEFAULT_RULES = {
+    // Tuned defaults, validated by stack_ranked_montecarlo.js (see docs §9.9/§9.10).
+    feedback: true,          // deal ±2 Feedback cards at each Review
+    feedbackValue: 2,        // political points per held card (magnitude)
+    feedbackNetCap: 4,       // clamp each player's net feedback swing to ±this per Review
+                             //   (research: keep it ≤~25-30% of a typical Review Score)
+    feedbackNegLeaderOnly: false, // constructive cards may only be given to the current front-runner
+    feedbackTarget: 'score', // who AI dumps constructive cards on:
+                             //   'score' — whoever tops THIS Review (self-balancing vs the PC
+                             //             strategy; BEST archetype balance) [default]
+                             //   'rung'  — the ladder / Career-Capital leader (STRONGER comeback,
+                             //             at some archetype-balance cost — "aggressive rubber-band")
+                             //   'blend'/'spread' — hybrids (see feedbackNegTarget)
+    feedbackBlendPcWeight: 6,// PC weight when blending CC+PC for 'blend'/'spread' targeting
+    collaboration: true,     // let players pool Productivity into one Project
+    collabOwnerPcCap: 3,     // cap on the owner's PC bonus, max(cc-2,1) then capped here
+    collabMinContributors: 2,// distinct contributors needed to count as collaborative
+    collabLeaderCannotReceive: false, // the current leader can't recruit outside help
+    collabOwnerMustContribute: true   // owner earns the PC bonus only if it paid ≥1 P itself
+                                       //   (kills the "own it, pay nothing, bank PC" exploit)
+  };
+  function buildRules(over) {
+    const r = {};
+    Object.keys(DEFAULT_RULES).forEach(function (k) { r[k] = DEFAULT_RULES[k]; });
+    if (over) Object.keys(over).forEach(function (k) { if (over[k] !== undefined) r[k] = over[k]; });
+    return r;
+  }
 
   /* ---------------------------------------------------------------------------
    * 3. Structured effect metadata (hand-encoded, keyed by slug)
@@ -306,6 +358,10 @@
     CARDS.management.forEach(function (c) {
       register({ id: slug(c.name), name: c.name, category: "management", effect: c.effect, flavor: c.flavor });
     });
+    (CARDS.feedback || []).forEach(function (c) {
+      register({ id: slug(c.name), name: c.name, category: "feedback",
+        polarity: c.polarity, value: c.value, effect: c.effect, flavor: c.flavor });
+    });
   })();
 
   function defsByCat(category, tierOrStage) {
@@ -418,6 +474,8 @@
       currentEvent: null,
       lastReview: null,
       reviewCount: 0,
+      rules: buildRules(config.rules),
+      feedbackDeck: defsByCat("feedback"),   // the 18 designs; reshuffled fresh each Review
       log: [],
       status: "setup",              // setup | running | over
       winnerId: null,
@@ -471,6 +529,43 @@
   function hasSkill(player, id) { return player.tableau.some(function (c) { return c.id === id; }); }
   function skillCount(player) { return player.tableau.length; }
   function leaderRung(state) { return Math.max.apply(null, state.players.map(function (p) { return p.rung; })); }
+  // The player closest to winning (rung, then Career Capital, then Political
+  // Capital) — the natural target for negative Feedback and the player barred
+  // from recruiting collaborators when catch-up gating is on.
+  function threatLeader(state, excludeId) {
+    let best = null;
+    state.players.forEach(function (p) {
+      if (excludeId && p.id === excludeId) return;
+      if (!best) { best = p; return; }
+      if (p.rung !== best.rung) { if (p.rung > best.rung) best = p; return; }
+      if (p.careerCapital !== best.careerCapital) { if (p.careerCapital > best.careerCapital) best = p; return; }
+      if (p.politicalCapital > best.politicalCapital) best = p;
+    });
+    return best;
+  }
+  // Where a rational player sends a constructive-feedback card. 'score' targets
+  // whoever is about to top THIS Review (provisional Review Score = CC gained
+  // this Quarter + PC − burnout tax), which naturally lands on the political
+  // front-runner; 'rung' targets the ladder/Career-Capital leader.
+  function feedbackNegTarget(state, giverId) {
+    if (state.rules.feedbackTarget === 'rung') return threatLeader(state, giverId);
+    const mode = state.rules.feedbackTarget;
+    const kPc = state.rules.feedbackBlendPcWeight != null ? state.rules.feedbackBlendPcWeight : 2;
+    let best = null, bestScore = -Infinity;
+    state.players.forEach(function (p) {
+      if (p.id === giverId) return;
+      let sc;
+      if (mode === 'blend') {
+        // Both the ladder front-runner (Career Capital) AND a surging political
+        // player (Political Capital + CC gained this Quarter) are in range.
+        sc = p.careerCapital + kPc * p.politicalCapital + (p.careerCapital - p.quarterMarker);
+      } else { // 'score' — whoever tops THIS Review
+        sc = (p.careerCapital - p.quarterMarker) + p.politicalCapital - Math.floor(p.burnout / 4);
+      }
+      if (sc > bestScore) { bestScore = sc; best = p; }
+    });
+    return best || threatLeader(state, giverId);
+  }
   function findPlayer(state, id) { return state.players.find(function (p) { return p.id === id; }); }
   function firstPlayer(state) { return state.players[state.firstPlayerIndex]; }
   function turnOrder(state) {
@@ -614,7 +709,8 @@
     const slot = state.kanbanBoard[slotIndex];
     if (!slot || !slot.card) return { ok: false, reason: "No project there." };
     const card = slot.card;
-    player.backlog.push({ card: card, lockedScope: slot.evergreen ? 0 : slot.scope });
+    player.backlog.push({ card: card, lockedScope: slot.evergreen ? 0 : slot.scope,
+      owner: player.id, shared: false, paid: 0, contribs: {} });
     if (slot.evergreen) {
       state.evergreenDiscardPile.push(card);
       state.kanbanBoard[slotIndex] = { card: drawEvergreen(state), scope: 0, unclaimed: 0, justRefilled: false, evergreen: true };
@@ -653,7 +749,187 @@
   }
 
   function doWorkProject(state, player, backlogIndex) {
+    const item = player.backlog[backlogIndex];
+    // A shared project is funded via contributions (the owner Working it just
+    // pours their own Productivity in as one of the contributors); a normal
+    // backlog entry completes solo exactly as before.
+    if (state.rules.collaboration && item && item.shared) {
+      const cost = effectiveBacklogItemCost(player, item);
+      const need = cost - item.paid;
+      return contributeToProject(state, player, player, backlogIndex, Math.min(player.productivity, need));
+    }
     return completeBacklogItem(state, player, backlogIndex);
+  }
+
+  /* ---------------------------------------------------------------------------
+   * 12b. Collaborative Projects (variant rule)
+   *   Any player may pour Productivity into another player's *shared* backlog
+   *   entry. When cumulative contributions reach the owner's effective cost,
+   *   the Project completes: Career Capital is split proportional to each
+   *   contributor's Productivity, and the original owner instead banks
+   *   Political Capital = max(cardCC - 2, 1) (capped by rules.collabOwnerPcCap).
+   *   The owner is accountable for delivery, so absorbs the Project's Burnout,
+   *   Compliance Badge, and its own +PC reward. Fewer than
+   *   rules.collabMinContributors distinct payers collapses to a solo
+   *   completion (full CC to the owner, no PC bonus) — so nothing changes
+   *   unless someone actually helps.
+   * ------------------------------------------------------------------------ */
+  function sharedProjects(state, excludePlayerId) {
+    const out = [];
+    const blockLeader = state.rules.collabLeaderCannotReceive ? threatLeader(state, null) : null;
+    state.players.forEach(function (owner) {
+      if (owner.id === excludePlayerId) return;
+      if (blockLeader && owner.id === blockLeader.id) return;
+      owner.backlog.forEach(function (item, i) {
+        if (!item.shared) return;
+        const cost = effectiveBacklogItemCost(owner, item);
+        if (item.paid >= cost) return;
+        out.push({ owner: owner, backlogIndex: i, item: item, cost: cost, need: cost - item.paid });
+      });
+    });
+    return out;
+  }
+
+  function contributeToProject(state, contributor, owner, backlogIndex, amount) {
+    const item = owner.backlog[backlogIndex];
+    if (!item) return { ok: false, reason: "No task there." };
+    if (!item.shared) return { ok: false, reason: "That Project isn't open for collaboration." };
+    const cost = effectiveBacklogItemCost(owner, item);
+    const need = cost - item.paid;
+    if (need <= 0) return { ok: false, reason: "Already fully funded." };
+    const pay = Math.min(amount, need, contributor.productivity);
+    if (pay <= 0) return { ok: false, reason: "Not enough Productivity." };
+    contributor.productivity -= pay;
+    item.paid += pay;
+    item.contribs[contributor.id] = (item.contribs[contributor.id] || 0) + pay;
+    log(state, contributor.name + " contributes " + pay + " P to " + owner.name +
+      "’s “" + item.card.name + "” (" + item.paid + "/" + cost + ").",
+      contributor === owner ? "action" : "muted");
+    if (item.paid >= cost) return completeCollaborative(state, owner, backlogIndex);
+    return { ok: true, funded: false };
+  }
+
+  function completeCollaborative(state, owner, backlogIndex) {
+    const item = owner.backlog[backlogIndex];
+    const card = item.card;
+    const cost = Math.max(1, item.paid);
+    const contributorIds = Object.keys(item.contribs);
+
+    // Career Capital ALWAYS follows the Productivity that paid for it — a
+    // non-contributing owner never harvests someone else's work.
+    const others = contributorIds.filter(function (id) { return id !== owner.id; });
+    const m0 = mm(owner);
+    const totalCc = card.reward.cc;
+
+    // Case 1 — only the owner paid → a plain solo completion (unchanged).
+    if (others.length === 0) {
+      applyProjectReward(state, owner, card);
+      if (m0.onProjectComplete) {
+        owner.careerCapital = Math.max(0, owner.careerCapital + m0.onProjectComplete.cc);
+        owner.politicalCapital += m0.onProjectComplete.pc;
+      }
+      log(state, owner.name + " completes “" + card.name + "” solo for " + cost + " P → +" + totalCc + " CC.", "action");
+      owner.backlog.splice(backlogIndex, 1);
+      return { ok: true, funded: true, collaborative: false };
+    }
+
+    // Case 2 — a lone OUTSIDE funder did all the work (owner paid nothing and
+    // it's below the collaborative threshold): they simply take the whole
+    // Project as if it were theirs. Owner gets nothing (they didn't work it).
+    if (contributorIds.length < state.rules.collabMinContributors) {
+      const solo = findPlayer(state, others[0]);
+      applyProjectReward(state, solo, card);
+      const ms = mm(solo);
+      if (ms.onProjectComplete) {
+        solo.careerCapital = Math.max(0, solo.careerCapital + ms.onProjectComplete.cc);
+        solo.politicalCapital += ms.onProjectComplete.pc;
+      }
+      log(state, solo.name + " single-handedly finishes " + owner.name + "’s “" + card.name + "” → +" + totalCc + " CC.", "action");
+      owner.backlog.splice(backlogIndex, 1);
+      return { ok: true, funded: true, collaborative: false };
+    }
+
+    // Case 3 — genuine collaboration. The CONTRIBUTORS split the Career Capital
+    // proportional to the Productivity each paid; the ORIGINAL OWNER takes
+    // Political Capital in lieu of any CC share (the user's rule: "CC shared
+    // proportional to productivity, BUT the owner gets PC = max(cc-2,1)"). The
+    // owner's own Productivity helped fund it but earns PC, not CC — the
+    // coordination cost. This is what stops collaboration from siphoning CC
+    // into a coordinator who barely worked.
+    const parts = [];
+    others.forEach(function (pid) {
+      const pl = findPlayer(state, pid);
+      const share = Math.floor(totalCc * item.contribs[pid] / cost); // owner's fraction of CC is forfeit → PC
+      pl.careerCapital += share;
+      const m = mm(pl);
+      if (m.onProjectComplete) {
+        pl.careerCapital = Math.max(0, pl.careerCapital + m.onProjectComplete.cc);
+        pl.politicalCapital += m.onProjectComplete.pc;
+      }
+      parts.push(pl.name + " " + item.contribs[pid] + "P→+" + share + "CC");
+    });
+
+    let ownerPc = Math.max(totalCc - 2, 1);
+    if (state.rules.collabOwnerPcCap != null) ownerPc = Math.min(ownerPc, state.rules.collabOwnerPcCap);
+    if (state.rules.collabOwnerMustContribute && !(item.contribs[owner.id] > 0)) ownerPc = 0;
+    owner.politicalCapital += ownerPc;
+    if (card.reward.pc) owner.politicalCapital += card.reward.pc;
+    if (card.reward.badges) owner.complianceBadges += card.reward.badges;
+    if (card.reward.burnout) addBurnout(state, owner, card.reward.burnout, "project");
+
+    log(state, "🤝 " + owner.name + "’s “" + card.name + "” ships collaboratively (" + parts.join(", ") +
+      "); " + owner.name + " takes +" + ownerPc + " PC in lieu of CC" + (card.reward.pc ? " (+" + card.reward.pc + " PC)" : "") +
+      (card.reward.badges ? " +" + card.reward.badges + " Badge" : "") + ".", "action");
+    owner.backlog.splice(backlogIndex, 1);
+    return { ok: true, funded: true, collaborative: true };
+  }
+
+  // AI owner: open the single most valuable Project it can't bankroll alone
+  // (or, for a PC-hungry archetype, any it can't afford) for collaboration.
+  function maybeOpenCollaboration(state, player, w) {
+    if (!state.rules.collaboration) return;
+    let bestIdx = -1, bestScore = -Infinity;
+    player.backlog.forEach(function (item, i) {
+      if (item.shared) return;
+      const cost = effectiveBacklogItemCost(player, item);
+      const cantAfford = player.productivity < cost;
+      const expensive = cost >= 5;
+      const pcHungry = w.pc >= w.p;
+      if (!(cantAfford && (expensive || pcHungry))) return;
+      if (item.card.reward.cc > bestScore) { bestScore = item.card.reward.cc; bestIdx = i; }
+    });
+    if (bestIdx >= 0) {
+      player.backlog[bestIdx].shared = true;
+      log(state, player.name + " opens “" + player.backlog[bestIdx].card.name + "” up for collaboration.", "muted");
+    }
+  }
+
+  // Public wrappers for the UI: toggle a backlog entry open/closed for
+  // collaboration (no AP cost), and contribute Productivity to any player's
+  // shared entry (costs the contributor 1 AP, managed by the driver).
+  function doShareProject(state, player, backlogIndex) {
+    if (!state.rules.collaboration) return { ok: false, reason: "Collaboration is turned off." };
+    const item = player.backlog[backlogIndex];
+    if (!item) return { ok: false, reason: "No task there." };
+    item.shared = !item.shared;
+    log(state, player.name + (item.shared
+      ? " opens “" + item.card.name + "” up for collaboration."
+      : " closes “" + item.card.name + "” to collaboration."), "muted");
+    return { ok: true, shared: item.shared };
+  }
+  function doContribute(state, contributor, ownerId, backlogIndex, amount) {
+    if (!state.rules.collaboration) return { ok: false, reason: "Collaboration is turned off." };
+    const owner = findPlayer(state, ownerId);
+    if (!owner) return { ok: false, reason: "No such owner." };
+    const item = owner.backlog[backlogIndex];
+    if (!item || !item.shared) return { ok: false, reason: "That Project isn't open for collaboration." };
+    if (state.rules.collabLeaderCannotReceive) {
+      const lead = threatLeader(state, null);
+      if (lead && lead.id === owner.id) return { ok: false, reason: "The front-runner can't recruit help right now." };
+    }
+    const cost = effectiveBacklogItemCost(owner, item);
+    const need = cost - item.paid;
+    return contributeToProject(state, contributor, owner, backlogIndex, amount != null ? amount : Math.min(contributor.productivity, need));
   }
 
   function doHire(state, player, boardIndex) {
@@ -1227,6 +1503,7 @@
     // 4. Quarterly Review
     let summary = null;
     if (state.roundNumber % 3 === 0) {
+      await resolveFeedbackPhase(state, hooks);   // deal/give Feedback cards, then score
       summary = runReview(state);
       // 5. Mandatory Training on even-numbered reviews
       if (state.reviewCount % 2 === 0) {
@@ -1241,6 +1518,111 @@
   }
 
   /* ---------------------------------------------------------------------------
+   * 14b. Feedback phase (variant rule) — runs at the top of every Review,
+   *   before scoring. Shuffle the 18-card deck fresh, deal one to each player,
+   *   then in First Player order each player keeps their card or gives it to
+   *   another player. Held cards are worth ±feedbackValue "political points"
+   *   folded into the Review Score (and the CEO Board Vote tiebreak), with each
+   *   player's net swing clamped to ±feedbackNetCap. Political-Capital-adjacent
+   *   but NOT persistent PC: the effect is entirely transient to this Review,
+   *   which the quarterly PC reset would erase anyway.
+   *
+   *   Returns nothing; writes state._pendingFeedback (a playerId→points map)
+   *   plus a per-player held-card list for the Review summary/log. Async so a
+   *   human can be asked where to send their card; AI decides inline.
+   * ------------------------------------------------------------------------ */
+  async function resolveFeedbackPhase(state, hooks) {
+    state._pendingFeedback = {};
+    state._feedbackHeld = {};
+    if (!state.rules.feedback || !state.feedbackDeck || !state.feedbackDeck.length) return;
+    const players = state.players;
+    players.forEach(function (p) { state._feedbackHeld[p.id] = []; });
+
+    // Deal one card per player from a freshly shuffled deck.
+    const deck = shuffle(state.feedbackDeck.slice());
+    let cap = state.rules.feedbackDealCap;
+    const nDeal = cap == null ? players.length : Math.min(cap, players.length);
+    const dealt = [];
+    const order = turnOrder(state);
+    for (let i = 0; i < order.length && dealt.length < nDeal; i++) {
+      const card = deck[i % deck.length];
+      dealt.push({ dealtTo: order[i], card: card });
+    }
+
+    // 'spread' targeting: rank everyone by blended threat once, then hand
+    // successive constructive cards to successive threats — so negatives
+    // distribute across the top few front-runners (the ladder leader AND a
+    // surging political player) instead of all piling on one. This is what a
+    // table of rational humans, each worried about a different rival, actually
+    // produces — and it fixes the CC-leader-vs-score-leader tension.
+    let spreadRanked = null, spreadIdx = 0;
+    if (state.rules.feedbackTarget === 'spread') {
+      const kPc = state.rules.feedbackBlendPcWeight != null ? state.rules.feedbackBlendPcWeight : 6;
+      spreadRanked = players.slice().sort(function (a, b) {
+        const va = a.careerCapital + kPc * a.politicalCapital + (a.careerCapital - a.quarterMarker);
+        const vb = b.careerCapital + kPc * b.politicalCapital + (b.careerCapital - b.quarterMarker);
+        return vb - va;
+      });
+    }
+
+    // Each dealt card: its recipient decides the final holder (keep or give).
+    for (const d of dealt) {
+      const giver = d.dealtTo;
+      let targetId = giver.id;
+      const negative = d.card.value < 0;
+      if (giver.kind === "human" && hooks && hooks.decide) {
+        const opts = players.filter(function (p) {
+          if (state.rules.feedbackNegLeaderOnly && negative) {
+            const lead = feedbackNegTarget(state, giver.id);
+            return p.id === giver.id || (lead && p.id === lead.id);
+          }
+          return true;
+        }).map(function (p) { return { key: p.id, label: p.name + (p.id === giver.id ? " (keep)" : "") }; });
+        const ans = await hooks.decide({
+          playerId: giver.id, action: "giveFeedback",
+          prompt: giver.name + " received “" + d.card.name + "” (" + (negative ? "−" : "+") +
+            state.rules.feedbackValue + "). Keep it or give it to someone.",
+          card: { name: d.card.name, polarity: d.card.polarity, value: d.card.value },
+          options: opts
+        });
+        if (ans && findPlayer(state, ans)) targetId = ans;
+      } else {
+        // AI: keep positives; give negatives to a front-runner.
+        if (negative) {
+          if (spreadRanked) {
+            // advance to the next ranked threat that isn't the giver
+            let picked = null;
+            for (let k = 0; k < spreadRanked.length; k++) {
+              const cand = spreadRanked[(spreadIdx + k) % spreadRanked.length];
+              if (cand.id !== giver.id) { picked = cand; spreadIdx = (spreadIdx + k + 1) % spreadRanked.length; break; }
+            }
+            if (picked) targetId = picked.id;
+          } else {
+            const lead = feedbackNegTarget(state, giver.id);
+            if (lead) targetId = lead.id;
+          }
+        }
+      }
+      state._feedbackHeld[targetId].push(d.card);
+    }
+
+    // Tally net points per holder, clamped to the configured swing cap.
+    players.forEach(function (p) {
+      const held = state._feedbackHeld[p.id];
+      let pts = held.reduce(function (s, c) {
+        return s + (c.value > 0 ? state.rules.feedbackValue : -state.rules.feedbackValue);
+      }, 0);
+      const capMag = state.rules.feedbackNetCap;
+      if (capMag != null) pts = Math.max(-capMag, Math.min(capMag, pts));
+      state._pendingFeedback[p.id] = pts;
+      if (held.length) {
+        log(state, "📝 " + p.name + " holds " + held.map(function (c) { return c.name; }).join(", ") +
+          " → " + (pts >= 0 ? "+" : "") + pts + " political points this Review.", "muted");
+      }
+    });
+  }
+
+  /* ---------------------------------------------------------------------------
    * 15. Quarterly Performance Review (spec Section 6, exact ordering)
    * ------------------------------------------------------------------------ */
   function runReview(state) {
@@ -1248,18 +1630,20 @@
     state.reviewCount += 1;
     const players = state.players;
 
-    // Step 1 — Review Score (uses quarterMarker from the PREVIOUS review)
+    // Step 1 — Review Score (uses quarterMarker from the PREVIOUS review).
+    // Feedback points (variant rule) fold straight into the political term.
+    const fb = state._pendingFeedback || {};
     const score = {};
     players.forEach(function (p) {
       const ccGained = p.careerCapital - p.quarterMarker;
-      score[p.id] = ccGained + p.politicalCapital - Math.floor(p.burnout / 4);
+      score[p.id] = ccGained + p.politicalCapital + (fb[p.id] || 0) - Math.floor(p.burnout / 4);
     });
 
     const summary = {
       reviewNumber: state.reviewCount, round: state.roundNumber,
       rows: players.map(function (p) {
         return { id: p.id, name: p.name, score: score[p.id], ccGained: p.careerCapital - p.quarterMarker,
-          pc: p.politicalCapital, burnout: p.burnout, rungBefore: p.rung, rungAfter: p.rung };
+          pc: p.politicalCapital, feedback: (fb[p.id] || 0), burnout: p.burnout, rungBefore: p.rung, rungAfter: p.rung };
       }),
       newCeoId: null, promotedIds: [], demotedIds: [], pipIds: [], eoqIds: []
     };
@@ -1271,8 +1655,11 @@
     const ceoCandidates = players.filter(function (p) { return p.rung === 5 && p.careerCapital >= CEO_CC_BAR; });
     if (ceoCandidates.length === 1) newCeo = ceoCandidates[0];
     else if (ceoCandidates.length > 1) {
+      // Feedback counts as political points here too — a well-placed
+      // constructive card can swing the board vote.
       newCeo = ceoCandidates.slice().sort(function (a, b) {
-        if (b.politicalCapital !== a.politicalCapital) return b.politicalCapital - a.politicalCapital;
+        const pa = a.politicalCapital + (fb[a.id] || 0), pb = b.politicalCapital + (fb[b.id] || 0);
+        if (pb !== pa) return pb - pa;
         return a.seat - b.seat;
       })[0];
     }
@@ -1369,6 +1756,8 @@
     promoted.forEach(function (p) { redrawManagement(state, p); syncImmunity(p); });
     players.forEach(function (p) { p.productivity = 0; p.politicalCapital = 0; });
 
+    state._pendingFeedback = null;
+    state._feedbackHeld = null;
     state.lastReview = summary;
     return summary;
   }
@@ -1445,6 +1834,9 @@
     let ap = turn.ap;
     let mustProjectFirst = turn.mustProjectFirst;
 
+    // Open an unaffordable Project up for collaboration (variant rule).
+    maybeOpenCollaboration(state, player, w);
+
     // Opening Overtime consideration for aggressive archetypes.
     if (w.overtime && !player.overtimeUsedThisRound && player.burnout <= 5 && anyAffordableProject(state, player)) {
       const r = doOvertime(state, player);
@@ -1483,11 +1875,31 @@
       const netOk = canNetwork(state, player).ok;
       const netVal = netOk ? w.net : -Infinity;
 
-      const best = Math.max(projVal, bestSkillVal, netVal, 0);
+      // Collaborate: strictly a salvage channel. A bot only helps when it has
+      // surplus Productivity but NO affordable Project of its own (proj.index
+      // < 0), and only by FINISHING a shared Project outright — so it never
+      // strands Productivity in a half-funded one — and never props up the
+      // current front-runner. This keeps collaboration a catch-up tool rather
+      // than a way to bleed the productivity-rich archetypes dry.
+      let collab = null, collabVal = -Infinity;
+      if (state.rules.collaboration && player.productivity > 0 && proj.index < 0) {
+        const lead = threatLeader(state, null);
+        sharedProjects(state, player.id).forEach(function (sp) {
+          if (lead && sp.owner.id === lead.id) return;   // don't fund the front-runner
+          if (player.productivity < sp.need) return;     // must complete it this turn
+          const ccShare = sp.item.card.reward.cc * sp.need / sp.cost;
+          const val = ccShare * w.cc / 3.0 + 0.5;
+          if (val > collabVal) { collabVal = val; collab = { sp: sp, pay: sp.need }; }
+        });
+      }
+
+      const best = Math.max(projVal, bestSkillVal, netVal, collabVal, 0);
       if (best <= 0) break;
 
       if (best === projVal && proj.index >= 0) {
         doWorkProject(state, player, proj.index); ap -= 1;
+      } else if (best === collabVal && collab) {
+        contributeToProject(state, player, collab.sp.owner, collab.sp.backlogIndex, collab.pay); ap -= 1;
       } else if (best === bestSkillVal && bestSkill >= 0) {
         const r = doHire(state, player, bestSkill); ap -= 1;
         if (r.pending === "shipsItFriday") {
@@ -1538,6 +1950,12 @@
       }
       case "therapyTarget":
         return player.burnout > 0 ? player.id : null;
+      case "giveFeedback": {
+        const card = request.card;
+        if (!card || card.value >= 0) return player.id; // keep positive feedback
+        const lead = feedbackNegTarget(state, player.id); // dump negatives on the front-runner
+        return lead ? lead.id : player.id;
+      }
       case "discardSkill": {
         const idx = pickWorstSkillIndex(player);
         return player.tableau[idx] ? player.tableau[idx].id : (request.candidates[0] && request.candidates[0].id);
@@ -1651,7 +2069,9 @@
       network: doNetwork,
       selfCare: doSelfCare,
       overtime: doOvertime,
-      applyShipsItFriday: applyShipsItFriday
+      applyShipsItFriday: applyShipsItFriday,
+      shareProject: doShareProject,
+      contribute: doContribute
     },
     helpers: {
       beginTurn: beginTurn,
@@ -1662,6 +2082,7 @@
       canNetwork: canNetwork,
       canSelfCare: canSelfCare,
       anyAffordableProject: anyAffordableProject,
+      sharedProjects: sharedProjects,
       hasSkill: hasSkill,
       skillCount: skillCount,
       meetsRequirement: meetsRequirement,
@@ -1678,7 +2099,9 @@
     _internal: {
       runReview: runReview, addBurnout: addBurnout, resolveTraining: resolveTraining,
       claimTaskFromBoard: claimTaskFromBoard, completeBacklogItem: completeBacklogItem,
-      assignTasks: assignTasks
+      assignTasks: assignTasks, resolveFeedbackPhase: resolveFeedbackPhase,
+      contributeToProject: contributeToProject, completeCollaborative: completeCollaborative,
+      sharedProjects: sharedProjects, threatLeader: threatLeader, buildRules: buildRules
     }
   };
 
