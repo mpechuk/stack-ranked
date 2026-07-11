@@ -21,7 +21,8 @@ Pages (see below). No build step, no server, no dependencies.
 | `docs/STACK_RANKED_GAME_SPEC.md` | The implementation spec this build follows to the letter. |
 | `cards.json` | Raw card data (also embedded in `game.js`). |
 | `leaderboard.md` | Raw Career Ladder rung data (rungs, Action Points, Career Capital thresholds, Badges required) — source for `generate_career_ladder.py`. |
-| `stack_ranked_balance_simulator.py` | The original Monte-Carlo balance tool (reference only). |
+| `stack_ranked_balance_simulator.py` | The original coarse *economic* Monte-Carlo balance tool (reference only). |
+| `stack_ranked_montecarlo.js` | Card-faithful Monte-Carlo harness — drives the real `game.js` engine (every card, the exact Review, the AI) over thousands of seeded games to measure archetype balance and comeback viability. Used to tune the two **variant rules** (Feedback deck, Collaborative Projects). Run: `node stack_ranked_montecarlo.js [gamesPerCell]`. |
 | `generate_print_and_play.py` | Regenerates `docs/Stack_Ranked_PrintAndPlay.pdf` straight from `cards.json` (`pip install reportlab pillow`, then `python3 generate_print_and_play.py`). |
 | `generate_rulebook_pdf.py` | Regenerates `docs/Stack_Ranked_Rulebook.pdf` straight from `docs/STACK_RANKED_RULEBOOK.md`, with a clickable table of contents and PDF bookmarks (`pip install reportlab markdown beautifulsoup4`, then `python3 generate_rulebook_pdf.py`). |
 | `generate_player_mat.py` | Regenerates `docs/Stack_Ranked_PlayerMat.pdf`, six copies of a landscape Player Desk mat (Career/Political Capital, Productivity, Burnout, Compliance Badges, a Management Style slot, and Tableau/Backlog zones) — optional header/background art, see `player-mat-art-prompts.txt` (`pip install reportlab pillow`, then `python3 generate_player_mat.py`). |
@@ -47,6 +48,14 @@ Pages (see below). No build step, no server, no dependencies.
   Creep, tier unlocks, and every documented edge case from the spec's postmortem.
 - **Perfect information**, as the rules intend — every stat, board, tableau, and
   the full activity log are visible to everyone.
+- **Two optional variant rules** (on by default, tunable):
+  - **Feedback deck** — 18 cards (9 Positive / 9 Constructive) dealt at each
+    Quarterly Review; keep yours or hand it to a rival. Worth ±2 political
+    points that Review (net capped at ±4). A bounded rubber-band.
+  - **Collaborative Projects** — pool Productivity into one Project; the Career
+    Capital splits by contribution and the owner banks Political Capital in
+    lieu of a CC share. See `docs/STACK_RANKED_GAME_SPEC.md` §13 for the tuned
+    settings and the balance study behind them.
 - Adjustable speed (Slow → Instant) for the AI turns.
 
 ## How to play

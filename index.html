@@ -577,6 +577,7 @@
     if (req.action === "colleagueInterview") return "pc";
     if (req.action === "discardSkill") return req.candidates && req.candidates[0] && req.candidates[0].id;
     if (req.action === "therapyTarget") return null;
+    if (req.action === "giveFeedback") return req.playerId; // safe default: keep the card
     return false;
   }
 
@@ -611,7 +612,7 @@
 
   function viewer() { return (UI.turn && UI.turn.active && UI.turn.player.kind === "human") ? UI.turn.player : null; }
 
-  function onAction(act, idx) {
+  function onAction(act, idx, owner) {
     if (act === "take") {
       var claim = UI.claim; if (!claim) return;
       var cs = UI.activeState;
@@ -659,6 +660,13 @@
       if (p.overtimeUsedThisRound || t.mustProjectFirst) return;
       var ot = SR.actions.overtime(s, p);
       if (ot.ok) t.ap += ot.grantAp;
+    } else if (act === "share") {
+      // Toggling collaboration is free (no AP); allowed any time on your turn.
+      SR.actions.shareProject(s, p, idx);
+    } else if (act === "contribute") {
+      if (t.ap < 1 || t.mustProjectFirst) return;
+      var cr = SR.actions.contribute(s, p, owner, idx);
+      if (cr.ok) t.ap -= 1;
     }
     renderAll();
     maybeAutoEnd();
@@ -878,10 +886,34 @@
           (item.card.reward.pc ? ", +" + item.card.reward.pc + " PC" : "") +
           (item.card.reward.badges ? ", +" + item.card.reward.badges + " Badge" : "") +
           (item.card.reward.burnout ? ", +" + item.card.reward.burnout + " 🔥" : "");
-        return '<div class="bl-row"><div class="bl-info"><span class="bl-name">' + esc(item.card.name) + "</span>" +
+        var shareBtn = s.rules && s.rules.collaboration
+          ? '<button data-act="share" data-idx="' + i + '" title="Open this Project so colleagues can pool Productivity into it (you take PC in lieu of the CC)">' +
+            (item.shared ? "🤝 Shared" : "🤝 Share") + "</button>"
+          : "";
+        var fundNote = (item.shared && item.paid) ? ' <span class="faint">(' + item.paid + "/" + cost + " P funded)</span>" : "";
+        return '<div class="bl-row"><div class="bl-info"><span class="bl-name">' + esc(item.card.name) + fundNote + "</span>" +
           '<span class="bl-meta">' + cost + " P → " + esc(reward) + "</span></div>" +
+          shareBtn +
           '<button data-act="work" data-idx="' + i + '"' + (canWork ? "" : " disabled") + ">Work</button></div>";
       }).join("") : '<div class="hint">Backlog is empty — nothing to Work until next Stand-Up.</div>';
+      // Other players' Projects open for collaboration — help fund one for a CC share.
+      var collabHtml = "";
+      if (s.rules && s.rules.collaboration && H.sharedProjects) {
+        var shared = H.sharedProjects(s, p.id);
+        if (shared.length) {
+          var rows2 = shared.map(function (sp) {
+            var pay = Math.min(p.productivity, sp.need);
+            var can = t.ap >= 1 && pay > 0 && !block;
+            var ccShare = sp.cost > 0 ? Math.floor(sp.item.card.reward.cc * pay / sp.cost) : 0;
+            return '<div class="bl-row"><div class="bl-info"><span class="bl-name">' + esc(sp.item.card.name) +
+              ' <span class="faint">(' + esc(sp.owner.name) + ")</span></span>" +
+              '<span class="bl-meta">' + sp.item.paid + "/" + sp.cost + " P funded · add " + pay + " P → ~+" + ccShare + " CC</span></div>" +
+              '<button data-act="contribute" data-owner="' + sp.owner.id + '" data-idx="' + sp.backlogIndex + '"' + (can ? "" : " disabled") + ">Help</button></div>";
+          }).join("");
+          collabHtml = '<div class="bl-label">🤝 Open Projects — help a colleague (' + shared.length + ")</div>" +
+            '<div class="backlog-list">' + rows2 + "</div>";
+        }
+      }
       host.innerHTML =
         '<div class="turn-who">▸ ' + esc(p.name) + "'s turn</div>" +
         '<div class="dim">' + esc(C.RUNG_NAMES[p.rung]) + " · " + p.productivity + " P available</div>" +
@@ -889,6 +921,7 @@
         (block ? '<div class="hint" style="color:var(--warn)">Micromanager: your first action must be Work a Project.</div>' : "") +
         '<div class="bl-label">📋 Your Backlog (' + p.backlog.length + ")</div>" +
         '<div class="backlog-list">' + backlogHtml + "</div>" +
+        collabHtml +
         '<div class="actbtns">' +
           '<button data-act="network"' + ((t.ap >= 1 && netOk && !block) ? "" : " disabled") + ">Network<br><span class='faint'>+2 PC, +1 CC</span></button>" +
           '<button data-act="selfcare"' + ((t.ap >= scCost && scOk && !block) ? "" : " disabled") + ">Self-Care<br><span class='faint'>−2 🔥 (" + scCost + " AP)</span></button>" +
@@ -938,7 +971,7 @@
   document.addEventListener("click", function (e) {
     var b = e.target.closest("[data-act]"); if (!b) return;
     if (b.hasAttribute("disabled")) return;
-    onAction(b.getAttribute("data-act"), parseInt(b.getAttribute("data-idx"), 10));
+    onAction(b.getAttribute("data-act"), parseInt(b.getAttribute("data-idx"), 10), b.getAttribute("data-owner"));
   });
 
   /* --------------------------------------------------------------- MODALS */
@@ -958,6 +991,8 @@
       } else if (req.action === "therapyTarget") {
         body = req.candidates.map(function (c) { return '<button data-k="' + c.id + '">' + esc(c.name) + " <span class='faint'>(" + c.burnout + " 🔥)</span></button>"; }).join("");
         body += '<button data-k="__none">Decline</button>';
+      } else if (req.action === "giveFeedback") {
+        body = req.options.map(function (o) { return '<button data-k="' + esc(o.key) + '">' + esc(o.label) + "</button>"; }).join("");
       } else {
         body = '<button data-k="yes">Yes</button><button data-k="no">No</button>';
       }
@@ -971,6 +1006,7 @@
           if (req.action === "colleagueInterview") return res(k);
           if (req.action === "discardSkill") return res(k);
           if (req.action === "therapyTarget") return res(k === "__none" ? null : k);
+          if (req.action === "giveFeedback") return res(k);
           return res(k === "yes");
         });
       });
@@ -991,19 +1027,23 @@
       var rows = summary.rows.slice().sort(function (a, b) { return b.score - a.score; });
       var body = rows.map(function (r) {
         var arrow = r.rungBefore !== r.rungAfter ? (" → " + C.RUNG_NAMES[r.rungAfter]) : "";
+        var fb = r.feedback || 0;
+        var fbCell = fb === 0 ? '<span class="faint">—</span>' : (fb > 0 ? "+" + fb : "" + fb);
         return "<tr><td>" + esc(r.name) + "</td>" +
           '<td class="num">' + r.score + "</td>" +
           '<td class="num">' + r.ccGained + "</td>" +
           '<td class="num">' + r.pc + "</td>" +
+          '<td class="num">' + fbCell + "</td>" +
           '<td class="num">' + r.burnout + "</td>" +
           "<td>" + esc(C.RUNG_NAMES[r.rungBefore]) + arrow + "</td>" +
           "<td>" + outcomeBadge(summary, r.id) + "</td></tr>";
       }).join("");
+      var hasFb = summary.rows.some(function (r) { return (r.feedback || 0) !== 0; });
       showModalHTML(
         '<h2>📋 Quarterly Performance Review</h2>' +
         '<div class="msub">Review #' + summary.reviewNumber + " · end of Round " + summary.round +
-          "  ·  Score = CC gained this Quarter + Political Capital − ⌊Burnout/4⌋</div>" +
-        '<table class="rev"><thead><tr><th>Employee</th><th>Score</th><th>ΔCC</th><th>Pol.Cap</th><th>🔥</th><th>Rung</th><th>Outcome</th></tr></thead>' +
+          "  ·  Score = CC gained this Quarter + Political Capital" + (hasFb ? " + Feedback" : "") + " − ⌊Burnout/4⌋</div>" +
+        '<table class="rev"><thead><tr><th>Employee</th><th>Score</th><th>ΔCC</th><th>Pol.Cap</th><th>📝</th><th>🔥</th><th>Rung</th><th>Outcome</th></tr></thead>' +
         "<tbody>" + body + "</tbody></table>" +
         '<div class="opts" style="margin-top:16px"><button class="primary" id="revContinue">Continue ▸</button></div>');
       var done = false;

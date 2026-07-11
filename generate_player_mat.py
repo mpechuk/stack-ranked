@@ -253,6 +253,8 @@ def draw_quick_reference(c, x, top, w, h):
         cursor -= 10
     cursor -= 4
 
+    memo_icon = icon_tag("\U0001F4DD", 8)       # 📝
+    handshake_icon = icon_tag("\U0001F91D", 8)  # 🤝
     bullets = (
         f"{icon_tag(RESOURCE_EMOJI['Political Capital'], 8)}<b>Network</b> (free): "
         "+2 Political Capital, +1 Career Capital.<br/>"
@@ -261,7 +263,11 @@ def draw_quick_reference(c, x, top, w, h):
         f"{icon_tag(RESOURCE_EMOJI['Burnout'], 8)}<b>Burnout Crisis</b> at 10: reset to 6, "
         "−2 Political Capital, skip next Sprint.<br/>"
         "<b>Review Score</b> = CC gained since Quarter Marker + Political Capital "
-        "on hand − (Burnout ÷ 4, rounded down)."
+        "on hand + Feedback held − (Burnout ÷ 4, rounded down).<br/>"
+        f"{memo_icon}<b>Feedback</b> (variant): 1 card each at Review, keep or "
+        "give; ±2 pts, net capped ±4.<br/>"
+        f"{handshake_icon}<b>Collaborate</b> (variant): pool Productivity on a shared "
+        "Project — contributors split the CC; owner takes PC in lieu."
     )
     body = Paragraph(bullets, style("ref_bullets", 6.8, 9, color=INK))
     bw, bh = body.wrapOn(c, inner_w, 200)
@@ -379,7 +385,7 @@ def draw_mat(c):
     rounded_zone(c, left_col_x0, CONTENT_Y0, tableau_w, zone_h,
                  "SKILL / TOOL TABLEAU", "hired Permanent cards live here")
     rounded_zone(c, left_col_x0 + tableau_w + gutter, CONTENT_Y0, backlog_w, zone_h,
-                 "BACKLOG", "Projects claimed, not yet paid for")
+                 "BACKLOG", "Projects claimed, not yet paid for — mark one “shared” to collaborate")
 
 
 def main():
