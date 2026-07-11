@@ -392,6 +392,9 @@ Section 9 for the "why" behind each one). Resolve in exactly this order:
 for each player:
     ccGainedThisQuarter = player.careerCapital - player.quarterMarker
     reviewScore = ccGainedThisQuarter + player.politicalCapital - floor(player.burnout / 4)
+    # + feedbackPoints[player] when the Feedback variant is on (§13.1) — the
+    #   Feedback phase resolves immediately before this step and its net ±value
+    #   folds into this same political term (and the Step 2 CEO-vote tiebreak).
 ```
 **Do not** substitute `player.careerCapital` (lifetime total) or omit the
 `ccGainedThisQuarter` term and use only banked P/PC — both were tried and both
@@ -877,6 +880,17 @@ If you re-run or extend the simulator, `python3 stack_ranked_balance_simulator.p
 regenerates `results.json` and `balance_chart.png` from scratch (no cached
 state) — safe to modify and re-run at any time.
 
+> **Card-faithful harness (`stack_ranked_montecarlo.js`).** The Python tool
+> above is a *coarse economic* model. For the two variant rules in Section 13
+> (Feedback deck, Collaborative Projects) balance was validated instead by
+> `stack_ranked_montecarlo.js`, which drives the **real** `game.js` engine —
+> every card, the exact Review, the two new rules, and the reference AI — over
+> thousands of seeded (reproducible) games. It reports (a) win-rate spread
+> across the five archetypes and (b) comeback metrics from all-Balanced
+> "mirror" games, where every seat plays identically so any mid-game lead is
+> pure luck. Run: `node stack_ranked_montecarlo.js [gamesPerCell]`. See
+> Section 13.3 for its findings.
+
 ---
 
 ## 11. Open Questions for Project Kickoff
@@ -919,4 +933,125 @@ architecture work:
 - `cards.json` — the same card data embedded in Section 8, as a standalone file
   if you'd rather load it directly than extract the fenced block above.
 - `stack_ranked_balance_simulator.py` / `results.json` / `balance_chart.png` —
-  balance-testing tool and its output (Section 10).
+  the coarse economic balance-testing tool and its output (Section 10).
+- `stack_ranked_montecarlo.js` — the card-faithful Monte-Carlo harness that
+  drives the real `game.js` engine; used to validate the Section 13 variant
+  rules (Section 10 sidebar, Section 13.3).
+
+---
+
+## 13. Variant Rules — Feedback Deck & Collaborative Projects
+
+Two optional rules, implemented in `game.js` behind `state.rules` toggles
+(defaults ON) and validated by `stack_ranked_montecarlo.js`. Every numeric
+below is a tunable dial in `DEFAULT_RULES`; the values shown are the tuned
+defaults.
+
+### 13.1 — Feedback Deck (`rules.feedback`)
+
+A new 18-card deck (`cards.json → feedback`): **9 Positive** (+2) and **9
+Constructive** (−2), each worth `rules.feedbackValue` (=2) "political points".
+
+**When:** at the very top of every Quarterly Review, *before* Step 1 scoring
+(implemented as `resolveFeedbackPhase`, called from Postmortem just before
+`runReview`).
+
+**Algorithm:**
+1. Shuffle a fresh copy of all 18 cards; deal one to each player, in First
+   Player order (`rules.feedbackDealCap` caps how many are dealt; `null` = one
+   per player).
+2. **Give/keep:** in First Player order, the player dealt each card decides its
+   final holder — keep it, or give it to any other player. A player may end up
+   holding several cards or none. (Reference AI: keep Positives; give
+   Constructive cards to a front-runner — see targeting below.)
+3. Each player's **net feedback** = `feedbackValue × (Positives held −
+   Constructive held)`, clamped to ±`rules.feedbackNetCap` (=4).
+4. That net folds into the **Review Score** (Step 1) as a political term and
+   into the **CEO Board Vote** (Step 2) political tiebreak. It is *not* added
+   to persistent Political Capital — the effect is transient to this Review
+   (the quarterly PC reset would erase it anyway).
+
+**Targeting of Constructive cards (`rules.feedbackTarget`)** — who the AI (and
+`feedbackNegLeaderOnly` humans) may dump a negative on:
+- `'score'` *(default)* — whoever tops *this* Review (provisional Review Score
+  = CC gained this Quarter + PC − ⌊Burnout/4⌋). Self-balancing: it lands on the
+  political front-runner, so the strongest scorer eats the negatives.
+- `'rung'` — the ladder / Career-Capital leader. A **stronger comeback** lever
+  (negatives hit whoever is literally ahead), at some archetype-balance cost —
+  the "aggressive rubber-band" toggle.
+- `'blend'` / `'spread'` — hybrids (blend CC + `feedbackBlendPcWeight`×PC;
+  spread distributes negatives across the top threats).
+
+### 13.2 — Collaborative Projects (`rules.collaboration`)
+
+Any player may pour Productivity into another player's **shared** backlog entry.
+
+- **Open/close:** the owner toggles a backlog entry `shared` (free, no AP).
+- **Contribute:** on their own Sprint, any player may pay Productivity into a
+  shared entry (1 AP). Contributions accumulate across turns/rounds until they
+  reach the owner's effective cost, then the Project completes.
+- **Payout — CC follows the Productivity:**
+  - Only the owner paid → ordinary **solo** completion (owner takes full CC).
+  - A single *outside* funder paid it all → that funder takes the whole Project
+    as if it were theirs (owner gets nothing — they didn't work it).
+  - ≥ `rules.collabMinContributors` (=2) distinct payers incl. ≥1 non-owner →
+    **collaborative**: the *contributors* split the Career Capital proportional
+    to the Productivity each paid; the **original owner takes Political Capital
+    = max(cardCC − 2, 1)** (capped by `rules.collabOwnerPcCap` = 3) **in lieu of
+    any CC share**. The owner also absorbs the Project's Burnout, Compliance
+    Badge, and the card's own +PC (accountable for the deliverable).
+- **Guardrails:** `rules.collabOwnerMustContribute` (=true) — the owner earns
+  the PC bonus only if it paid ≥1 P itself (kills the "own it, pay nothing,
+  bank PC" exploit). `rules.collabLeaderCannotReceive` (=false) — optionally bar
+  the current front-runner from recruiting help, making collaboration a pure
+  catch-up channel.
+
+> **Rule-text reading that matters:** "CC shared proportional to Productivity,
+> **but** the owner gets PC = max(cc−2,1)" means the owner takes PC *instead of*
+> a CC share, **not on top of one**. Awarding the owner both is the "owner
+> double-dip" that breaks balance (see 13.3). Also: the CC must be credited to
+> whoever actually *paid* the Productivity — an early implementation that
+> credited the owner regardless turned collaboration into a Career-Capital
+> siphon feeding the low-Productivity archetype.
+
+### 13.3 — Balance Findings (`stack_ranked_montecarlo.js`, 5 000 games/cell)
+
+5-player, all-distinct-archetype, race-to-CEO. "balSD" = std-dev of the five
+win rates (lower = more even). Comeback metrics are from all-Balanced mirror
+games (any lead is luck). 100% of games in every row ended via a real CEO
+promotion (no round-cap fallbacks); avg length 30–34 rounds.
+
+| Ruleset | balSD | archetype win-rate range | comeback: bottom-half / dead-last wins | runaway (halftime leader wins) |
+|---|---|---|---|---|
+| **Base game** (both off) | 8.2pp | 11.6–34.0% | 24% / 14% | 36% |
+| **Naive literal** (no guardrails, `rung` targeting) | 12.8pp | 11.5–**45.5%** (Politician) | 33% / 19% | 23% |
+| **Recommended** (tuned defaults, `score` targeting) | **6.2pp** | 13.9–30.9% | 25% / 15% | 36% |
+| **Aggressive rubber-band** (`rung` targeting) | 12.6pp | 11.7–45.0% (Politician) | 32% / 19% | 23% |
+
+Takeaways:
+- The **base game is already comeback-friendly** — even with no new rules the
+  halftime leader wins only ~36% of equal-skill games and a dead-last player
+  still wins ~14%. It is not a runaway-leader game.
+- The **naive literal** rules are imbalanced: they hand the (already-strongest)
+  Politician a runaway PC engine (34% → 45.5%). Two root causes — (1) crediting
+  the owner for others' work, and (2) negatives targeting the rung leader,
+  which the Politician never is, so it dodges them.
+- The **recommended tuning is the most balanced configuration measured** —
+  tighter than the base game (balSD 6.2 vs 8.2pp; all five archetypes 14–31%) —
+  while preserving the base game's comeback rate and adding collaboration as a
+  genuine catch-up channel.
+- There is a real **Pareto tension**: the ladder leader and the Review-score
+  leader are usually different players (a Grinder vs the Politician), and a
+  single leader-penalty can only hit one. `score` targeting maximizes archetype
+  balance; `rung` targeting maximizes comeback (dead-last wins 14%→19%, runaway
+  36%→23%) at the Politician's expense. Ship `score` as default; expose `rung`
+  as an optional group-preference toggle.
+
+Design guidance drawn from published work on catch-up / leader-bashing (Sirlin
+on skill-preserving "perpetual comeback"; the runaway-leader literature; the
+kingmaker problem in perfect-information take-that; Sidereal Confluence's
+proportional, transparent trade): because Stack Ranked is perfect-information,
+hidden-scoring mitigations are unavailable, so a leader-penalty's swing **must
+be bounded** (hence `feedbackNetCap`) and collaboration must be structured so
+the **helper is never exploited** (hence CC-follows-Productivity and the owner
+PC cap).

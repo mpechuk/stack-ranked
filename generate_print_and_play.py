@@ -66,6 +66,7 @@ PALETTE = {
     "chaos": (HexColor("#b23a24"), HexColor("#fdedea")),
     "training": (HexColor("#6a3fa0"), HexColor("#f3eafb")),
     "management": (HexColor("#a9720f"), HexColor("#fbf3e3")),
+    "feedback": (HexColor("#5a4a8a"), HexColor("#f0edf9")),
 }
 
 CATEGORY_EMOJI = {
@@ -74,6 +75,13 @@ CATEGORY_EMOJI = {
     "chaos": "\U0001F32A",       # 🌪 tornado
     "training": "\U0001F393",    # 🎓 grad cap
     "management": "\U0001F454",  # 👔 necktie
+    "feedback": "\U0001F4DD",    # 📝 memo
+}
+
+# Feedback polarity -> (label, color, emoji) for the tag line
+POLARITY_TAG = {
+    "positive": ("POSITIVE  +2", HexColor("#1a7a5e"), "\U0001F44D"),      # 👍
+    "constructive": ("CONSTRUCTIVE  −2", HexColor("#b5432e"), "\U0001F4AC"),  # 💬
 }
 
 TYPE_COLORS = {
@@ -238,6 +246,10 @@ def build_deck(data):
         ("trainings", "MANDATORY TRAINING", "training", False, False, "effect", 1, data["trainings"]),
         ("management", "MANAGEMENT STYLE", "management", False, False, "effect", 1, data["management"]),
     ]
+    if data.get("feedback"):
+        groups.append(
+            ("feedback", "FEEDBACK", "feedback", False, False, "effect", 1, data["feedback"])
+        )
     decks = []
     for key, label, palette_key, has_cost, has_type, reward_key, copies, cards in groups:
         physical = []
@@ -328,6 +340,13 @@ def draw_card(c, x_left, y_top, card, deck):
         tgw, tgh = tag.wrapOn(c, content_w, 16)
         tag.drawOn(c, x0 + PAD_X, cursor - tgh)
         cursor -= tgh + 4
+    elif deck["key"] == "feedback" and card.get("polarity") in POLARITY_TAG:
+        label, color, emoji = POLARITY_TAG[card["polarity"]]
+        tag_style = style("type", 8.5, 10, TA_CENTER, color, bold=True)
+        tag = Paragraph(icon_tag(emoji, 10) + label, tag_style)
+        tgw, tgh = tag.wrapOn(c, content_w, 16)
+        tag.drawOn(c, x0 + PAD_X, cursor - tgh)
+        cursor -= tgh + 4
 
     body_text = card.get(deck["reward_key"], "")
     body = Paragraph(build_body_markup(body_text), STYLE_BODY)
@@ -375,6 +394,7 @@ def draw_cover_page(c, decks):
     chaos_total = next(len(d["cards"]) for d in decks if d["key"] == "events")
     training_total = next(len(d["cards"]) for d in decks if d["key"] == "trainings")
     management_total = next(len(d["cards"]) for d in decks if d["key"] == "management")
+    feedback_total = next((len(d["cards"]) for d in decks if d["key"] == "feedback"), 0)
 
     x = MARGIN_X
     width = PAGE_W - 2 * MARGIN_X
@@ -424,7 +444,9 @@ def draw_cover_page(c, decks):
         f"Deck contents ({total} physical cards)",
         f"{skill_total} Skill/Tool — {project_total} Project — {chaos_total} Office "
         f"Chaos — {training_total} Mandatory Training — {management_total} Management "
-        "Style.\nMatches the Card Reference Appendix in the main rulebook — see "
+        f"Style"
+        + (f" — {feedback_total} Feedback (variant rule)" if feedback_total else "")
+        + ".\nMatches the Card Reference Appendix in the main rulebook — see "
         "that document for full rules on how each card is used.",
     )
     c.showPage()

@@ -124,6 +124,7 @@ multiple physical copies so the decks don't run dry:
 | Office Chaos | 30 | 30 (×1 each) | Reshuffle discards when depleted |
 | Mandatory Training | 12 | 12 (×1 each) | Reshuffle discards when depleted |
 | Management Style | 16 | 16 (×1 each) | Reshuffle discards when depleted |
+| Feedback *(variant)* | 18 | 18 (×1 each) | 9 Positive / 9 Constructive — reshuffled fresh each Review (see Variant Rules) |
 
 ---
 
@@ -298,7 +299,8 @@ these steps in order:
 ### Step 1 — Calculate Review Score
 
 Review Score = (Career Capital gained since your Quarter Marker) + (Political
-Capital on hand) − (Burnout ÷ 4, rounded down).
+Capital on hand) + (Feedback held — variant rule) − (Burnout ÷ 4, rounded
+down).
 
 This rewards real output delivered this Quarter and current visibility — not
 just whoever happens to be holding the most cash at the buzzer.
@@ -429,6 +431,66 @@ Use 2 promotion slots and 2 PIP slots per Review (already reflected in the
 Career Ladder table). Additionally, reveal a second row of 5 Job Board cards
 (10 total) so the market doesn't dry up with more players competing for the
 same Skill cards.
+
+---
+
+## Variant Rules (Optional): Feedback & Collaboration
+
+Two optional rules add more player interaction. Both are **on by default** in
+the digital version (toggle them off, or tune them, in the game's rule
+settings); for the tabletop game, agree to use them before Setup.
+
+### The Feedback Deck
+
+Shuffle the 18-card **Feedback** deck: **9 Positive** ("Exceeds Expectations",
+"Highly Visible Impact"…) and **9 Constructive** ("Room for Growth", "Let's
+Circle Back on This"…). Keep it as a separate face-down pile.
+
+**At the start of every Quarterly Performance Review, before scoring:**
+
+1. Shuffle the deck and **deal one Feedback card to each player**, face-up.
+2. Going around in First Player order, each player either **keeps** their card
+   or **gives it to any other player**. (You'll keep the glowing praise; you'll
+   hand the "constructive" card to whoever's about to outshine you.)
+3. Each Feedback card a player is holding is worth **±2 political points** in
+   *this* Review only — added to your Review Score (and to the CEO Board Vote
+   if you're a VP). Positives are +2, Constructive are −2. Your **net feedback
+   is capped at ±4** per Review, and it evaporates when the Quarter resets.
+
+It's a rubber-band: the person having the best Quarter tends to collect the
+bad-feedback pile. Deal with it.
+
+### Collaborative Projects
+
+Projects can be tackled as a team.
+
+- On your Sprint you may **open** one of your backlog Projects for
+  collaboration (free — it doesn't cost an Action Point).
+- Any player, on *their* Sprint, may spend an Action Point to **contribute
+  Productivity** to an open Project. Contributions add up across turns until
+  they reach the Project's cost, then it's completed.
+- **When a shared Project ships, the Career Capital is split among the
+  contributors in proportion to the Productivity each one paid.** The original
+  owner instead takes **Political Capital equal to max(Project CC − 2, 1)** — a
+  coordinator's reward *in lieu of* a Career-Capital share (and the owner must
+  have chipped in at least 1 Productivity to earn it). The owner also takes the
+  Project's Burnout and any Compliance Badge.
+- If a single *other* player funds the whole thing alone, they simply complete
+  it and take the full reward as if it were their own.
+
+Collaboration lets a cash-strapped player finally land an expensive Project,
+and lets a Productivity-rich player convert a surplus into Career Capital by
+pitching in — while the owner banks the political goodwill.
+
+> **Designer's note.** These two rules were balance-tested over tens of
+> thousands of simulated games (see the card-faithful harness
+> `stack_ranked_montecarlo.js` and the writeup below). With the default
+> settings they leave all five archetypes viable — in fact *tighter* than the
+> base game — while making it a little easier to come back from behind. The
+> naïve "owner gets CC **and** PC / dump every bad card on the leader" version
+> hands the political specialist a runaway lead, so the defaults cap the
+> feedback swing, credit shared Career Capital to whoever actually did the
+> work, and aim bad feedback at whoever's topping the current Review.
 
 ---
 
@@ -617,6 +679,40 @@ first Action Point next round, and gain 1 Compliance Badge.
 | The Nepotism Hire | +2 Political Capital/round (knows people); Hiring Skill cards costs 1 more Productivity (couldn't approve a headcount request to save their life). | Turns out the CEO is their uncle. Nobody has said this out loud. |
 | The Consultant-Turned-Manager | Your Projects cost 1 less Productivity (loves a framework for everything); −1 Political Capital/round (nobody trusts the person who charges by the hour). | Drew a 2x2 matrix. Nobody asked for the 2x2 matrix. |
 
+### Feedback Cards (18, variant rule)
+
+Dealt one per player at the start of each Quarterly Review, then kept or given
+away; each card held is worth its value in political points that Review (net
+capped at ±4). See **Variant Rules** above.
+
+**Positive Feedback (9 — worth +2 each)**
+
+| Name | Value | Flavor |
+|---|---|---|
+| Exceeds Expectations | +2 | Hit every goal and then invented three more to hit. Nobody asked, but here we are. |
+| Goes Above and Beyond | +2 | Answered a Slack at 2 a.m. once. It comes up in every review now. |
+| A True Team Player | +2 | Brought donuts to the retro. The retro was about layoffs, but still. |
+| Highly Visible Impact | +2 | The dashboard is green. Nobody checks what it measures, but it's green. |
+| Strong Executive Presence | +2 | Says 'let me push back on that' with total confidence and no follow-up. |
+| Consistently Delivers | +2 | Delivers consistently, if not necessarily what was asked for. |
+| Great Culture Add | +2 | Laughs at the CEO's jokes at exactly the right volume. |
+| Promotion-Ready | +2 | Has been promotion-ready for six quarters. The ladder is just crowded. |
+| The Team Depends on Them | +2 | Load-bearing employee. HR has flagged this as a risk, admiringly. |
+
+**Constructive Feedback (9 — worth −2 each)**
+
+| Name | Value | Flavor |
+|---|---|---|
+| Needs to Improve Communication | -2 | Sends a 400-word Slack that could have been 'ok.' Or vice versa. |
+| Struggles with Ambiguity | -2 | Asked for 'requirements.' In this economy. |
+| Not a Culture Fit | -2 | Logs off at 5. Suspicious. Un-American, even. |
+| Lacks Executive Presence | -2 | Said 'I don't know' in a meeting. Out loud. On purpose. |
+| Room for Growth | -2 | Endless, breathtaking room. Vistas of it. So much room. |
+| Doesn't Take Feedback Well | -2 | Took the feedback fine. Just didn't agree, which is worse. |
+| Siloed and Territorial | -2 | Owns the one system nobody else understands. Weirdly protective of the job security. |
+| Missed Key Deliverables | -2 | The deliverable was 'vibes.' The vibes were, per the review, off. |
+| Let's Circle Back on This | -2 | We will not be circling back. We both know that. |
+
 ---
 
 ## Designer's Notes: Balancing Stack Ranked
@@ -775,7 +871,7 @@ the AP and Productivity for it.
 ### Review Score
 
 (Career Capital gained since your Quarter Marker) + (Political Capital on
-hand) − (Burnout ÷ 4, rounded down)
+hand) + (Feedback held — variant) − (Burnout ÷ 4, rounded down)
 
 ### Burnout Crisis (at 10)
 
