@@ -673,7 +673,7 @@ Field meanings:
     {"name": "Quiet Quitting Goes Mainstream", "effect": "Any player may decline their Overtime option this round to remove 1 Burnout instead.", "flavor": "Doing exactly what's in the job description. Revolutionary."},
     {"name": "Free Bagel Friday", "effect": "Every player gains 1 Political Capital.", "flavor": "Cinnamon raisin again. Someone doesn't respect the group chat's preferences."},
     {"name": "Fire Drill", "effect": "The player who used Overtime most recently gains 1 Burnout.", "flavor": "Now standing in a parking lot with 200 coworkers you've never seen before."},
-    {"name": "Surprise Reorg", "effect": "Randomly choose two players; swap one Skill card between them.", "flavor": "Nobody's job changed. Everybody's manager did."},
+    {"name": "Surprise Reorg", "effect": "Everyone returns their Management Style card. Shuffle the Management deck and deal each player a new one.", "flavor": "Nobody's job changed. Everybody's manager did."},
     {"name": "Engagement Survey (Anonymous, Allegedly)", "effect": "Every player gains 1 Political Capital.", "flavor": "Question 14: \u2018I feel my work is valued.\u2019 Strongly Disagree."},
     {"name": "The Office Dog Visits", "effect": "Each player may remove 1 Burnout.", "flavor": "Best coworker on the payroll. Unfortunately unpaid."},
     {"name": "New CEO Announced", "effect": "Each player with 5 or more Skill cards in play discards 1 of their choice.", "flavor": "New broom, new org chart, same problems."},
@@ -982,6 +982,30 @@ Constructive** (−2), each worth `rules.feedbackValue` (=2) "political points".
 - `'blend'` / `'spread'` — hybrids (blend CC + `feedbackBlendPcWeight`×PC;
   spread distributes negatives across the top threats).
 
+**Feedback mode (`rules.feedbackMode`)** — a UI-selectable choice for *how* the
+phase deals and moves cards. The downstream scoring (net × `feedbackValue`,
+±`feedbackNetCap` clamp, fold into Review Score + CEO tiebreak) and all
+targeting dials above are identical in both modes:
+
+- `'classic'` *(default)* — the algorithm above: deal **one** card per player,
+  keep-or-give (`resolveFeedbackClassic`).
+- `'give-one'` — **"360° Review."** Deal every player **one Positive and one
+  Constructive** card. Each player must **give exactly one** of the two to
+  another player (never to themselves) and **discard the other**; gifts are
+  chosen face-down from the pre-phase board state and revealed **simultaneously**
+  — nobody reacts to anyone else's gift (`resolveFeedbackGiveOne`, called via
+  the same `resolveFeedbackPhase` dispatcher). A self-interested player throws
+  the Constructive card at a front-runner (per `feedbackTarget`) and discards
+  the Positive — helping a rival is never in your own interest — so in
+  reference-AI play this is a *reliable but still ±`feedbackNetCap`-bounded*
+  leader-bash: every non-leader pitches −`feedbackValue` at the leader (net
+  clamped to −`feedbackNetCap`), the leader pitches at the runner-up, and
+  Positives are effectively sacrificed. A **human** may instead gift a Positive
+  to an ally (a legal kingmaking option). UI decision:
+  `hooks.decide({action:'giveFeedbackChoose', options:[{key:'pos:<pid>'|'neg:<pid>', …}]})`
+  returns the chosen `"<polarity>:<playerId>"` string; an invalid/absent answer
+  falls back to the AI's throw-the-negative default.
+
 ### 13.2 — Collaborative Projects (`rules.collaboration`)
 
 Any player may pour Productivity into another player's **shared** backlog entry.
@@ -1014,38 +1038,53 @@ Any player may pour Productivity into another player's **shared** backlog entry.
 > credited the owner regardless turned collaboration into a Career-Capital
 > siphon feeding the low-Productivity archetype.
 
-### 13.3 — Balance Findings (`stack_ranked_montecarlo.js`, 5 000 games/cell)
+### 13.3 — Balance Findings (`stack_ranked_montecarlo.js`, 3 000 games/cell)
 
 5-player, all-distinct-archetype, race-to-CEO. "balSD" = std-dev of the five
 win rates (lower = more even). Comeback metrics are from all-Balanced mirror
 games (any lead is luck). 100% of games in every row ended via a real CEO
-promotion (no round-cap fallbacks); avg length 30–34 rounds.
+promotion (no round-cap fallbacks); avg length 30–34 rounds. (Numbers below are
+the canonical `montecarlo_results.txt` run; re-run to reproduce.)
 
 | Ruleset | balSD | archetype win-rate range | comeback: bottom-half / dead-last wins | runaway (halftime leader wins) |
 |---|---|---|---|---|
-| **Base game** (both off) | 8.2pp | 11.6–34.0% | 24% / 14% | 36% |
-| **Naive literal** (no guardrails, `rung` targeting) | 12.8pp | 11.5–**45.5%** (Politician) | 33% / 19% | 23% |
-| **Recommended** (tuned defaults, `score` targeting) | **6.2pp** | 13.9–30.9% | 25% / 15% | 36% |
-| **Aggressive rubber-band** (`rung` targeting) | 12.6pp | 11.7–45.0% (Politician) | 32% / 19% | 23% |
+| **Base game** (both variant rules off) | 8.1pp | 11.5–34.8% | 24% / 15% | 37% |
+| **Naive literal** (no guardrails, `rung` targeting) | 13.5pp | 11.8–**47.0%** (Politician) | 32% / 20% | 23% |
+| **Recommended** (tuned defaults; `classic` feedback, `score` targeting) | **7.0pp** | 14.3–32.6% | 24% / 14% | 37% |
+| **Aggressive rubber-band** (`classic`, `rung` targeting) | 13.1pp | 11.7–46.0% (Politician) | 32% / 19% | 24% |
+| **360° Review** (`give-one` feedback, `score` targeting) | 7.0pp | 13.0–32.7% | 24% / 14% | 37% |
+| **360° Review + rung** (`give-one`, `rung` targeting) | 13.5pp | 11.8–47.0% (Politician) | 35% / 21% | 23% |
 
 Takeaways:
 - The **base game is already comeback-friendly** — even with no new rules the
   halftime leader wins only ~36% of equal-skill games and a dead-last player
   still wins ~14%. It is not a runaway-leader game.
 - The **naive literal** rules are imbalanced: they hand the (already-strongest)
-  Politician a runaway PC engine (34% → 45.5%). Two root causes — (1) crediting
+  Politician a runaway PC engine (35% → 47%). Two root causes — (1) crediting
   the owner for others' work, and (2) negatives targeting the rung leader,
   which the Politician never is, so it dodges them.
 - The **recommended tuning is the most balanced configuration measured** —
-  tighter than the base game (balSD 6.2 vs 8.2pp; all five archetypes 14–31%) —
+  tighter than the base game (balSD 7.0 vs 8.1pp; all five archetypes 14–33%) —
   while preserving the base game's comeback rate and adding collaboration as a
   genuine catch-up channel.
+- **360° Review (`give-one`) keeps the game balanced.** With the default `score`
+  targeting it is a near-drop-in alternative to `classic` feedback: balSD 7.0 vs
+  7.0pp, identical archetype ordering and Politician ceiling (32.7% vs 32.6%),
+  and comeback/runaway indistinguishable (24%/14% & 37% for both) — and still
+  tighter than the base game's 8.1pp. It changes the *texture* (every non-leader
+  reliably lands a bounded −`feedbackNetCap` on the front-runner, and Positives
+  are mostly sacrificed) without shifting who wins, because the ±4 net cap
+  already governs the maximum swing in both modes. **Answer to "is it still
+  balanced?": yes.**
 - There is a real **Pareto tension**: the ladder leader and the Review-score
   leader are usually different players (a Grinder vs the Politician), and a
   single leader-penalty can only hit one. `score` targeting maximizes archetype
-  balance; `rung` targeting maximizes comeback (dead-last wins 14%→19%, runaway
-  36%→23%) at the Politician's expense. Ship `score` as default; expose `rung`
-  as an optional group-preference toggle.
+  balance; `rung` targeting maximizes comeback (dead-last wins 14%→19–20%,
+  runaway 36%→23–25%) at the Politician's expense — and this holds in **both**
+  feedback modes (`rung` re-inflates the Politician to ~45% either way). Ship
+  `score` as the default in both modes; expose `rung` as an optional
+  group-preference toggle. `give-one` is a table-feel choice (secret,
+  simultaneous, everyone-throws-one), not a balance lever.
 
 Design guidance drawn from published work on catch-up / leader-bashing (Sirlin
 on skill-preserving "perpetual comeback"; the runaway-leader literature; the

@@ -461,7 +461,7 @@
     },
     {
       "name": "Surprise Reorg",
-      "effect": "Randomly choose two players; swap one Skill card between them.",
+      "effect": "Everyone returns their Management Style card. Shuffle the Management deck and deal each player a new one.",
       "flavor": "Nobody's job changed. Everybody's manager did."
     },
     {

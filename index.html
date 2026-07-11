@@ -322,6 +322,20 @@
   </div>
 
   <div class="card-box">
+    <h2>Feedback Round</h2>
+    <div class="variant-row" id="feedbackRow">
+      <div class="variant sel" data-fb="classic">
+        <b>📝 Standard Feedback</b>
+        <span class="dim">Each Review, everyone draws one Feedback card (±2) and may keep it or hand it to a rival. (Default.)</span>
+      </div>
+      <div class="variant" data-fb="give-one">
+        <b>🔄 360° Review</b>
+        <span class="dim">Each Review, everyone gets one Positive and one Constructive card, secretly gives one to another player and discards the other, then all cards flip face-up together.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-box">
     <h2>Players</h2>
     <div class="count-ctl">
       <label class="dim">Number of players</label>
@@ -496,6 +510,11 @@
     $("variantRow").querySelectorAll(".variant").forEach(function (x) { x.classList.remove("sel"); });
     v.classList.add("sel");
   });
+  $("feedbackRow").addEventListener("click", function (e) {
+    var v = e.target.closest(".variant"); if (!v) return;
+    $("feedbackRow").querySelectorAll(".variant").forEach(function (x) { x.classList.remove("sel"); });
+    v.classList.add("sel");
+  });
   $("allAiBtn").addEventListener("click", function () {
     $("playerRows").querySelectorAll(".pkind").forEach(function (s) { s.value = "ai"; });
     syncArchVisibility();
@@ -505,13 +524,14 @@
 
   function readConfig() {
     var variant = $("variantRow").querySelector(".variant.sel").getAttribute("data-variant");
+    var feedbackMode = $("feedbackRow").querySelector(".variant.sel").getAttribute("data-fb");
     var rows = $("playerRows").querySelectorAll(".prow");
     var players = [];
     rows.forEach(function (r, i) {
       var name = r.querySelector(".pname").value.trim() || ("Player " + (i + 1));
       players.push({ name: name, kind: r.querySelector(".pkind").value, archetype: r.querySelector(".parch").value });
     });
-    return { variant: variant, players: players };
+    return { variant: variant, players: players, rules: { feedbackMode: feedbackMode } };
   }
 
   renderPlayerRows();
@@ -578,6 +598,7 @@
     if (req.action === "discardSkill") return req.candidates && req.candidates[0] && req.candidates[0].id;
     if (req.action === "therapyTarget") return null;
     if (req.action === "giveFeedback") return req.playerId; // safe default: keep the card
+    if (req.action === "giveFeedbackChoose") return false;  // safe default: engine slings the negative at the leader
     return false;
   }
 
@@ -991,7 +1012,7 @@
       } else if (req.action === "therapyTarget") {
         body = req.candidates.map(function (c) { return '<button data-k="' + c.id + '">' + esc(c.name) + " <span class='faint'>(" + c.burnout + " 🔥)</span></button>"; }).join("");
         body += '<button data-k="__none">Decline</button>';
-      } else if (req.action === "giveFeedback") {
+      } else if (req.action === "giveFeedback" || req.action === "giveFeedbackChoose") {
         body = req.options.map(function (o) { return '<button data-k="' + esc(o.key) + '">' + esc(o.label) + "</button>"; }).join("");
       } else {
         body = '<button data-k="yes">Yes</button><button data-k="no">No</button>';
@@ -1006,7 +1027,7 @@
           if (req.action === "colleagueInterview") return res(k);
           if (req.action === "discardSkill") return res(k);
           if (req.action === "therapyTarget") return res(k === "__none" ? null : k);
-          if (req.action === "giveFeedback") return res(k);
+          if (req.action === "giveFeedback" || req.action === "giveFeedbackChoose") return res(k);
           return res(k === "yes");
         });
       });
