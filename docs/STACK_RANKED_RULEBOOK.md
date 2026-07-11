@@ -460,6 +460,27 @@ Circle Back on This"…). Keep it as a separate face-down pile.
 It's a rubber-band: the person having the best Quarter tends to collect the
 bad-feedback pile. Deal with it.
 
+**Feedback style — pick one before Setup (or in the digital game's setup screen):**
+
+- **📝 Standard Feedback** *(default)* — exactly the procedure above: one card
+  each, keep or hand it off.
+- **🔄 360° Review** — a secret, simultaneous variant that plays like a real
+  peer-review cycle:
+  1. Deal every player **two** cards: **one Positive and one Constructive**.
+  2. Each player secretly chooses **one** of their two cards to **give to
+     another player** (you can never keep it yourself) and **discards the
+     other**. Place the card you're giving **face-down** in front of its
+     recipient.
+  3. When everyone has chosen, **flip all the cards face-up at once**, then
+     score them the same way (±2 each, net capped at ±4, this Review only).
+
+  Because you can't help yourself and must play one card, the natural move is to
+  slip your Constructive card to whoever's ahead and bin the praise — so the
+  front-runner reliably eats a (still ±4-capped) pile of bad feedback, while a
+  generous player *can* choose to gift the Positive to a friend. Same math as
+  Standard, more knives. This mode is **balance-neutral** vs Standard (see the
+  Designer's Notes) — choose it for table feel, not for advantage.
+
 ### Collaborative Projects
 
 Projects can be tackled as a team.
@@ -491,6 +512,14 @@ pitching in — while the owner banks the political goodwill.
 > hands the political specialist a runaway lead, so the defaults cap the
 > feedback swing, credit shared Career Capital to whoever actually did the
 > work, and aim bad feedback at whoever's topping the current Review.
+>
+> The **360° Review** feedback style was measured against Standard the same way
+> (3,000 games/cell): with the default targeting it's **balance-neutral** — the
+> five archetypes land in the same order and the same 14–31% band (std-dev
+> 6.6pp vs Standard's 5.9pp), and comebacks and runaway-leader rates stay within
+> noise. It changes how the table *feels* (secret, simultaneous, everyone throws
+> exactly one card), not who wins, because the ±4 net cap already bounds the
+> biggest possible swing in either style. So pick it for the drama, not an edge.
 
 ---
 

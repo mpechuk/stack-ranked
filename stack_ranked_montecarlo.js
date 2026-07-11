@@ -171,11 +171,17 @@ const RULESETS = {
   // that was a bug, not a balance dial.)
   literalNaive: { feedback: true, collaboration: true, feedbackNetCap: 999, feedbackTarget: 'rung',
                   collabOwnerPcCap: 999, collabOwnerMustContribute: false },
-  // tuned recommendation = the engine's DEFAULT_RULES (score targeting, ±4 cap,
-  // owner PC capped at 3 and must-contribute).
+  // tuned recommendation = the engine's DEFAULT_RULES (classic feedback, score
+  // targeting, ±4 cap, owner PC capped at 3 and must-contribute).
   recommended:  {},
   // optional "aggressive rubber-band" toggle: recommended + rung targeting.
-  rungToggle:   { feedbackTarget: 'rung' }
+  rungToggle:   { feedbackTarget: 'rung' },
+  // NEW "360° Review" feedback mode: everyone gets one Positive + one
+  // Constructive, gives one away (face-down/simultaneous) and discards the
+  // other. Same ±4 cap. Compared here against `recommended` (current default).
+  giveOne:      { feedbackMode: 'give-one' },
+  // give-one + rung targeting (the strongest bounded leader-bash on offer).
+  giveOneRung:  { feedbackMode: 'give-one', feedbackTarget: 'rung' }
 };
 
 async function main() {
@@ -187,7 +193,7 @@ async function main() {
   console.log('STACK RANKED — Monte-Carlo balance harness');
   console.log('variant=' + VARIANT + '  games/cell=' + N + '  (seeded, reproducible)');
 
-  const order = ['baseline', 'literalNaive', 'recommended', 'rungToggle'];
+  const order = ['baseline', 'literalNaive', 'recommended', 'rungToggle', 'giveOne', 'giveOneRung'];
   const summary = {};
   for (const key of order) {
     const rules = RULESETS[key];
