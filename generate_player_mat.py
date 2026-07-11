@@ -12,7 +12,7 @@ cut apart without fiddling with printer "copies" settings.
 The mat optionally carries a header banner image (top-right of the header
 band) and a full-page background texture, both purely decorative — the mat
 renders fine with neither. Point HEADER_IMAGE / BACKGROUND_IMAGE below at
-files under mat-images/ (see player-mat-art-prompts.txt for ready-to-use
+files under table-images/ (see player-mat-art-prompts.txt for ready-to-use
 image-generation prompts matching the box-cover art style) to enable them.
 
 Run: python3 generate_player_mat.py
@@ -36,8 +36,8 @@ ROOT = Path(__file__).resolve().parent
 OUTPUT_PDF = ROOT / "docs" / "Stack_Ranked_PlayerMat.pdf"
 
 # Decorative art — both optional; missing files render a plain placeholder.
-HEADER_IMAGE = ROOT / "mat-images" / "player-mat-header.png"
-BACKGROUND_IMAGE = ROOT / "mat-images" / "player-mat-background.png"
+HEADER_IMAGE = ROOT / "table-images" / "player-mat-header.png"
+BACKGROUND_IMAGE = ROOT / "table-images" / "player-mat-background.png"
 
 COPIES = 6  # matches "6 Player Desk mats" in the rulebook's Components list
 

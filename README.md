@@ -20,10 +20,12 @@ Pages (see below). No build step, no server, no dependencies.
 | `game.js` | The rules engine and AI. Zero DOM dependencies, so it can be unit-tested headlessly. |
 | `docs/STACK_RANKED_GAME_SPEC.md` | The implementation spec this build follows to the letter. |
 | `cards.json` | Raw card data (also embedded in `game.js`). |
+| `leaderboard.md` | Raw Career Ladder rung data (rungs, Action Points, Career Capital thresholds, Badges required) — source for `generate_career_ladder.py`. |
 | `stack_ranked_balance_simulator.py` | The original Monte-Carlo balance tool (reference only). |
 | `generate_print_and_play.py` | Regenerates `docs/Stack_Ranked_PrintAndPlay.pdf` straight from `cards.json` (`pip install reportlab pillow`, then `python3 generate_print_and_play.py`). |
 | `generate_rulebook_pdf.py` | Regenerates `docs/Stack_Ranked_Rulebook.pdf` straight from `docs/STACK_RANKED_RULEBOOK.md`, with a clickable table of contents and PDF bookmarks (`pip install reportlab markdown beautifulsoup4`, then `python3 generate_rulebook_pdf.py`). |
 | `generate_player_mat.py` | Regenerates `docs/Stack_Ranked_PlayerMat.pdf`, six copies of a landscape Player Desk mat (Career/Political Capital, Productivity, Burnout, Compliance Badges, a Management Style slot, and Tableau/Backlog zones) — optional header/background art, see `player-mat-art-prompts.txt` (`pip install reportlab pillow`, then `python3 generate_player_mat.py`). |
+| `generate_career_ladder.py` | Regenerates `docs/Stack_Ranked_CareerLadder.pdf`, the shared Career Ladder board (7 ascending rungs, Intern through CEO, with pawn slots) straight from `leaderboard.md` — reuses the Player Desk mat's background art, plus its own optional header banner, see `career-ladder-art-prompts.txt` (`pip install reportlab pillow`, then `python3 generate_career_ladder.py`). |
 
 ## Features
 

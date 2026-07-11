@@ -1,0 +1,52 @@
+STACK RANKED — CAREER LADDER BOARD ART GENERATION PROMPT
+==========================================================
+One image-generation prompt for the optional decorative header banner on the
+Career Ladder board (see generate_career_ladder.py). The board's full-bleed
+background reuses table-images/player-mat-background.png as-is (the same file
+the Player Desk mat uses) — no new background art needed. This file covers
+only the header banner that sits in the top band next to the board title.
+
+Save the generated file as:
+  table-images/career_ladder.jpeg
+
+MASTER STYLE (same family as card-art-prompts.txt and
+player-mat-art-prompts.txt, so the whole print-and-play kit — box cover,
+cards, player mat, and this board — reads as one product):
+  Retro corporate-propaganda poster art, matching the box cover illustration
+  (see docs/CoverV2.png) — bold black ink outlines, halftone screentone
+  shading, worn paper-grain texture, dramatic radiating sunburst linework,
+  satirical heroic composition, screen-print poster look. Base palette of
+  burnt orange, cream, and navy. No text, no logos, no watermarks — this is
+  illustration only, the board's own labels/rungs are added separately by
+  the PDF generator on top.
+
+Render at high resolution (300 DPI at print size) so the PDF stays crisp:
+  Header banner: ~2550 x 480 px (fills a ~5:1 landscape band)
+
+
+================================================================
+HEADER BANNER — table-images/career_ladder.jpeg
+================================================================
+REFERENCE: Sits to the right of the navy "STACK RANKED / CAREER LADDER
+BOARD" title plate, across the top of the board. Unlike the player mat's
+header (a continuation of the box cover's climbing scene), this banner should
+read as the view *from the summit* — the payoff the whole ladder is racing
+toward — since the board underneath lays out the full Intern-to-CEO climb as
+a row of ascending platforms.
+
+PROMPT:
+Scene: A wide corner-office skyline view from the top of the org chart —
+a silhouetted executive desk and a single triumphant figure in an
+oversized office chair on a rooftop terrace, overlooking a sprawling city
+built from stacked filing cabinets, server towers, and skyscraper-sized
+binders, all bathed in a radiant sunrise. A faint corporate ladder/staircase
+motif climbs up through the cloud line toward the figure, echoing the board
+it sits above. Cropped as a wide horizontal banner focused on the skyline
+and sunburst, with the seated figure small and silhouetted at one side
+rather than the main focus (this crop needs to read well as a thin strip,
+not a portrait).
+Style: retro corporate-propaganda poster art (matching the box cover) —
+bold black ink outlines, halftone screentone shading, worn paper grain,
+radiating sunburst background, screen-print poster look. Palette: burnt
+orange, cream, and navy. Format: wide landscape banner crop (~5:1), no
+text/logos/watermarks.
