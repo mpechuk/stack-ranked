@@ -265,7 +265,8 @@ def draw_quick_reference(c, x, top, w, h):
         "<b>Review Score</b> = CC gained since Quarter Marker + Political Capital "
         "on hand + Feedback held − (Burnout ÷ 4, rounded down).<br/>"
         f"{memo_icon}<b>Feedback</b> (variant): 1 card each at Review, keep or "
-        "give; ±2 pts, net capped ±4.<br/>"
+        "give; ±2 pts, net capped ±4. <i>360° mode:</i> get a +/− pair, secretly "
+        "give one &amp; discard one.<br/>"
         f"{handshake_icon}<b>Collaborate</b> (variant): pool Productivity on a shared "
         "Project — contributors split the CC; owner takes PC in lieu."
     )

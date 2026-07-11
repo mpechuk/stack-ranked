@@ -65,6 +65,38 @@ variant=race-to-ceo  games/cell=3000  (seeded, reproducible)
   RUNAWAY  — halftime leader went on to win:            24.7%
   pacing:  avg 31.5 rounds, 100.0% end via CEO
 
+### DISTINCT — giveOne  (3000 games)
+  grinder      15.9%  ########                   avg rung 1.70
+  politician   31.3%  ################           avg rung 2.99
+  balanced     13.6%  #######                    avg rung 1.52
+  workaholic   23.7%  ############               avg rung 2.36
+  cautious     15.6%  ########                   avg rung 1.80
+  balance: sd=6.6pp  spread(max-min)=17.7pp  [13.6%..31.3%]
+  pacing:  avg 31.1 rounds, 100.0% end via CEO
+
+### MIRROR   — giveOne  (3000 games, all-Balanced mirror — leads are pure luck)
+  seat win% : 14.0  17.4  20.4  23.2  25.0   (fair = 20.0 each)
+  COMEBACK — winner was in the BOTTOM HALF at halftime: 24.0%
+  COMEBACK — winner was DEAD LAST at halftime:          14.2%
+  RUNAWAY  — halftime leader went on to win:            36.6%
+  pacing:  avg 29.1 rounds, 100.0% end via CEO
+
+### DISTINCT — giveOneRung  (3000 games)
+  grinder      14.6%  #######                    avg rung 1.75
+  politician   44.8%  ######################     avg rung 3.77
+  balanced     12.4%  ######                     avg rung 1.58
+  workaholic   15.4%  ########                   avg rung 1.92
+  cautious     12.8%  ######                     avg rung 1.70
+  balance: sd=12.4pp  spread(max-min)=32.4pp  [12.4%..44.8%]
+  pacing:  avg 33.7 rounds, 100.0% end via CEO
+
+### MIRROR   — giveOneRung  (3000 games, all-Balanced mirror — leads are pure luck)
+  seat win% : 19.7  20.8  19.2  19.7  20.6   (fair = 20.0 each)
+  COMEBACK — winner was in the BOTTOM HALF at halftime: 34.0%
+  COMEBACK — winner was DEAD LAST at halftime:          20.2%
+  RUNAWAY  — halftime leader went on to win:            23.3%
+  pacing:  avg 31.6 rounds, 100.0% end via CEO
+
 
 ===================== SUMMARY TABLE =====================
 ruleset         balSD  spread   comeback(botHalf/last)  runaway  ceo%
@@ -72,6 +104,8 @@ ruleset         balSD  spread   comeback(botHalf/last)  runaway  ceo%
   literalNaive   12.8pp  33.8pp     32%/20%             24%   100%
   recommended     5.9pp  15.7pp     26%/15%             36%   100%
   rungToggle     12.5pp  32.7pp     31%/19%             25%   100%
+  giveOne         6.6pp  17.7pp     24%/14%             37%   100%
+  giveOneRung    12.4pp  32.4pp     34%/20%             23%   100%
   (lower balSD/spread = more even strategies; higher comeback & lower runaway = more forgiving of bad luck)
 
 

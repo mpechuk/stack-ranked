@@ -210,6 +210,10 @@
   const DEFAULT_RULES = {
     // Tuned defaults, validated by stack_ranked_montecarlo.js (see docs §9.9/§9.10).
     feedback: true,          // deal ±2 Feedback cards at each Review
+    feedbackMode: 'classic', // 'classic' — deal ONE card each, keep-or-give [default]
+                             // 'give-one' — "360° Review": deal one Positive + one
+                             //   Constructive each; give one away (face-down /
+                             //   simultaneous) and discard the other
     feedbackValue: 2,        // political points per held card (magnitude)
     feedbackNetCap: 4,       // clamp each player's net feedback swing to ±this per Review
                              //   (research: keep it ≤~25-30% of a typical Review Score)
@@ -1519,13 +1523,18 @@
 
   /* ---------------------------------------------------------------------------
    * 14b. Feedback phase (variant rule) — runs at the top of every Review,
-   *   before scoring. Shuffle the 18-card deck fresh, deal one to each player,
-   *   then in First Player order each player keeps their card or gives it to
-   *   another player. Held cards are worth ±feedbackValue "political points"
+   *   before scoring. Held cards are worth ±feedbackValue "political points"
    *   folded into the Review Score (and the CEO Board Vote tiebreak), with each
    *   player's net swing clamped to ±feedbackNetCap. Political-Capital-adjacent
    *   but NOT persistent PC: the effect is entirely transient to this Review,
    *   which the quarterly PC reset would erase anyway.
+   *
+   *   Two modes (`rules.feedbackMode`):
+   *   - `'classic'` (default) — shuffle the 18-card deck fresh, deal ONE to each
+   *     player, then each player keeps their card or gives it to another player.
+   *   - `'give-one'` ("360° Review") — deal each player ONE Positive and ONE
+   *     Constructive card; each must give exactly one away (face-down, revealed
+   *     simultaneously) and discard the other. See `resolveFeedbackGiveOne`.
    *
    *   Returns nothing; writes state._pendingFeedback (a playerId→points map)
    *   plus a per-player held-card list for the Review summary/log. Async so a
@@ -1535,10 +1544,50 @@
     state._pendingFeedback = {};
     state._feedbackHeld = {};
     if (!state.rules.feedback || !state.feedbackDeck || !state.feedbackDeck.length) return;
-    const players = state.players;
-    players.forEach(function (p) { state._feedbackHeld[p.id] = []; });
+    state.players.forEach(function (p) { state._feedbackHeld[p.id] = []; });
+    if (state.rules.feedbackMode === "give-one") await resolveFeedbackGiveOne(state, hooks);
+    else await resolveFeedbackClassic(state, hooks);
+    tallyFeedback(state);
+  }
 
-    // Deal one card per player from a freshly shuffled deck.
+  // 'spread' targeting: rank everyone by blended threat, so successive
+  // Constructive cards land on successive front-runners (the ladder leader AND
+  // a surging political player) instead of all piling on one — what a table of
+  // rational humans, each worried about a different rival, actually produces.
+  // Returns null unless feedbackTarget==='spread'. Shared by both modes.
+  function feedbackSpreadRanked(state) {
+    if (state.rules.feedbackTarget !== "spread") return null;
+    const kPc = state.rules.feedbackBlendPcWeight != null ? state.rules.feedbackBlendPcWeight : 6;
+    return state.players.slice().sort(function (a, b) {
+      const va = a.careerCapital + kPc * a.politicalCapital + (a.careerCapital - a.quarterMarker);
+      const vb = b.careerCapital + kPc * b.politicalCapital + (b.careerCapital - b.quarterMarker);
+      return vb - va;
+    });
+  }
+
+  // Tally net points per holder, clamped to the configured swing cap. Shared by
+  // both modes; reads state._feedbackHeld, writes state._pendingFeedback.
+  function tallyFeedback(state) {
+    state.players.forEach(function (p) {
+      const held = state._feedbackHeld[p.id] || [];
+      let pts = held.reduce(function (s, c) {
+        return s + (c.value > 0 ? state.rules.feedbackValue : -state.rules.feedbackValue);
+      }, 0);
+      const capMag = state.rules.feedbackNetCap;
+      if (capMag != null) pts = Math.max(-capMag, Math.min(capMag, pts));
+      state._pendingFeedback[p.id] = pts;
+      if (held.length) {
+        log(state, "📝 " + p.name + " holds " + held.map(function (c) { return c.name; }).join(", ") +
+          " → " + (pts >= 0 ? "+" : "") + pts + " political points this Review.", "muted");
+      }
+    });
+  }
+
+  // Classic mode: deal one card per player from a freshly shuffled deck; each
+  // recipient keeps it or gives it away (AI keeps Positives, dumps Constructive
+  // cards on a front-runner). Fills state._feedbackHeld.
+  async function resolveFeedbackClassic(state, hooks) {
+    const players = state.players;
     const deck = shuffle(state.feedbackDeck.slice());
     let cap = state.rules.feedbackDealCap;
     const nDeal = cap == null ? players.length : Math.min(cap, players.length);
@@ -1548,22 +1597,8 @@
       const card = deck[i % deck.length];
       dealt.push({ dealtTo: order[i], card: card });
     }
-
-    // 'spread' targeting: rank everyone by blended threat once, then hand
-    // successive constructive cards to successive threats — so negatives
-    // distribute across the top few front-runners (the ladder leader AND a
-    // surging political player) instead of all piling on one. This is what a
-    // table of rational humans, each worried about a different rival, actually
-    // produces — and it fixes the CC-leader-vs-score-leader tension.
-    let spreadRanked = null, spreadIdx = 0;
-    if (state.rules.feedbackTarget === 'spread') {
-      const kPc = state.rules.feedbackBlendPcWeight != null ? state.rules.feedbackBlendPcWeight : 6;
-      spreadRanked = players.slice().sort(function (a, b) {
-        const va = a.careerCapital + kPc * a.politicalCapital + (a.careerCapital - a.quarterMarker);
-        const vb = b.careerCapital + kPc * b.politicalCapital + (b.careerCapital - b.quarterMarker);
-        return vb - va;
-      });
-    }
+    const spreadRanked = feedbackSpreadRanked(state);
+    let spreadIdx = 0;
 
     // Each dealt card: its recipient decides the final holder (keep or give).
     for (const d of dealt) {
@@ -1605,20 +1640,89 @@
       }
       state._feedbackHeld[targetId].push(d.card);
     }
+  }
 
-    // Tally net points per holder, clamped to the configured swing cap.
-    players.forEach(function (p) {
-      const held = state._feedbackHeld[p.id];
-      let pts = held.reduce(function (s, c) {
-        return s + (c.value > 0 ? state.rules.feedbackValue : -state.rules.feedbackValue);
-      }, 0);
-      const capMag = state.rules.feedbackNetCap;
-      if (capMag != null) pts = Math.max(-capMag, Math.min(capMag, pts));
-      state._pendingFeedback[p.id] = pts;
-      if (held.length) {
-        log(state, "📝 " + p.name + " holds " + held.map(function (c) { return c.name; }).join(", ") +
-          " → " + (pts >= 0 ? "+" : "") + pts + " political points this Review.", "muted");
+  /* ---------------------------------------------------------------------------
+   * 14c. "360° Review" feedback mode (`rules.feedbackMode === 'give-one'`).
+   *   Each player is dealt ONE Positive (+feedbackValue) and ONE Constructive
+   *   (−feedbackValue) card, then MUST give exactly one of them to another
+   *   player and DISCARD the other (they keep neither of their own). Gifts are
+   *   chosen from the pre-phase board state — face-down and revealed together,
+   *   so nobody reacts to anyone else's gift — then assigned all at once.
+   *
+   *   A self-interested player throws the Constructive card at the front-runner
+   *   and discards the Positive (helping a rival is never in your interest), so
+   *   in AI play this is a reliable-but-bounded leader-bash: every non-leader
+   *   pitches −feedbackValue at the leader (clamped to −feedbackNetCap) and the
+   *   leader pitches theirs at the runner-up. A human may instead gift a Positive
+   *   to an ally. `feedbackTarget`/`feedbackNegLeaderOnly`/`feedbackNetCap` all
+   *   apply exactly as in classic mode.
+   * ------------------------------------------------------------------------ */
+  async function resolveFeedbackGiveOne(state, hooks) {
+    const players = state.players;
+    const order = turnOrder(state);
+    // Separate Positive / Constructive piles (9 each supports up to 9 players).
+    const posPile = shuffle(state.feedbackDeck.filter(function (c) { return c.value > 0; }));
+    const negPile = shuffle(state.feedbackDeck.filter(function (c) { return c.value < 0; }));
+    const hands = {};
+    order.forEach(function (p, i) {
+      hands[p.id] = { pos: posPile[i % posPile.length], neg: negPile[i % negPile.length] };
+    });
+    const spreadRanked = feedbackSpreadRanked(state);
+    let spreadIdx = 0;
+
+    // Resolve every gift into `gifts` FIRST (all decisions read the same
+    // pre-phase state — the "face-down, simultaneous" part), then reveal.
+    const gifts = [];   // { toId, card }
+    for (const giver of order) {
+      const hand = hands[giver.id];
+      let gift = null;
+      if (giver.kind === "human" && hooks && hooks.decide) {
+        const leadOnly = state.rules.feedbackNegLeaderOnly;
+        const lead = leadOnly ? feedbackNegTarget(state, giver.id) : null;
+        const opts = [];
+        players.forEach(function (p) {
+          if (p.id === giver.id) return;
+          if (!leadOnly || (lead && p.id === lead.id)) {
+            opts.push({ key: "neg:" + p.id, label: "Give “" + hand.neg.name + "” (−" +
+              state.rules.feedbackValue + ") to " + p.name });
+          }
+          opts.push({ key: "pos:" + p.id, label: "Give “" + hand.pos.name + "” (+" +
+            state.rules.feedbackValue + ") to " + p.name });
+        });
+        const ans = await hooks.decide({
+          playerId: giver.id, action: "giveFeedbackChoose",
+          prompt: giver.name + " holds “" + hand.pos.name + "” (+" + state.rules.feedbackValue +
+            ") and “" + hand.neg.name + "” (−" + state.rules.feedbackValue +
+            "). Give ONE to another player; the other is discarded.",
+          cards: { positive: { name: hand.pos.name }, constructive: { name: hand.neg.name } },
+          options: opts
+        });
+        if (typeof ans === "string" && ans.indexOf(":") > 0) {
+          const parts = ans.split(":");
+          const tgt = findPlayer(state, parts[1]);
+          if (tgt && tgt.id !== giver.id) gift = { toId: tgt.id, card: parts[0] === "pos" ? hand.pos : hand.neg };
+        }
       }
+      if (!gift) {
+        // AI / fallback: sling the Constructive card at the top threat; discard the Positive.
+        let target = null;
+        if (spreadRanked) {
+          for (let k = 0; k < spreadRanked.length; k++) {
+            const cand = spreadRanked[(spreadIdx + k) % spreadRanked.length];
+            if (cand.id !== giver.id) { target = cand; spreadIdx = (spreadIdx + k + 1) % spreadRanked.length; break; }
+          }
+        } else {
+          target = feedbackNegTarget(state, giver.id);
+        }
+        if (target) gift = { toId: target.id, card: hand.neg };
+      }
+      if (gift) gifts.push(gift);
+    }
+
+    // Simultaneous reveal: assign every gift to its recipient's held pile now.
+    gifts.forEach(function (g) {
+      if (state._feedbackHeld[g.toId]) state._feedbackHeld[g.toId].push(g.card);
     });
   }
 
@@ -2100,6 +2204,7 @@
       runReview: runReview, addBurnout: addBurnout, resolveTraining: resolveTraining,
       claimTaskFromBoard: claimTaskFromBoard, completeBacklogItem: completeBacklogItem,
       assignTasks: assignTasks, resolveFeedbackPhase: resolveFeedbackPhase,
+      resolveFeedbackGiveOne: resolveFeedbackGiveOne, resolveFeedbackClassic: resolveFeedbackClassic,
       contributeToProject: contributeToProject, completeCollaborative: completeCollaborative,
       sharedProjects: sharedProjects, threatLeader: threatLeader, buildRules: buildRules
     }
