@@ -726,5 +726,151 @@
       "flavor": "Drew a 2x2 matrix. Nobody asked for the 2x2 matrix.",
       "image": "cards-images/the-consultant-turned-manager.png"
     }
+  ],
+  "feedback":   [
+    {
+      "name": "Exceeds Expectations",
+      "polarity": "positive",
+      "value": 2,
+      "effect": "+2 Political points during the Review to whoever holds this card.",
+      "flavor": "Hit every goal and then invented three more to hit. Nobody asked, but here we are.",
+      "image": "cards-images/feedback/exceeds-expectations.png"
+    },
+    {
+      "name": "Goes Above and Beyond",
+      "polarity": "positive",
+      "value": 2,
+      "effect": "+2 Political points during the Review to whoever holds this card.",
+      "flavor": "Answered a Slack at 2 a.m. once. It comes up in every review now.",
+      "image": "cards-images/feedback/goes-above-and-beyond.png"
+    },
+    {
+      "name": "A True Team Player",
+      "polarity": "positive",
+      "value": 2,
+      "effect": "+2 Political points during the Review to whoever holds this card.",
+      "flavor": "Brought donuts to the retro. The retro was about layoffs, but still.",
+      "image": "cards-images/feedback/a-true-team-player.png"
+    },
+    {
+      "name": "Highly Visible Impact",
+      "polarity": "positive",
+      "value": 2,
+      "effect": "+2 Political points during the Review to whoever holds this card.",
+      "flavor": "The dashboard is green. Nobody checks what it measures, but it's green.",
+      "image": "cards-images/feedback/highly-visible-impact.png"
+    },
+    {
+      "name": "Strong Executive Presence",
+      "polarity": "positive",
+      "value": 2,
+      "effect": "+2 Political points during the Review to whoever holds this card.",
+      "flavor": "Says 'let me push back on that' with total confidence and no follow-up.",
+      "image": "cards-images/feedback/strong-executive-presence.png"
+    },
+    {
+      "name": "Consistently Delivers",
+      "polarity": "positive",
+      "value": 2,
+      "effect": "+2 Political points during the Review to whoever holds this card.",
+      "flavor": "Delivers consistently, if not necessarily what was asked for.",
+      "image": "cards-images/feedback/consistently-delivers.png"
+    },
+    {
+      "name": "Great Culture Add",
+      "polarity": "positive",
+      "value": 2,
+      "effect": "+2 Political points during the Review to whoever holds this card.",
+      "flavor": "Laughs at the CEO's jokes at exactly the right volume.",
+      "image": "cards-images/feedback/great-culture-add.png"
+    },
+    {
+      "name": "Promotion-Ready",
+      "polarity": "positive",
+      "value": 2,
+      "effect": "+2 Political points during the Review to whoever holds this card.",
+      "flavor": "Has been promotion-ready for six quarters. The ladder is just crowded.",
+      "image": "cards-images/feedback/promotion-ready.png"
+    },
+    {
+      "name": "The Team Depends on Them",
+      "polarity": "positive",
+      "value": 2,
+      "effect": "+2 Political points during the Review to whoever holds this card.",
+      "flavor": "Load-bearing employee. HR has flagged this as a risk, admiringly.",
+      "image": "cards-images/feedback/the-team-depends-on-them.png"
+    },
+    {
+      "name": "Needs to Improve Communication",
+      "polarity": "constructive",
+      "value": -2,
+      "effect": "-2 Political points during the Review to whoever holds this card.",
+      "flavor": "Sends a 400-word Slack that could have been 'ok.' Or vice versa.",
+      "image": "cards-images/feedback/needs-to-improve-communication.png"
+    },
+    {
+      "name": "Struggles with Ambiguity",
+      "polarity": "constructive",
+      "value": -2,
+      "effect": "-2 Political points during the Review to whoever holds this card.",
+      "flavor": "Asked for 'requirements.' In this economy.",
+      "image": "cards-images/feedback/struggles-with-ambiguity.png"
+    },
+    {
+      "name": "Not a Culture Fit",
+      "polarity": "constructive",
+      "value": -2,
+      "effect": "-2 Political points during the Review to whoever holds this card.",
+      "flavor": "Logs off at 5. Suspicious. Un-American, even.",
+      "image": "cards-images/feedback/not-a-culture-fit.png"
+    },
+    {
+      "name": "Lacks Executive Presence",
+      "polarity": "constructive",
+      "value": -2,
+      "effect": "-2 Political points during the Review to whoever holds this card.",
+      "flavor": "Said 'I don't know' in a meeting. Out loud. On purpose.",
+      "image": "cards-images/feedback/lacks-executive-presence.png"
+    },
+    {
+      "name": "Room for Growth",
+      "polarity": "constructive",
+      "value": -2,
+      "effect": "-2 Political points during the Review to whoever holds this card.",
+      "flavor": "Endless, breathtaking room. Vistas of it. So much room.",
+      "image": "cards-images/feedback/room-for-growth.png"
+    },
+    {
+      "name": "Doesn't Take Feedback Well",
+      "polarity": "constructive",
+      "value": -2,
+      "effect": "-2 Political points during the Review to whoever holds this card.",
+      "flavor": "Took the feedback fine. Just didn't agree, which is worse.",
+      "image": "cards-images/feedback/doesn-t-take-feedback-well.png"
+    },
+    {
+      "name": "Siloed and Territorial",
+      "polarity": "constructive",
+      "value": -2,
+      "effect": "-2 Political points during the Review to whoever holds this card.",
+      "flavor": "Owns the one system nobody else understands. Weirdly protective of the job security.",
+      "image": "cards-images/feedback/siloed-and-territorial.png"
+    },
+    {
+      "name": "Missed Key Deliverables",
+      "polarity": "constructive",
+      "value": -2,
+      "effect": "-2 Political points during the Review to whoever holds this card.",
+      "flavor": "The deliverable was 'vibes.' The vibes were, per the review, off.",
+      "image": "cards-images/feedback/missed-key-deliverables.png"
+    },
+    {
+      "name": "Let's Circle Back on This",
+      "polarity": "constructive",
+      "value": -2,
+      "effect": "-2 Political points during the Review to whoever holds this card.",
+      "flavor": "We will not be circling back. We both know that.",
+      "image": "cards-images/feedback/let-s-circle-back-on-this.png"
+    }
   ]
 }

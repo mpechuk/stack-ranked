@@ -22,6 +22,8 @@ print-and-play PDF, so art mood ties back to card type at a glance):
   Office Chaos -> alarm-red accent
   Training     -> muted violet accent
   Management   -> brass-gold accent
+  Feedback     -> ink-purple/indigo accent (variant rule; Positive cards lifted
+                  with a warm gold glow, Constructive cards cold and deflated)
 
 FORMAT: landscape banner crop, roughly 5:2 aspect ratio (the physical card
 is poker-sized, 2.5in x 3.5in, with a wide illustration band across the top —
@@ -1034,5 +1036,154 @@ Style: retro corporate-propaganda poster art (matching the box cover) — bold b
 
 
 ================================================================
-END — 119 cards, 119 prompts.
+FEEDBACK — VARIANT RULE (9 Positive / 9 Constructive)
+================================================================
+
+------------------------------------------------------------
+[120] FEEDBACK · Positive (+2) · "Exceeds Expectations"
+Effect: +2 Political points during the Review to whoever holds this card.
+Flavor: "Hit every goal and then invented three more to hit. Nobody asked, but here we are."
+PROMPT:
+Scene: A radiant employee bursts up through a paper ceiling covered in checkmarks, a shower of gold stars raining down, a giant performance gauge with its needle snapped clean past the maximum.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with an ink-purple/indigo accent, lifted with a warm triumphant gold glow. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[121] FEEDBACK · Positive (+2) · "Goes Above and Beyond"
+Effect: +2 Political points during the Review to whoever holds this card.
+Flavor: "Answered a Slack at 2 a.m. once. It comes up in every review now."
+PROMPT:
+Scene: A caped worker hovers over the darkened cubicle skyline at 2 a.m., phone glowing, a single Slack message trailing behind them like a comet.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with an ink-purple/indigo accent, lifted with a warm triumphant gold glow. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[122] FEEDBACK · Positive (+2) · "A True Team Player"
+Effect: +2 Political points during the Review to whoever holds this card.
+Flavor: "Brought donuts to the retro. The retro was about layoffs, but still."
+PROMPT:
+Scene: A beaming figure hoists a box of donuts overhead like a championship trophy, coworkers applauding beneath a grim whiteboard that reads only in shapes 'LAYOFFS'.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with an ink-purple/indigo accent, lifted with a warm triumphant gold glow. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[123] FEEDBACK · Positive (+2) · "Highly Visible Impact"
+Effect: +2 Political points during the Review to whoever holds this card.
+Flavor: "The dashboard is green. Nobody checks what it measures, but it's green."
+PROMPT:
+Scene: A heroic figure gestures proudly at an enormous wall of all-green dashboards glowing triumphantly, every axis and label conspicuously blank.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with an ink-purple/indigo accent, lifted with a warm triumphant gold glow. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[124] FEEDBACK · Positive (+2) · "Strong Executive Presence"
+Effect: +2 Political points during the Review to whoever holds this card.
+Flavor: "Says 'let me push back on that' with total confidence and no follow-up."
+PROMPT:
+Scene: A confident executive silhouette leans into a boardroom table mid-gesture, a spotlight halo around them, hands empty of any notes, colleagues leaning back impressed.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with an ink-purple/indigo accent, lifted with a warm triumphant gold glow. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[125] FEEDBACK · Positive (+2) · "Consistently Delivers"
+Effect: +2 Political points during the Review to whoever holds this card.
+Flavor: "Delivers consistently, if not necessarily what was asked for."
+PROMPT:
+Scene: A metronome-steady worker on a conveyor belt hands off a perfect row of identical glowing deliverable boxes, each one subtly the wrong shape.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with an ink-purple/indigo accent, lifted with a warm triumphant gold glow. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[126] FEEDBACK · Positive (+2) · "Great Culture Add"
+Effect: +2 Political points during the Review to whoever holds this card.
+Flavor: "Laughs at the CEO's jokes at exactly the right volume."
+PROMPT:
+Scene: An employee laughs in perfect unison with a giant framed CEO portrait, a volume meter beside them glowing at the exact ideal level, coworkers nodding along.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with an ink-purple/indigo accent, lifted with a warm triumphant gold glow. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[127] FEEDBACK · Positive (+2) · "Promotion-Ready"
+Effect: +2 Political points during the Review to whoever holds this card.
+Flavor: "Has been promotion-ready for six quarters. The ladder is just crowded."
+PROMPT:
+Scene: An eager figure crouches in sprinter's starting blocks at the foot of an endless corporate ladder, a 'PROMOTION READY' sash across their chest, the rungs above hopelessly crowded.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with an ink-purple/indigo accent, lifted with a warm triumphant gold glow. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[128] FEEDBACK · Positive (+2) · "The Team Depends on Them"
+Effect: +2 Political points during the Review to whoever holds this card.
+Flavor: "Load-bearing employee. HR has flagged this as a risk, admiringly."
+PROMPT:
+Scene: A single straining Atlas figure holds an entire tilting office tower on their shoulders, an HR clipboard hovering to admiringly stamp a 'load-bearing' seal.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with an ink-purple/indigo accent, lifted with a warm triumphant gold glow. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[129] FEEDBACK · Constructive (−2) · "Needs to Improve Communication"
+Effect: -2 Political points during the Review to whoever holds this card.
+Flavor: "Sends a 400-word Slack that could have been 'ok.' Or vice versa."
+PROMPT:
+Scene: A tiny figure buried under an avalanche of a 400-word Slack message unspooling off a screen, a single lonely word 'ok' drifting away in the corner.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background (dimmed), satirical deflating composition, screen-print poster look. Palette: burnt orange, cream, and navy base with an ink-purple/indigo accent, cold and washed-out with a warning-red highlight. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[130] FEEDBACK · Constructive (−2) · "Struggles with Ambiguity"
+Effect: -2 Political points during the Review to whoever holds this card.
+Flavor: "Asked for 'requirements.' In this economy."
+PROMPT:
+Scene: A bewildered employee clutches a blank page stamped 'REQUIREMENTS: TBD', thick fog swirling around a forked path with no signposts.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background (dimmed), satirical deflating composition, screen-print poster look. Palette: burnt orange, cream, and navy base with an ink-purple/indigo accent, cold and washed-out with a warning-red highlight. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[131] FEEDBACK · Constructive (−2) · "Not a Culture Fit"
+Effect: -2 Political points during the Review to whoever holds this card.
+Flavor: "Logs off at 5. Suspicious. Un-American, even."
+PROMPT:
+Scene: A worker calmly clicks off a desk lamp at 5:00 sharp while shadowy colleagues glare, a giant suspicious eye peering in through the window blinds.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background (dimmed), satirical deflating composition, screen-print poster look. Palette: burnt orange, cream, and navy base with an ink-purple/indigo accent, cold and washed-out with a warning-red highlight. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[132] FEEDBACK · Constructive (−2) · "Lacks Executive Presence"
+Effect: -2 Political points during the Review to whoever holds this card.
+Flavor: "Said 'I don't know' in a meeting. Out loud. On purpose."
+PROMPT:
+Scene: A small honest figure shrugs 'I don't know' at a vast boardroom table, the spotlight shrinking around them as executives recoil in exaggerated horror.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background (dimmed), satirical deflating composition, screen-print poster look. Palette: burnt orange, cream, and navy base with an ink-purple/indigo accent, cold and washed-out with a warning-red highlight. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[133] FEEDBACK · Constructive (−2) · "Room for Growth"
+Effect: -2 Political points during the Review to whoever holds this card.
+Flavor: "Endless, breathtaking room. Vistas of it. So much room."
+PROMPT:
+Scene: A lone figure dwarfed inside a cavernous empty warehouse stenciled 'GROWTH', endless vacant shelving receding into a vanishing-point gloom.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background (dimmed), satirical deflating composition, screen-print poster look. Palette: burnt orange, cream, and navy base with an ink-purple/indigo accent, cold and washed-out with a warning-red highlight. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[134] FEEDBACK · Constructive (−2) · "Doesn't Take Feedback Well"
+Effect: -2 Political points during the Review to whoever holds this card.
+Flavor: "Took the feedback fine. Just didn't agree, which is worse."
+PROMPT:
+Scene: An employee nods politely while a storm of red feedback arrows bounces harmlessly off an invisible bubble around them, arms serenely folded.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background (dimmed), satirical deflating composition, screen-print poster look. Palette: burnt orange, cream, and navy base with an ink-purple/indigo accent, cold and washed-out with a warning-red highlight. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[135] FEEDBACK · Constructive (−2) · "Siloed and Territorial"
+Effect: -2 Political points during the Review to whoever holds this card.
+Flavor: "Owns the one system nobody else understands. Weirdly protective of the job security."
+PROMPT:
+Scene: A lone figure guards a single glowing server tower atop a tall grain silo, drawbridge raised over a moat, clutching the only key.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background (dimmed), satirical deflating composition, screen-print poster look. Palette: burnt orange, cream, and navy base with an ink-purple/indigo accent, cold and washed-out with a warning-red highlight. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[136] FEEDBACK · Constructive (−2) · "Missed Key Deliverables"
+Effect: -2 Political points during the Review to whoever holds this card.
+Flavor: "The deliverable was 'vibes.' The vibes were, per the review, off."
+PROMPT:
+Scene: A presenter gestures grandly at an empty easel labeled only 'VIBES', the audience's mood-meter needle plunging into the red, a tumbleweed of sticky notes rolling past.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background (dimmed), satirical deflating composition, screen-print poster look. Palette: burnt orange, cream, and navy base with an ink-purple/indigo accent, cold and washed-out with a warning-red highlight. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+------------------------------------------------------------
+[137] FEEDBACK · Constructive (−2) · "Let's Circle Back on This"
+Effect: -2 Political points during the Review to whoever holds this card.
+Flavor: "We will not be circling back. We both know that."
+PROMPT:
+Scene: A ring of meeting chairs loops endlessly like an Escher staircase, a 'CIRCLE BACK' arrow spiraling down into a drain, nobody ever actually returning.
+Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background (dimmed), satirical deflating composition, screen-print poster look. Palette: burnt orange, cream, and navy base with an ink-purple/indigo accent, cold and washed-out with a warning-red highlight. Format: landscape banner crop (~5:2), no text/logos/watermarks.
+
+
+================================================================
+END — 137 cards, 137 prompts.
 ================================================================
