@@ -610,10 +610,10 @@ Style: retro corporate-propaganda poster art (matching the box cover) — bold b
 
 ------------------------------------------------------------
 [068] EVENT · "Surprise Reorg"
-Effect: Randomly choose two players; swap one Skill card between them.
+Effect: Everyone returns their Management Style card. Shuffle the Management deck and deal each player a new one.
 Flavor: "Nobody's job changed. Everybody's manager did."
 PROMPT:
-Scene: A giant spinning roulette wheel of org-chart boxes randomly swaps two employee name-tags mid-air between departments, both figures blinking in confusion as they pass each other.
+Scene: A giant org chart with every manager box being shuffled like a deck of playing cards mid-air, a row of identical employees at the bottom each looking up as a brand-new boss portrait drops into the slot above them, all wearing the same resigned expression.
 Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with an alarm-red accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
 
 ------------------------------------------------------------

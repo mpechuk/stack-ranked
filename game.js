@@ -110,7 +110,7 @@
       {"name": "Quiet Quitting Goes Mainstream", "effect": "Any player may decline their Overtime option this round to remove 1 Burnout instead.", "flavor": "Doing exactly what's in the job description. Revolutionary."},
       {"name": "Free Bagel Friday", "effect": "Every player gains 1 Political Capital.", "flavor": "Cinnamon raisin again. Someone doesn't respect the group chat's preferences."},
       {"name": "Fire Drill", "effect": "The player who used Overtime most recently gains 1 Burnout.", "flavor": "Now standing in a parking lot with 200 coworkers you've never seen before."},
-      {"name": "Surprise Reorg", "effect": "Randomly choose two players; swap one Skill card between them.", "flavor": "Nobody's job changed. Everybody's manager did."},
+      {"name": "Surprise Reorg", "effect": "Everyone returns their Management Style card. Shuffle the Management deck and deal each player a new one.", "flavor": "Nobody's job changed. Everybody's manager did."},
       {"name": "Engagement Survey (Anonymous, Allegedly)", "effect": "Every player gains 1 Political Capital.", "flavor": "Question 14: ‘I feel my work is valued.’ Strongly Disagree."},
       {"name": "The Office Dog Visits", "effect": "Each player may remove 1 Burnout.", "flavor": "Best coworker on the payroll. Unfortunately unpaid."},
       {"name": "New CEO Announced", "effect": "Each player with 5 or more Skill cards in play discards 1 of their choice.", "flavor": "New broom, new org chart, same problems."},
@@ -1279,19 +1279,23 @@
         break;
       }
       case "surprise-reorg": {
-        if (players.length >= 2) {
-          const idxs = shuffle(players.map(function (_, i) { return i; })).slice(0, 2);
-          const a = players[idxs[0]], b = players[idxs[1]];
-          if (a.tableau.length && b.tableau.length) {
-            const ai = randInt(a.tableau.length), bi = randInt(b.tableau.length);
-            const ac = a.tableau[ai], bc = b.tableau[bi];
-            a.tableau[ai] = bc; b.tableau[bi] = ac;
-            syncImmunity(a); syncImmunity(b);
-            log(state, "Surprise Reorg: " + a.name + " and " + b.name + " swap “" + ac.name + "” ↔ “" + bc.name + "”.", "muted");
-          } else {
-            log(state, "Surprise Reorg: not enough Skill cards to swap.", "muted");
-          }
-        }
+        // Everyone returns their Management (boss) card; the whole Management
+        // deck is reshuffled; everyone draws a fresh one. Managers aren't a
+        // persistent gate (immunity comes from a Skill, so syncImmunity is a
+        // no-op here) — this just re-rolls each player's ongoing boss effect.
+        players.forEach(function (p) {
+          if (p.managementStyle) { state.managementDiscardPile.push(p.managementStyle); p.managementStyle = null; }
+        });
+        // Fold every Management card (unheld draw pile + returned discards) into
+        // one pile and shuffle, so "reshuffle the deck" means the whole deck.
+        state.managementDrawPile = shuffle(state.managementDrawPile.concat(state.managementDiscardPile));
+        state.managementDiscardPile = [];
+        log(state, "🔄 Surprise Reorg: everyone returns their manager; the deck is reshuffled and new managers are dealt.", "event");
+        players.forEach(function (p) {
+          p.managementStyle = drawManagement(state);
+          syncImmunity(p);
+          log(state, p.name + " now reports to “" + (p.managementStyle ? p.managementStyle.name : "—") + ".”", "muted");
+        });
         break;
       }
       case "the-office-dog-visits":
