@@ -7,8 +7,8 @@ behind every tracker on the mat. Both are optional — the mat renders fine
 with neither (a plain placeholder box / flat cream fill is used instead).
 
 Save the generated files as:
-  mat-images/player-mat-header.png       (HEADER BANNER prompt below)
-  mat-images/player-mat-background.png   (BACKGROUND TEXTURE prompt below)
+  table-images/player-mat-header.png       (HEADER BANNER prompt below)
+  table-images/player-mat-background.png   (BACKGROUND TEXTURE prompt below)
 
 MASTER STYLE (same family as card-art-prompts.txt, so the whole
 print-and-play kit — box cover, cards, and mat — reads as one product):
@@ -26,7 +26,7 @@ Render at high resolution (300 DPI at print size) so the PDF stays crisp:
 
 
 ================================================================
-HEADER BANNER — mat-images/player-mat-header.png
+HEADER BANNER — table-images/player-mat-header.png
 ================================================================
 REFERENCE: Sits to the right of the navy "STACK RANKED / PLAYER DESK MAT"
 title plate, across the top of the mat. Same illustration family as the box
@@ -49,7 +49,7 @@ text/logos/watermarks.
 
 
 ================================================================
-BACKGROUND TEXTURE — mat-images/player-mat-background.png
+BACKGROUND TEXTURE — table-images/player-mat-background.png
 ================================================================
 REFERENCE: Sits behind every tracker, zone, and label on the mat — printed
 text and ink-outlined boxes are drawn directly on top of it, so this has to
