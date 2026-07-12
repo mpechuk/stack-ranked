@@ -1,6 +1,6 @@
 name: Deploy to GitHub Pages
 
-# Publishes the live site (index.html + game.js) to the gh-pages branch on every
+# Publishes the live site (index.html + game.js + net.js) to the gh-pages branch on every
 # push to main. PR previews live under pr-preview/ on the same branch, so we
 # exclude that folder from the clean step to avoid wiping open previews.
 
@@ -26,7 +26,7 @@ jobs:
       - name: Stage site
         run: |
           mkdir -p _site
-          cp index.html game.js _site/
+          cp index.html game.js net.js _site/
 
       - name: Deploy to gh-pages
         uses: JamesIves/github-pages-deploy-action@v4
