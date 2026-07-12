@@ -319,7 +319,14 @@
   #lobbyPeers .peer-row { padding: 3px 0; border-bottom: 1px solid #161d26; }
   .board-only { display: block; margin-top: 12px; font-size: 12px; color: var(--txt-dim); cursor: pointer; }
   .board-only input { vertical-align: middle; margin-right: 6px; }
-  .p4 select { width: 100%; }
+  .host-fields { display: grid; grid-template-columns: auto 1fr; gap: 9px 12px; align-items: center; max-width: 440px; }
+  .host-fields input, .host-fields select { width: 100%; }
+  .roster-row { display: flex; align-items: center; gap: 8px; justify-content: space-between; border: 1px solid var(--line2); border-radius: 7px; padding: 6px 10px; margin-bottom: 5px; background: #0d1620; }
+  .roster-row .rr-name { font-weight: 650; }
+  .roster-row.you { border-color: var(--accent); }
+  .roster-row.ai { border-color: #1f4b48; }
+  .roster-row .rr-tag { font-size: 10px; }
+  .roster-row.off { opacity: .55; }
   .spectator-banner {
     background: #17233b; border: 1px solid var(--accent); color: var(--accent);
     border-radius: 8px; padding: 6px 12px; font-size: 12px; font-weight: 600; text-align: center;
@@ -393,7 +400,10 @@
     </div>
   </div>
 
-  <div class="card-box">
+  </div><!-- /#tableConfig : Win Condition + Feedback (local + host) -->
+
+  <!-- Local pass-and-play: per-seat config -->
+  <div class="card-box" id="localPlayers">
     <h2>Players</h2>
     <div class="count-ctl">
       <label class="dim">Number of players</label>
@@ -402,71 +412,74 @@
       </select>
       <span class="faint" style="margin-left:auto" id="countNote"></span>
     </div>
-    <label id="boardOnlyRow" class="board-only" style="display:none">
-      <input type="checkbox" id="boardOnly" /> Board only — I'm not playing; this screen is just the shared board (every human seat becomes Online).
-    </label>
     <div id="playerRows" style="margin-top:14px"></div>
   </div>
-  </div><!-- /#tableConfig -->
 
-  <!-- Join Online: enter a host's code / land here via a #join= scan -->
+  <!-- Host Online: room settings -->
+  <div class="card-box" id="hostConfig" style="display:none">
+    <h2>Host an Online Game</h2>
+    <div class="host-fields">
+      <label class="dim">Your name</label>
+      <input type="text" id="hostName" value="Host" maxlength="24" />
+      <label class="dim">Max players</label>
+      <select id="hostMax"><option>2</option><option>3</option><option>4</option><option>5</option><option selected>6</option></select>
+      <label class="dim">Room code</label>
+      <input type="text" id="hostVanity" placeholder="auto (leave blank)" autocapitalize="off" autocomplete="off" />
+    </div>
+    <label id="boardOnlyRow" class="board-only">
+      <input type="checkbox" id="boardOnly" /> Board only — I'm not playing; this screen is just the shared board.
+    </label>
+  </div>
+
+  <!-- Join Online: room code + your name -->
   <div class="card-box" id="joinPanel" style="display:none">
     <h2>Join an Online Game</h2>
-    <div class="prow" style="grid-template-columns: 1fr; gap:10px">
-      <input type="text" id="joinName" placeholder="Your name" value="Player" />
+    <div class="host-fields">
+      <label class="dim">Room code</label>
+      <input type="text" id="joinCode" placeholder="e.g. ab3x9" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false" />
+      <label class="dim">Your name</label>
+      <input type="text" id="joinName" value="Player" maxlength="24" />
     </div>
-    <div class="dim" style="margin:8px 0 6px">Paste the host's invite link or code (or scan their QR with your phone's camera to land here automatically):</div>
-    <textarea id="joinOfferCode" class="codebox" placeholder="Paste invite link or code…"></textarea>
     <div class="setup-actions" style="margin-top:12px">
       <button class="primary" id="joinAsPlayerBtn">Join as Player ▸</button>
       <button id="joinAsSpectatorBtn">Join as Spectator</button>
-      <button id="joinScanBtn" style="display:none">📷 Scan host QR</button>
     </div>
-    <div id="joinAnswer" style="display:none; margin-top:16px">
-      <div class="dim" style="margin-bottom:6px">Send this answer code back to the host (paste it into their lobby). Keep this tab open — you'll connect automatically once they accept.</div>
-      <div class="qr-wrap"><canvas id="joinAnswerQr" class="qr"></canvas></div>
-      <textarea id="joinAnswerCode" class="codebox" readonly></textarea>
-      <button id="copyAnswerBtn">📋 Copy answer code</button>
-      <div class="hint" id="joinStatus">Waiting for the host to accept…</div>
-    </div>
+    <div class="hint" id="joinStatus"></div>
   </div>
 
-  <!-- Host Online: lobby shown after Create Room -->
+  <!-- Host Online: lobby shown after Open Room -->
   <div class="card-box" id="lobbyPanel" style="display:none">
-    <h2>Online Lobby</h2>
+    <h2>Room <span id="lobbyCode" class="mono" style="color:var(--accent)"></span></h2>
     <div class="lobby-grid">
       <div class="lobby-invite">
-        <div class="section-title" style="margin-top:0">Invite the next player</div>
+        <div class="section-title" style="margin-top:0">Share this room</div>
         <div class="qr-wrap"><canvas id="lobbyQr" class="qr"></canvas></div>
-        <div class="hint" id="lobbyQrHint">Scan with a phone camera, or share the link:</div>
+        <div class="hint">Scan the QR, or open the link and enter code <b id="lobbyCode2" class="mono"></b>:</div>
         <textarea id="lobbyLink" class="codebox" readonly></textarea>
-        <button id="copyLinkBtn">📋 Copy invite link</button>
-        <div class="section-title" style="margin-top:14px">Paste their answer code</div>
-        <textarea id="lobbyAnswer" class="codebox" placeholder="Paste the code the player sends back…"></textarea>
-        <div class="setup-actions" style="margin-top:8px">
-          <button id="acceptAnswerBtn">Connect Player</button>
-          <button id="scanAnswerBtn" style="display:none">📷 Scan answer</button>
-        </div>
+        <button id="copyLinkBtn">📋 Copy link</button>
         <div class="hint" id="lobbyStatus"></div>
       </div>
       <div class="lobby-seats">
-        <div class="section-title" style="margin-top:0">Seats</div>
-        <div id="lobbySeats"></div>
-        <div class="section-title">Connected</div>
-        <div id="lobbyPeers" class="dim">No one connected yet.</div>
+        <div class="section-title" style="margin-top:0">Players (<span id="lobbyCount">0</span> / <span id="lobbyMax">6</span>)</div>
+        <div id="lobbyRoster" class="dim">Waiting for players to join…</div>
+        <div class="setup-actions" style="margin-top:10px">
+          <button id="addAiBtn">+ Add AI</button>
+          <button id="removeAiBtn">− Remove AI</button>
+          <span class="faint" id="aiCountNote"></span>
+        </div>
       </div>
     </div>
     <div class="setup-actions" style="margin-top:16px">
       <button class="primary" id="lobbyStartBtn" style="font-size:15px;padding:11px 22px" disabled>Start Game ▸</button>
-      <button id="lobbyCancelBtn">Cancel</button>
-      <span class="faint">Start once every seat is filled by a connected player or set to AI.</span>
+      <button id="lobbyCancelBtn">Close Room</button>
+      <span class="faint">Start with 2+ players; empty seats can be filled with AI.</span>
     </div>
   </div>
 
   <div class="setup-actions" id="setupActions">
     <button class="primary" id="startBtn" style="font-size:15px;padding:11px 22px">Start Game ▸</button>
     <button id="allAiBtn">Watch AI-only game</button>
-    <button class="primary" id="createRoomBtn" style="font-size:15px;padding:11px 22px;display:none">Create Room ▸</button>
+    <button class="primary" id="createRoomBtn" style="font-size:15px;padding:11px 22px;display:none">Open Room ▸</button>
     <span class="faint">Perfect information: every stat, board, and card is public — as the rules intend.</span>
   </div>
 </div>
@@ -529,6 +542,10 @@
 
 <div id="overlay"><div class="modal" id="modal"></div></div>
 
+<!-- PeerJS: WebRTC signalling over its free public broker (peer discovery only;
+     data flows peer-to-peer). Online play needs this + internet; local pass-and-play
+     works fully offline without it. -->
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script src="game.js"></script>
 <script src="net.js"></script>
 <script>
@@ -613,32 +630,16 @@
           '<option value="human"' + (DEFAULT_KIND[i] === "human" ? " selected" : "") + ">Human</option>" +
           '<option value="ai"' + (DEFAULT_KIND[i] === "ai" ? " selected" : "") + ">AI</option>" +
         "</select>" +
-        '<div class="p4">' +
-          '<select class="parch">' + archSel + "</select>" +
-          '<select class="pctrl">' +
-            '<option value="local"' + (i === 0 ? " selected" : "") + ">This device</option>" +
-            '<option value="online"' + (i === 0 ? "" : " selected") + ">Online player</option>" +
-          "</select>" +
-        "</div>";
+        '<select class="parch">' + archSel + "</select>";
       wrap.appendChild(row);
     }
-    syncSeatControls();
+    syncArchVisibility();
     updateCountNote();
   }
-  function boardOnly() { return Net.setupMode === "host" && $("boardOnly").checked; }
-  // Show the archetype picker for AI seats; show the online/local picker for
-  // human seats only when hosting. Board-only forces every human seat Online.
-  function syncSeatControls() {
-    var isHost = Net.setupMode === "host";
-    var bo = boardOnly();
+  function boardOnly() { return $("boardOnly").checked; }
+  function syncArchVisibility() {
     $("playerRows").querySelectorAll(".prow").forEach(function (r) {
-      var isAi = r.querySelector(".pkind").value === "ai";
-      var arch = r.querySelector(".parch"), pctrl = r.querySelector(".pctrl");
-      arch.style.display = isAi ? "" : "none";
-      pctrl.style.display = (!isAi && isHost) ? "" : "none";
-      pctrl.disabled = bo;
-      if (bo) pctrl.value = "online";
-      r.classList.toggle("host", isHost);
+      r.querySelector(".parch").style.visibility = r.querySelector(".pkind").value === "ai" ? "visible" : "hidden";
     });
   }
   function updateCountNote() {
@@ -650,9 +651,8 @@
 
   $("pcount").addEventListener("change", renderPlayerRows);
   $("playerRows").addEventListener("change", function (e) {
-    if (e.target.classList.contains("pkind")) syncSeatControls();
+    if (e.target.classList.contains("pkind")) syncArchVisibility();
   });
-  $("boardOnly").addEventListener("change", syncSeatControls);
   $("variantRow").addEventListener("click", function (e) {
     var v = e.target.closest(".variant"); if (!v) return;
     $("variantRow").querySelectorAll(".variant").forEach(function (x) { x.classList.remove("sel"); });
@@ -665,7 +665,7 @@
   });
   $("allAiBtn").addEventListener("click", function () {
     $("playerRows").querySelectorAll(".pkind").forEach(function (s) { s.value = "ai"; });
-    syncSeatControls();
+    syncArchVisibility();
     startGame();
   });
   $("startBtn").addEventListener("click", startGame);
@@ -875,7 +875,7 @@
   // guests so they see the host's moves live (the engine's per-turn onChange
   // only fires between turns).
   function hostBroadcastIfHosting() {
-    if (Net.mode === "host" && Net.host && UI.activeState) Net.broadcastSnapshot(UI.activeState);
+    if (Net.mode === "host" && Net.host && UI.activeState) Net.pushState();
   }
 
   // Ships It Friday: render the project chooser and resolve with the chosen
@@ -919,8 +919,8 @@
     if (Net.mode === "guest" && Net.guest && Net.guest.spectator) {
       b.innerHTML = '<div class="spectator-banner">👀 Spectating — you have no seat this game.</div>'; b.style.display = "";
     } else if (Net.mode === "host" && Net.host) {
-      var n = Net.host.peers.filter(function (p) { return p.channel.isOpen(); }).length;
-      b.innerHTML = '<div class="spectator-banner" style="color:var(--accent-2);border-color:var(--accent-2)">📡 Hosting · ' + n + ' connected</div>'; b.style.display = "";
+      var n = Net.host.api ? Net.host.api.clientIds().filter(function (id) { return Net.host.api.isAlive(id); }).length : 0;
+      b.innerHTML = '<div class="spectator-banner" style="color:var(--accent-2);border-color:var(--accent-2)">📡 Hosting room ' + esc(Net.host.roomCode || "") + ' · ' + n + ' connected</div>'; b.style.display = "";
     } else { b.style.display = "none"; b.innerHTML = ""; }
   }
 
@@ -1309,63 +1309,55 @@
   }
 
   /* ==========================================================================
-   * ONLINE PLAY (serverless WebRTC) — layered over the host-authoritative
-   * engine. The host runs SR.play; remote humans answer their turn/decision
-   * hooks over a data channel. Guests never run the engine — they render
-   * broadcast snapshots and send their actions back. See net.js for transport.
+   * ONLINE PLAY (PeerJS, host-authoritative) — layered over the engine. The
+   * host runs SR.play; remote humans answer their turn/decision hooks over a
+   * PeerJS DataConnection. Clients are thin renderers of the pushed snapshot
+   * and send intents back. Join is by short room code. See net.js for transport.
    * ======================================================================== */
+  var MSG = SRNet.MSG;
+  var AI_ARCHES = ["grinder", "politician", "balanced", "workaholic", "cautious"];
+  function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
 
   /* ---- setup-screen mode switching ---- */
   function selectMode(mode) {
-    $("modeRow").querySelectorAll(".variant").forEach(function (x) {
-      x.classList.toggle("sel", x.getAttribute("data-mode") === mode);
-    });
+    $("modeRow").querySelectorAll(".variant").forEach(function (x) { x.classList.toggle("sel", x.getAttribute("data-mode") === mode); });
     applyMode(mode);
   }
   function applyMode(mode) {
     Net.setupMode = (mode === "host" || mode === "join") ? mode : "local";
     var isJoin = mode === "join", isHost = mode === "host";
     $("tableConfig").style.display = isJoin ? "none" : "";
+    $("localPlayers").style.display = (mode === "local") ? "" : "none";
+    $("hostConfig").style.display = isHost ? "" : "none";
     $("joinPanel").style.display = isJoin ? "" : "none";
     $("lobbyPanel").style.display = "none";
-    $("boardOnlyRow").style.display = isHost ? "block" : "none";
     $("setupActions").style.display = isJoin ? "none" : "";
-    $("startBtn").style.display = mode === "local" ? "" : "none";
-    $("allAiBtn").style.display = mode === "local" ? "" : "none";
+    $("startBtn").style.display = (mode === "local") ? "" : "none";
+    $("allAiBtn").style.display = (mode === "local") ? "" : "none";
     $("createRoomBtn").style.display = isHost ? "" : "none";
-    $("joinScanBtn").style.display = (isJoin && SRNet && SRNet.hasBarcodeDetector) ? "" : "none";
-    syncSeatControls();
   }
   function resetSetupPanels() {
     $("lobbyPanel").style.display = "none";
-    $("joinAnswer").style.display = "none";
-    $("joinOfferCode").value = "";
-    $("lobbyAnswer").value = "";
-    $("joinAsPlayerBtn").disabled = false;
-    $("joinAsSpectatorBtn").disabled = false;
+    $("joinAsPlayerBtn").disabled = false; $("joinAsSpectatorBtn").disabled = false;
     $("inviteBtn").style.display = "none";
+    $("joinStatus").textContent = "";
     selectMode("local");
   }
-  $("modeRow").addEventListener("click", function (e) {
-    var v = e.target.closest(".variant"); if (!v) return;
-    selectMode(v.getAttribute("data-mode"));
-  });
+  $("modeRow").addEventListener("click", function (e) { var v = e.target.closest(".variant"); if (!v) return; selectMode(v.getAttribute("data-mode")); });
 
   /* ---- shared helpers ---- */
-  function readSeatPlan() {
-    var rows = $("playerRows").querySelectorAll(".prow");
-    return Array.prototype.map.call(rows, function (r) {
-      if (r.querySelector(".pkind").value === "ai") return "ai";
-      return boardOnly() ? "online" : r.querySelector(".pctrl").value;
-    });
+  function roomLinkFor(code) { return location.origin + location.pathname + "#room=" + encodeURIComponent(code); }
+  function extractRoomCode(raw) { raw = (raw || "").trim(); var m = raw.match(/[#&?]room=([^&\s]+)/); return m ? decodeURIComponent(m[1]).trim() : raw; }
+  function copyText(t) { try { navigator.clipboard.writeText(t); } catch (e) { /* clipboard blocked — select manually */ } }
+  function showErr(message) {
+    showModalHTML('<h2>Online play</h2><div class="msub">' + esc(message) + '</div><div class="opts"><button class="primary" id="errOk">Close</button></div>');
+    var b = $("errOk"); if (b) b.addEventListener("click", hideModal);
   }
-  function joinLinkFor(code) { return location.origin + location.pathname + "#join=" + code; }
-  function extractJoinCode(raw) {
-    raw = (raw || "").trim();
-    var i = raw.indexOf("#join=");
-    return i >= 0 ? raw.slice(i + 6).trim() : raw;
+  function netUnavailableMsg() {
+    if (typeof SRNet === "undefined" || !SRNet) return "net.js didn't load. Make sure net.js sits next to index.html, then hard-refresh (Cmd/Ctrl+Shift+R).";
+    if (!SRNet.hasPeerJS()) return "The PeerJS library didn't load — online play needs it (and an internet connection). Check that unpkg.com is reachable and reload. Local pass-and-play still works offline.";
+    return null;
   }
-  function copyText(t) { try { navigator.clipboard.writeText(t); } catch (e) { /* clipboard blocked — user can select manually */ } }
   function drawQr(canvas, text) {
     try {
       var m = SRNet.qr.encode(text);
@@ -1375,251 +1367,223 @@
       var ctx = canvas.getContext("2d");
       ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, dim, dim);
       ctx.fillStyle = "#000";
-      for (var y = 0; y < m.size; y++) for (var x = 0; x < m.size; x++) {
-        if (m.modules[y][x]) ctx.fillRect((x + quiet) * scale, (y + quiet) * scale, scale, scale);
-      }
+      for (var y = 0; y < m.size; y++) for (var x = 0; x < m.size; x++) { if (m.modules[y][x]) ctx.fillRect((x + quiet) * scale, (y + quiet) * scale, scale, scale); }
       canvas.style.display = "";
     } catch (e) { canvas.style.display = "none"; }
   }
-  // Optional in-app camera scanner (BarcodeDetector). Text paste is always the
-  // universal fallback, so this is a co-located nicety only.
-  function openScanner(onResult) {
-    if (!SRNet.hasBarcodeDetector || !navigator.mediaDevices) return;
-    var det = new BarcodeDetector({ formats: ["qr_code"] });
-    var video = document.createElement("video");
-    video.setAttribute("playsinline", ""); video.style.width = "100%"; video.style.borderRadius = "8px";
-    showModalHTML('<h2>Scan QR Code</h2><div class="msub">Point the camera at the code.</div>' +
-      '<div class="opts" style="margin-top:10px"><button id="scanCancel">Cancel</button></div>');
-    $("modal").insertBefore(video, $("modal").querySelector(".opts"));
-    var stream = null, raf = null, done = false;
-    function stop() { done = true; if (raf) cancelAnimationFrame(raf); if (stream) stream.getTracks().forEach(function (t) { t.stop(); }); hideModal(); }
-    $("scanCancel").addEventListener("click", stop);
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then(function (s) {
-      stream = s; video.srcObject = s; video.play();
-      (function tick() {
-        if (done) return;
-        det.detect(video).then(function (codes) {
-          if (codes && codes.length) { var v = codes[0].rawValue; stop(); onResult(v); }
-          else raf = requestAnimationFrame(tick);
-        }).catch(function () { raf = requestAnimationFrame(tick); });
-      })();
-    }).catch(function (e) {
-      showModalHTML('<h2>Camera unavailable</h2><div class="msub">' + esc(e.message) + '</div>' +
-        '<div class="opts"><button class="primary" id="scanClose">Close</button></div>');
-      var b = $("scanClose"); if (b) b.addEventListener("click", hideModal);
-    });
-  }
 
   /* ---- HOST ---- */
-  // Diagnose why online play can't start; null when everything's fine.
-  function netUnavailableMsg() {
-    if (typeof SRNet === "undefined" || !SRNet)
-      return "The networking module (net.js) didn't load. Make sure net.js sits in the same folder as index.html, then hard-refresh (Cmd/Ctrl+Shift+R).";
-    if (!SRNet.hasWebRTC)
-      return "WebRTC is turned off in this browser — almost always a privacy or VPN extension (or an enterprise policy) that removes RTCPeerConnection. Try an Incognito/Private window, or disable that extension for this page, then reload.";
-    return null;
-  }
-  function createRoom() {
-    var problem = netUnavailableMsg();
-    if (problem) { showModalHTML('<h2>Can’t start an online game</h2><div class="msub">' + esc(problem) + '</div><div class="opts"><button class="primary" id="wrClose">Close</button></div>'); var wb = $("wrClose"); if (wb) wb.addEventListener("click", hideModal); return; }
-    var config = readConfig();
-    var plan = readSeatPlan();
-    config.players.forEach(function (p, i) { p.kind = (plan[i] === "ai") ? "ai" : "human"; });
-    UI.config = config;
-    UI.speed = $("speedSel").value;
-    var state = SR.newGame(config);
+  function rosterOf(clientId) { return Net.host.roster.filter(function (r) { return r.clientId === clientId; })[0]; }
+  function seatTakers() { var n = Net.host.hostPlays ? 1 : 0; Net.host.roster.forEach(function (r) { if (r.connected && !r.spectator) n++; }); return n; }
+  function totalPlayers() { return seatTakers() + Net.host.aiCount; }
+  function clientForSeat(pid) { var o = Net.host.seatOwner[pid]; return (o && o !== "host") ? o : null; }
+  function isLocalSeat(pid) { return !clientForSeat(pid); }
+  function findPlayerById(id) { return Net.host.state.players.filter(function (p) { return p.id === id; })[0]; }
+  function localDecide(req) { return req.action === "claimTask" ? beginClaimDecision(req) : showDecision(req); }
+
+  function openRoom() {
+    var problem = netUnavailableMsg(); if (problem) { showErr(problem); return; }
+    var hostName = ($("hostName").value || "Host").trim() || "Host";
+    var variant = $("variantRow").querySelector(".variant.sel").getAttribute("data-variant");
+    var feedbackMode = $("feedbackRow").querySelector(".variant.sel").getAttribute("data-fb");
+    var maxPlayers = parseInt($("hostMax").value, 10) || 6;
+    var vanity = ($("hostVanity").value || "").trim();
+    var code = vanity ? SRNet.sanitizeId(vanity) : SRNet.deriveRoomCode(hostName);
+    if (!code) code = SRNet.deriveRoomCode(hostName);
     Net.mode = "host";
-    Net.host = { state: state, peers: [], peerSeq: 0, seatOwner: {}, reqSeq: 0, pendingDecides: {}, remoteTurn: null, started: false, pending: null };
-    state.players.forEach(function (p, i) { Net.host.seatOwner[p.id] = (plan[i] === "online") ? null : "host"; });
-    UI.activeState = state;
+    Net.host = {
+      api: null, roomCode: code, hostName: hostName, hostPlays: !$("boardOnly").checked,
+      maxPlayers: maxPlayers, variant: variant, feedbackMode: feedbackMode,
+      roster: [], aiCount: 0, started: false, state: null, seatOwner: {}, playerByClient: {},
+      reqSeq: 0, pendingDecides: {}, remoteTurn: null, heartbeat: null
+    };
     UI.autoAdvanceReview = false;
-    $("tableConfig").style.display = "none";
-    $("setupActions").style.display = "none";
+    SRNet.iceServers()
+      .then(function (ice) { return SRNet.hostRoom({ roomCode: code, iceServers: ice, handlers: hostHandlers() }); })
+      .then(function (api) {
+        if (Net.mode !== "host" || !Net.host) { api.destroy(); return; }
+        Net.host.api = api;
+        showLobby(code);
+      })
+      .catch(function (e) {
+        var t = e && e.type;
+        Net.host = null; Net.mode = "local";
+        showErr(t === "unavailable-id" ? "That room code is taken — pick another (or leave it blank for an auto code)." : ("Couldn't open the room: " + ((e && e.message) || t || e)));
+      });
+  }
+  function showLobby(code) {
+    $("tableConfig").style.display = "none"; $("hostConfig").style.display = "none"; $("setupActions").style.display = "none";
     $("lobbyPanel").style.display = "";
-    if (SRNet.hasBarcodeDetector) $("scanAnswerBtn").style.display = "";
-    renderLobby();
-    hostMakeOffer();
-  }
-  function hostMakeOffer() {
-    if (!Net.host) return;
-    var conn = null;
-    SRNet.hostCreateOffer({
-      onOpen: function (chApi) { hostFinalizePeer(conn, chApi); },
-      onMessage: function (msg, chApi) { hostOnMessage(msg, chApi); },
-      onClose: function (chApi) { hostOnChannelClose(chApi); }
-    }).then(function (c) {
-      conn = c; if (!Net.host) { try { c.pc.close(); } catch (e) {} return; }
-      Net.host.pending = c;
-      var link = joinLinkFor(c.offerCode);
-      $("lobbyLink").value = link; drawQr($("lobbyQr"), link); $("lobbyStatus").textContent = "";
-    }).catch(function (e) { $("lobbyStatus").textContent = "Could not create an invite: " + e.message; });
-  }
-  function acceptAnswer() {
-    var code = extractJoinCode($("lobbyAnswer").value);
-    if (!code || !Net.host || !Net.host.pending) { $("lobbyStatus").textContent = "Paste the player's answer code first."; return; }
-    $("lobbyStatus").textContent = "Connecting…";
-    Net.host.pending.accept(code).then(function () { $("lobbyAnswer").value = ""; })
-      .catch(function (e) { $("lobbyStatus").textContent = "That answer code didn't work: " + e.message; });
-  }
-  function hostFinalizePeer(conn, chApi) {
-    if (!Net.host) return;
-    var peer = { id: "peer" + (++Net.host.peerSeq), pc: conn ? conn.pc : null, channel: chApi, name: "Player", seatId: null, spectator: false, joined: false, disconnected: false };
-    Net.host.peers.push(peer);
-    Net.host.pending = null;
+    $("lobbyCode").textContent = code; $("lobbyCode2").textContent = code; $("lobbyMax").textContent = Net.host.maxPlayers;
+    var link = roomLinkFor(code); $("lobbyLink").value = link; drawQr($("lobbyQr"), link);
     $("lobbyStatus").textContent = "";
-    renderLobby(); renderNetBanner();
-    hostMakeOffer(); // ready the next invite (next player, or a spectator)
+    renderLobby();
   }
-  function hostOnMessage(msg, chApi) {
-    var peer = Net.host && Net.host.peers.find(function (p) { return p.channel === chApi; });
-    if (!peer) return;
-    if (msg.t === "join") {
-      peer.name = String(msg.name || "Player").slice(0, 24);
-      assignPeerSeat(peer, !!msg.spectator);
-      peer.joined = true;
-      Net.sendTo(peer, { t: "assigned", youAre: peer.seatId, spectator: peer.spectator, variant: Net.host.state.variant });
-      if (Net.host.started) Net.sendTo(peer, { t: "started", variant: Net.host.state.variant, s: SRNet.serializeState(Net.host.state) });
-      renderLobby(); renderNetBanner();
-    } else if (msg.t === "act") {
-      handleRemoteAct(peer, msg);
-    } else if (msg.t === "decideAnswer") {
-      var entry = Net.host.pendingDecides[msg.reqId];
-      if (entry) { delete Net.host.pendingDecides[msg.reqId]; entry.resolve(msg.value); }
-    }
-  }
-  function hostOnChannelClose(chApi) {
-    if (!Net.host) return;
-    var peer = Net.host.peers.find(function (p) { return p.channel === chApi; });
-    if (!peer) return;
-    peer.disconnected = true;
-    if (peer.seatId && !Net.host.started) { Net.host.seatOwner[peer.seatId] = null; peer.seatId = null; }
-    if (!Net.host.started) Net.host.peers = Net.host.peers.filter(function (p) { return p !== peer; });
-    // Resolve anything the engine is awaiting from this peer, so play continues.
-    var rt = Net.host.remoteTurn;
-    if (rt && rt.peer === peer) finishRemoteTurn();
-    Object.keys(Net.host.pendingDecides).forEach(function (rid) {
-      var e = Net.host.pendingDecides[rid];
-      if (e.peerId === peer.id) { delete Net.host.pendingDecides[rid]; e.resolve(SR.aiDecide(Net.host.state, findPlayerById(e.req.playerId), e.req)); }
-    });
-    renderLobby(); renderNetBanner();
-  }
-  function assignPeerSeat(peer, wantSpectator) {
-    if (peer.seatId) { Net.host.seatOwner[peer.seatId] = null; peer.seatId = null; }
-    if (wantSpectator) { peer.spectator = true; return; }
-    var open = firstOpenSeatId();
-    if (open) { Net.host.seatOwner[open] = peer.id; peer.seatId = open; peer.spectator = false; }
-    else { peer.spectator = true; } // table full -> spectator
-  }
-  function firstOpenSeatId() {
-    var st = Net.host.state;
-    for (var i = 0; i < st.players.length; i++) {
-      if (st.players[i].kind === "human" && Net.host.seatOwner[st.players[i].id] === null) return st.players[i].id;
-    }
-    return null;
+  function rosterRowHtml(name, kind, connected, clientId) {
+    var tag = kind === "ai" ? '<span class="tag rr-tag kind ai">AI</span>'
+      : kind === "host" ? '<span class="tag rr-tag kind human">Host</span>'
+      : '<span class="tag rr-tag kind human">' + (connected ? "Online" : "Offline") + "</span>";
+    var kick = clientId ? ' <button data-kick="' + esc(clientId) + '">Kick</button>' : "";
+    return '<div class="roster-row ' + (kind === "ai" ? "ai" : kind === "host" ? "you" : "") + (connected ? "" : " off") + '">' +
+      '<span class="rr-name">' + esc(name) + "</span>" +
+      '<span style="display:flex;gap:6px;align-items:center">' + tag + kick + "</span></div>";
   }
   function renderLobby() {
     if (!Net.host) return;
-    var st = Net.host.state, host = $("lobbySeats"); host.innerHTML = "";
-    st.players.forEach(function (p) {
-      var owner = Net.host.seatOwner[p.id], cls, label, extra = "";
-      if (p.kind === "ai") { cls = "ai"; label = "AI · " + (SR.ARCH[p.archetype] ? SR.ARCH[p.archetype].label : p.archetype); }
-      else if (owner === "host") { cls = "local"; label = "This device"; }
-      else if (owner) { var pr = peerById(owner); cls = "remote"; label = "Online · " + (pr ? esc(pr.name) : "connected"); }
-      else { cls = "waiting"; label = "Waiting for a player…"; extra = '<button data-seat-ai="' + p.id + '">Set AI</button>'; }
-      var row = el("div", "seat-row " + (cls === "waiting" ? "open" : "filled"));
-      row.innerHTML = '<span class="seat-name">' + esc(p.name) + '</span><span class="seat-state ' + cls + '">' + label + "</span>" + extra;
-      host.appendChild(row);
-    });
-    var connected = Net.host.peers.filter(function (p) { return p.channel.isOpen(); });
-    $("lobbyPeers").innerHTML = connected.length
-      ? connected.map(function (p) { return '<div class="peer-row">' + esc(p.name) + " — " + (p.spectator ? "spectator" : (p.seatId ? "seated" : "connecting…")) + "</div>"; }).join("")
-      : "No one connected yet.";
-    var open = st.players.some(function (p) { return p.kind === "human" && Net.host.seatOwner[p.id] === null; });
-    $("lobbyStartBtn").disabled = open;
+    var total = totalPlayers();
+    $("lobbyCount").textContent = total;
+    var rows = "";
+    if (Net.host.hostPlays) rows += rosterRowHtml(Net.host.hostName + " (you)", "host", true, null);
+    Net.host.roster.forEach(function (r) { if (!r.spectator) rows += rosterRowHtml(r.name, "remote", r.connected, r.clientId); });
+    for (var i = 0; i < Net.host.aiCount; i++) rows += rosterRowHtml(capitalize(AI_ARCHES[i % AI_ARCHES.length]) + " Bot", "ai", true, null);
+    var specs = Net.host.roster.filter(function (r) { return r.spectator && r.connected; });
+    $("lobbyRoster").innerHTML = (rows || '<span class="dim">Waiting for players to join…</span>') +
+      (specs.length ? '<div class="hint">👀 ' + specs.length + " spectator" + (specs.length > 1 ? "s" : "") + "</div>" : "");
+    $("addAiBtn").disabled = total >= 6;
+    $("removeAiBtn").disabled = Net.host.aiCount <= 0;
+    $("aiCountNote").textContent = total < 2 ? "need 2+ to start" : (total >= 6 ? "table full" : "");
+    $("lobbyStartBtn").disabled = !(total >= 2 && total <= 6);
+    renderNetBanner();
   }
-  $("lobbySeats").addEventListener("click", function (e) {
-    var b = e.target.closest("[data-seat-ai]"); if (!b || !Net.host) return;
-    var id = b.getAttribute("data-seat-ai");
-    var p = Net.host.state.players.find(function (x) { return x.id === id; });
-    if (p) { p.kind = "ai"; p.archetype = p.archetype || "balanced"; Net.host.seatOwner[id] = "host"; renderLobby(); }
-  });
-  function hostStart() {
+  function broadcastLobby() {
+    if (!Net.host || !Net.host.api) return;
+    var names = []; if (Net.host.hostPlays) names.push(Net.host.hostName + " (host)");
+    Net.host.roster.forEach(function (r) { if (r.connected && !r.spectator) names.push(r.name); });
+    for (var i = 0; i < Net.host.aiCount; i++) names.push(capitalize(AI_ARCHES[i % AI_ARCHES.length]) + " Bot");
+    Net.host.api.broadcast(SRNet.msg(MSG.LOBBY_UPDATE, { players: names, count: totalPlayers(), max: Net.host.maxPlayers }));
+  }
+  function hostHandlers() {
+    return {
+      onConnect: function () { /* wait for JOIN_REQUEST which carries name/caps */ },
+      onMessage: function (clientId, env) { hostOnMessage(clientId, env); },
+      onDisconnect: function (clientId) { clientDropped(clientId); },
+      onStatus: function () { renderNetBanner(); },
+      onError: function () {}
+    };
+  }
+  function hostOnMessage(clientId, env) {
     if (!Net.host) return;
-    var state = Net.host.state;
-    Net.host.started = true;
-    UI.hasHuman = true;
-    UI.autoAdvanceReview = state.players.every(function (p) { return !(p.kind === "human" && Net.host.seatOwner[p.id] === "host"); });
-    Net.host.peers.forEach(function (peer) {
-      if (peer.channel.isOpen()) Net.sendTo(peer, { t: "started", variant: state.variant, s: SRNet.serializeState(state) });
+    var P = env.payload;
+    if (env.type === MSG.JOIN_REQUEST) { hostHandleJoin(clientId, P || {}); }
+    else if (env.type === MSG.ACTION_INTENT) { handleRemoteAct(clientId, P || {}); }
+    else if (env.type === MSG.DECIDE_ANSWER) { var e = Net.host.pendingDecides[P.reqId]; if (e) { delete Net.host.pendingDecides[P.reqId]; e.resolve(P.value); } }
+    else if (env.type === MSG.PONG) { Net.host.api.touch(clientId); }
+  }
+  function hostHandleJoin(clientId, p) {
+    var name = String(p.name || "Player").slice(0, 24);
+    var caps = p.caps || {};
+    Net.host.api.setCaps(clientId, caps);
+    var existing = rosterOf(clientId);
+    if (Net.host.started) {
+      var pid = Net.host.playerByClient[clientId] || null; // reconnect keeps the seat
+      if (existing) { existing.connected = true; existing.name = name; } else Net.host.roster.push({ clientId: clientId, name: name, spectator: !pid, connected: true, caps: caps });
+      Net.host.api.send(clientId, SRNet.msg(MSG.JOIN_ACCEPTED, { spectator: !pid, variant: Net.host.state.variant }));
+      Net.host.api.send(clientId, SRNet.msg(MSG.START_GAME, { variant: Net.host.state.variant, playerId: pid, spectator: !pid }));
+      Net.host.api.sendState(clientId, SRNet.redactFor(Net.host.state), true);
+      renderNetBanner();
+      return;
+    }
+    var spectator = !!p.spectator || (seatTakers() >= Net.host.maxPlayers);
+    if (existing) { existing.name = name; existing.spectator = spectator; existing.connected = true; existing.caps = caps; }
+    else Net.host.roster.push({ clientId: clientId, name: name, spectator: spectator, connected: true, caps: caps });
+    Net.host.api.send(clientId, SRNet.msg(MSG.JOIN_ACCEPTED, { spectator: spectator, variant: Net.host.variant }));
+    broadcastLobby(); renderLobby();
+  }
+  function clientDropped(clientId) {
+    if (!Net.host) return;
+    var r = rosterOf(clientId);
+    if (r && r.connected === false) return; // already handled
+    if (r) r.connected = false;
+    if (Net.host.started) {
+      var rt = Net.host.remoteTurn;
+      if (rt && rt.clientId === clientId) finishRemoteTurn();
+      Object.keys(Net.host.pendingDecides).forEach(function (rid) {
+        var e = Net.host.pendingDecides[rid];
+        if (e.clientId === clientId) { delete Net.host.pendingDecides[rid]; e.resolve(SR.aiDecide(Net.host.state, findPlayerById(e.req.playerId), e.req)); }
+      });
+      var pname = r ? r.name : "A player";
+      appendLog({ round: Net.host.state.roundNumber, phase: Net.host.state.phase, text: pname + " disconnected — AI will cover their turns.", cls: "muted" });
+      Net.host.api.broadcast(SRNet.msg(MSG.LOG, { round: Net.host.state.roundNumber, text: pname + " disconnected.", cls: "muted" }));
+    } else { broadcastLobby(); renderLobby(); }
+    renderNetBanner();
+  }
+  function buildRosterPlan() {
+    var plan = [];
+    if (Net.host.hostPlays) plan.push({ name: Net.host.hostName, kind: "human", owner: "host" });
+    Net.host.roster.forEach(function (r) { if (r.connected && !r.spectator) plan.push({ name: r.name, kind: "human", owner: r.clientId }); });
+    for (var i = 0; i < Net.host.aiCount; i++) { var a = AI_ARCHES[i % AI_ARCHES.length]; plan.push({ name: capitalize(a) + " Bot", kind: "ai", archetype: a, owner: "host" }); }
+    return plan;
+  }
+  function hostStart() {
+    if (!Net.host || !Net.host.api) return;
+    var plan = buildRosterPlan();
+    if (plan.length < 2 || plan.length > 6) return;
+    var config = { variant: Net.host.variant, players: plan.map(function (p) { return { name: p.name, kind: p.kind, archetype: p.archetype || "balanced" }; }), rules: { feedbackMode: Net.host.feedbackMode } };
+    var state = SR.newGame(config);
+    Net.host.state = state; Net.host.started = true; Net.host.seatOwner = {}; Net.host.playerByClient = {};
+    state.players.forEach(function (pl, i) {
+      var owner = plan[i].owner;
+      Net.host.seatOwner[pl.id] = (owner === "host") ? "host" : owner;
+      if (owner !== "host") Net.host.playerByClient[owner] = pl.id;
     });
-    $("setup").style.display = "none";
-    $("game").style.display = "flex";
-    $("inviteBtn").style.display = "";
-    $("log").innerHTML = "";
+    UI.config = config; UI.speed = $("speedSel").value; UI.activeState = state; UI.hasHuman = true;
+    UI.autoAdvanceReview = !Net.host.hostPlays; // board-only auto-advances the Review modal
+    Net.host.roster.forEach(function (r) {
+      if (!r.connected) return;
+      var pid = r.spectator ? null : (Net.host.playerByClient[r.clientId] || null);
+      Net.host.api.send(r.clientId, SRNet.msg(MSG.START_GAME, { variant: state.variant, playerId: pid, spectator: !pid }));
+    });
+    $("setup").style.display = "none"; $("game").style.display = "flex"; $("inviteBtn").style.display = ""; $("log").innerHTML = "";
     renderAll();
+    Net.host.api.broadcastState(SRNet.redactFor(state));
+    startHeartbeat();
     SR.play(state, makeNetHostHooks(state));
   }
-  function isLocalSeat(id) { return !Net.host || Net.host.seatOwner[id] === "host"; }
-  function localDecide(req) { return req.action === "claimTask" ? beginClaimDecision(req) : showDecision(req); }
-  function peerById(id) { return Net.host.peers.find(function (p) { return p.id === id; }); }
-  function peerForSeat(playerId) {
-    var owner = Net.host.seatOwner[playerId];
-    return (!owner || owner === "host") ? null : peerById(owner);
+  function startHeartbeat() {
+    if (Net.host.heartbeat) clearInterval(Net.host.heartbeat);
+    Net.host.heartbeat = setInterval(function () {
+      if (!Net.host || !Net.host.api) return;
+      Net.host.api.broadcast(SRNet.msg(MSG.PING));
+      var now = Date.now();
+      Net.host.api.clientIds().forEach(function (id) {
+        var r = rosterOf(id);
+        if (r && r.connected && (now - Net.host.api.lastSeen(id) > 15000)) clientDropped(id);
+      });
+    }, 5000);
   }
-  function findPlayerById(id) { return Net.host.state.players.find(function (p) { return p.id === id; }); }
-
   function makeNetHostHooks(state) {
     function stale() { return UI.activeState !== state || !Net.host; }
     return {
-      log: function (entry) { if (stale()) return; appendLog(entry); Net.broadcast({ t: "log", entry: entry }); },
-      onChange: function () { if (stale()) return; renderAll(); Net.broadcastSnapshot(state); },
-      wait: function (key) {
-        if (stale()) return Promise.resolve();
-        var d = SPEEDS[UI.speed][key || "action"];
-        return new Promise(function (r) { setTimeout(r, d); });
-      },
-      humanTurn: function (player) {
-        if (stale()) return Promise.resolve();
-        return isLocalSeat(player.id) ? beginHumanTurn(state, player) : beginRemoteTurn(state, player);
-      },
-      decide: function (req) {
-        if (stale()) return Promise.resolve(defaultDecision(req));
-        return isLocalSeat(req.playerId) ? localDecide(req) : remoteDecide(req);
-      },
-      onReview: function (summary) {
-        if (stale()) return Promise.resolve();
-        Net.broadcast({ t: "review", summary: SRNet.packPayload(summary) });
-        return showReview(summary).then(function () { Net.broadcast({ t: "reviewDone" }); });
-      },
-      onGameOver: function (st) {
-        if (stale()) return Promise.resolve();
-        Net.broadcast({ t: "gameOver", s: SRNet.serializeState(st) });
-        return showGameOver(st);
-      }
+      log: function (entry) { if (stale()) return; appendLog(entry); Net.host.api.broadcast(SRNet.msg(MSG.LOG, entry)); },
+      onChange: function () { if (stale()) return; renderAll(); Net.pushState(); },
+      wait: function (key) { if (stale()) return Promise.resolve(); var d = SPEEDS[UI.speed][key || "action"]; return new Promise(function (r) { setTimeout(r, d); }); },
+      humanTurn: function (player) { if (stale()) return Promise.resolve(); return isLocalSeat(player.id) ? beginHumanTurn(state, player) : beginRemoteTurn(state, player); },
+      decide: function (req) { if (stale()) return Promise.resolve(defaultDecision(req)); return isLocalSeat(req.playerId) ? localDecide(req) : remoteDecide(req); },
+      onReview: function (summary) { if (stale()) return Promise.resolve(); Net.host.api.broadcast(SRNet.msg(MSG.REVIEW, SRNet.packPayload(summary))); return showReview(summary).then(function () { if (Net.host) Net.host.api.broadcast(SRNet.msg(MSG.REVIEW_DONE)); }); },
+      onGameOver: function (st) { if (stale()) return Promise.resolve(); Net.host.api.broadcast(SRNet.msg(MSG.GAME_OVER, SRNet.serializeState(st))); return showGameOver(st); }
     };
   }
-
   function beginRemoteTurn(state, player) {
-    var peer = peerForSeat(player.id);
-    if (!peer || !peer.channel.isOpen()) return SR.aiTakeTurn(state, player, state._hooks); // disconnected → AI
+    var clientId = clientForSeat(player.id);
+    if (!clientId || !Net.host.api.isAlive(clientId)) return SR.aiTakeTurn(state, player, state._hooks); // disconnected → AI
     return new Promise(function (resolve) {
       var ctx = H.beginTurn(state, player);
       var turn = { player: player, ap: ctx.ap, mustProjectFirst: ctx.mustProjectFirst, active: true };
-      Net.host.remoteTurn = { turn: turn, peer: peer, resolve: resolve };
+      Net.host.remoteTurn = { turn: turn, clientId: clientId, resolve: resolve };
       state.activePlayerId = player.id;
-      Net.sendTo(peer, { t: "yourTurn", playerId: player.id, ap: turn.ap, mustProjectFirst: turn.mustProjectFirst });
-      renderAll();
-      Net.broadcastSnapshot(state);
+      Net.host.api.send(clientId, SRNet.msg(MSG.YOUR_TURN, { playerId: player.id, ap: turn.ap, mustProjectFirst: turn.mustProjectFirst }));
+      renderAll(); Net.pushState();
     });
   }
-  function handleRemoteAct(peer, msg) {
+  function handleRemoteAct(clientId, payload) {
     var rt = Net.host.remoteTurn;
-    if (!rt || rt.peer !== peer || !rt.turn.active) return;
+    if (!rt || rt.clientId !== clientId || !rt.turn.active) return;
     var state = Net.host.state;
-    if (msg.act === "endturn") return finishRemoteTurn();
-    var res = applyTurnAction(state, rt.turn, msg.act, msg.idx, msg.owner);
+    if (payload.round !== state.roundNumber || payload.phase !== state.phase) { Net.host.api.send(clientId, SRNet.msg(MSG.ACTION_REJECTED, { reason: "stale" })); return; }
+    if (payload.act === "endturn") return finishRemoteTurn();
+    var res = applyTurnAction(state, rt.turn, payload.act, payload.idx, payload.owner);
     if (res.ok && res.pending === "shipsItFriday") {
-      renderAll(); Net.broadcastSnapshot(state);
+      renderAll(); Net.pushState();
       remoteDecide({ action: "shipsItFriday", playerId: rt.turn.player.id }).then(function (i) {
         if (Net.host && Net.host.remoteTurn === rt && rt.turn.active) SR.actions.applyShipsItFriday(state, rt.turn.player, parseInt(i, 10));
         afterRemoteAction(rt);
@@ -1630,223 +1594,218 @@
   }
   function afterRemoteAction(rt) {
     if (!Net.host || Net.host.remoteTurn !== rt || !rt.turn.active) return;
-    renderAll();
-    Net.broadcastSnapshot(Net.host.state);
-    Net.sendTo(rt.peer, { t: "apUpdate", playerId: rt.turn.player.id, ap: rt.turn.ap, mustProjectFirst: rt.turn.mustProjectFirst });
-    if (rt.turn.ap <= 0 && rt.turn.player.overtimeUsedThisRound) {
-      setTimeout(function () { if (Net.host && Net.host.remoteTurn === rt) finishRemoteTurn(); }, 250);
-    }
+    renderAll(); Net.pushState();
+    Net.host.api.send(rt.clientId, SRNet.msg(MSG.AP_UPDATE, { playerId: rt.turn.player.id, ap: rt.turn.ap, mustProjectFirst: rt.turn.mustProjectFirst }));
+    if (rt.turn.ap <= 0 && rt.turn.player.overtimeUsedThisRound) setTimeout(function () { if (Net.host && Net.host.remoteTurn === rt) finishRemoteTurn(); }, 250);
   }
   function finishRemoteTurn() {
     var rt = Net.host && Net.host.remoteTurn;
     if (!rt || !rt.turn.active) return;
-    rt.turn.active = false;
-    Net.host.remoteTurn = null;
-    Net.sendTo(rt.peer, { t: "turnEnded", playerId: rt.turn.player.id });
+    rt.turn.active = false; Net.host.remoteTurn = null;
+    Net.host.api.send(rt.clientId, SRNet.msg(MSG.TURN_ENDED, { playerId: rt.turn.player.id }));
     rt.resolve();
   }
   function remoteDecide(req) {
     return new Promise(function (resolve) {
-      var peer = peerForSeat(req.playerId);
-      if (!peer || !peer.channel.isOpen()) { resolve(SR.aiDecide(Net.host.state, findPlayerById(req.playerId), req)); return; }
+      var clientId = clientForSeat(req.playerId);
+      if (!clientId || !Net.host.api.isAlive(clientId)) { resolve(SR.aiDecide(Net.host.state, findPlayerById(req.playerId), req)); return; }
       var reqId = ++Net.host.reqSeq;
-      Net.host.pendingDecides[reqId] = { resolve: resolve, req: req, peerId: peer.id };
-      Net.sendTo(peer, { t: "decide", reqId: reqId, req: SRNet.packPayload(req) });
+      Net.host.pendingDecides[reqId] = { resolve: resolve, req: req, clientId: clientId };
+      Net.host.api.send(clientId, SRNet.msg(MSG.DECIDE, { reqId: reqId, req: SRNet.packPayload(req) }));
     });
   }
-
-  Net.broadcast = function (obj) { if (Net.host) Net.host.peers.forEach(function (p) { if (p.channel.isOpen()) p.channel.send(obj); }); };
-  Net.broadcastSnapshot = function (state) {
-    if (!Net.host) return;
-    var s = SRNet.serializeState(state);
-    Net.host.peers.forEach(function (p) { if (p.channel.isOpen()) p.channel.send({ t: "snapshot", s: s }); });
-  };
-  Net.sendTo = function (peer, obj) { if (peer && peer.channel && peer.channel.isOpen()) peer.channel.send(obj); };
-  Net.teardown = function () {
-    if (Net.host) {
-      Net.host.peers.forEach(function (p) { Net.sendTo(p, { t: "reset" }); });
-      Net.host.peers.forEach(function (p) { try { p.channel.close(); } catch (e) {} try { if (p.pc) p.pc.close(); } catch (e) {} });
-      if (Net.host.pending && Net.host.pending.pc) { try { Net.host.pending.pc.close(); } catch (e) {} }
-      Net.host = null;
-    }
-    if (Net.guest) {
-      try { if (Net.guest.channel) Net.guest.channel.close(); } catch (e) {}
-      try { if (Net.guest.conn && Net.guest.conn.pc) Net.guest.conn.pc.close(); } catch (e) {}
-      Net.guest = null;
-    }
-    Net.mode = "local";
-    $("newGameBtn").textContent = "New Game";
-  };
+  Net.pushState = function () { if (Net.host && Net.host.api && Net.host.state) Net.host.api.broadcastState(SRNet.redactFor(Net.host.state)); };
 
   /* ---- GUEST ---- */
   function doJoin(spectator) {
-    var problem = netUnavailableMsg();
-    if (problem) { $("joinAnswer").style.display = ""; $("joinStatus").textContent = problem; return; }
-    var code = extractJoinCode($("joinOfferCode").value);
-    if (!code) { $("joinAnswer").style.display = ""; $("joinStatus").textContent = "Paste the host's invite link or code first."; return; }
+    var problem = netUnavailableMsg(); if (problem) { $("joinStatus").textContent = problem; return; }
+    var code = extractRoomCode($("joinCode").value);
+    if (!code) { $("joinStatus").textContent = "Enter the room code the host gave you."; return; }
     var name = ($("joinName").value || "Player").trim() || "Player";
-    Net.guest = { channel: null, conn: null, myIds: [], spectator: false, wantSpectator: !!spectator, name: name };
+    try { localStorage.setItem("sr-online", JSON.stringify({ room: code, name: name })); } catch (e) { /* storage off */ }
     $("joinAsPlayerBtn").disabled = true; $("joinAsSpectatorBtn").disabled = true;
-    $("joinAnswer").style.display = "";
-    $("joinStatus").textContent = "Generating your answer code…";
-    SRNet.guestAnswerOffer(code, guestChannelHandlers()).then(function (conn) {
-      if (!Net.guest) { try { conn.pc.close(); } catch (e) {} return; }
-      Net.guest.conn = conn;
-      $("joinAnswerCode").value = conn.answerCode;
-      drawQr($("joinAnswerQr"), conn.answerCode);
-      $("joinStatus").textContent = "Send this answer code to the host, then keep this tab open…";
-    }).catch(function (e) {
-      $("joinStatus").textContent = "Could not connect: " + e.message;
-      $("joinAsPlayerBtn").disabled = false; $("joinAsSpectatorBtn").disabled = false;
-    });
+    $("joinStatus").textContent = "Connecting…";
+    Net.mode = "guest";
+    Net.guest = { api: null, roomCode: code, name: name, spectator: !!spectator, clientId: null, playerId: null, started: false, leaving: false, retries: 0 };
+    SRNet.iceServers().then(function (ice) { guestConnect(ice, 0); }, function () { guestConnect(undefined, 0); });
   }
-  function guestChannelHandlers() {
+  function guestConnect(ice, suffix) {
+    if (!Net.guest) return;
+    var code = Net.guest.roomCode, name = Net.guest.name, spectator = Net.guest.spectator;
+    var clientId = SRNet.deriveClientId(code, name, suffix || 0);
+    Net.guest.clientId = clientId;
+    SRNet.joinRoom({ roomCode: code, clientId: clientId, iceServers: ice, metadata: {}, handlers: guestHandlers() })
+      .then(function (api) {
+        if (Net.mode !== "guest" || !Net.guest) { api.destroy(); return; }
+        Net.guest.api = api;
+        api.send(SRNet.msg(MSG.JOIN_REQUEST, { name: name, spectator: spectator, clientId: clientId, caps: { z: SRNet.hasGzip } }));
+        $("joinStatus").textContent = "Connected — waiting for the host…";
+      })
+      .catch(function (e) {
+        var t = e && e.type;
+        if (t === "unavailable-id" && (suffix || 0) < 5) { guestConnect(ice, (suffix || 0) + 1); return; }
+        $("joinAsPlayerBtn").disabled = false; $("joinAsSpectatorBtn").disabled = false;
+        Net.mode = "local"; Net.guest = null;
+        $("joinStatus").textContent = (t === "peer-unavailable") ? "No open room with that code — double-check it with the host." : ("Couldn't connect: " + ((e && e.message) || t || e));
+      });
+  }
+  function guestHandlers() {
     return {
-      onOpen: function (chApi) {
-        if (!Net.guest) return;
-        Net.guest.channel = chApi;
-        chApi.send({ t: "join", name: Net.guest.name, spectator: Net.guest.wantSpectator });
-        $("joinStatus").textContent = "Connected! Waiting for the host to start…";
-      },
-      onMessage: function (msg) { guestDispatch(msg); },
-      onClose: function () { guestOnDisconnect(); }
+      onOpen: function () {},
+      onMessage: function (env) { guestDispatch(env); },
+      onClose: function () { guestOnClose(); },
+      onStatus: function () {},
+      onError: function () {}
     };
   }
-  function guestDispatch(msg) {
-    switch (msg.t) {
-      case "assigned":
-        if (!Net.guest) return;
-        Net.guest.myIds = msg.youAre ? [msg.youAre] : [];
-        Net.guest.spectator = !!msg.spectator;
-        UI.config = { variant: msg.variant };
-        $("joinStatus").textContent = msg.spectator ? "You're in as a spectator — waiting for the host to start…" : "You're seated — waiting for the host to start…";
+  function guestDispatch(env) {
+    var P = env.payload;
+    switch (env.type) {
+      case MSG.JOIN_ACCEPTED:
+        Net.guest.spectator = !!P.spectator; UI.config = { variant: P.variant };
+        $("joinStatus").textContent = P.spectator ? "Joined as spectator — waiting for the host to start…" : "Joined — waiting for the host to start…";
         break;
-      case "started": guestEnterGame(msg); break;
-      case "snapshot": guestHandleSnapshot(msg.s); break;
-      case "log": appendLog(msg.entry); break;
-      case "yourTurn": guestHandleYourTurn(msg); break;
-      case "apUpdate": guestHandleApUpdate(msg); break;
-      case "turnEnded": guestHandleTurnEnded(msg); break;
-      case "decide": guestHandleDecide(msg); break;
-      case "review": if (Net.mode === "guest") showReview(msg.summary); break;
-      case "reviewDone": hideModal(); break;
-      case "gameOver": guestHandleGameOver(msg); break;
-      case "reset": guestHandleReset(); break;
+      case MSG.JOIN_REJECTED: $("joinStatus").textContent = "Join rejected: " + ((P && P.reason) || "unknown"); Net.teardown(); break;
+      case MSG.LOBBY_UPDATE:
+        $("joinStatus").textContent = "In room " + Net.guest.roomCode + " as " + Net.guest.name + (Net.guest.spectator ? " (spectator)" : "") + ". Players: " + (P.players || []).join(", ") + ". Waiting for the host…";
+        break;
+      case MSG.START_GAME: Net.guest.playerId = P.playerId || null; Net.guest.spectator = !P.playerId; Net.guest.started = true; guestEnterGame(P.variant); break;
+      case MSG.STATE_UPDATE: guestHandleSnapshot(P); break;
+      case MSG.LOG: appendLog(P); break;
+      case MSG.YOUR_TURN: guestHandleYourTurn(P); break;
+      case MSG.AP_UPDATE: guestHandleApUpdate(P); break;
+      case MSG.TURN_ENDED: guestHandleTurnEnded(P); break;
+      case MSG.DECIDE: guestHandleDecide(P); break;
+      case MSG.REVIEW: if (Net.mode === "guest") showReview(P); break;
+      case MSG.REVIEW_DONE: hideModal(); break;
+      case MSG.GAME_OVER: guestHandleGameOver(P); break;
+      case MSG.KICK: guestKicked(P); break;
+      case MSG.PING: if (Net.guest && Net.guest.api) Net.guest.api.send(SRNet.msg(MSG.PONG)); break;
+      default: break; // ACTION_REJECTED etc. — snapshot will reconcile
     }
   }
-  function guestEnterGame(msg) {
-    Net.mode = "guest";
-    UI.hasHuman = true;
-    UI.config = { variant: msg.variant };
-    UI.activeState = SRNet.reviveState(msg.s);
-    UI.turn = null;
-    UI.speed = $("speedSel").value;
-    $("setup").style.display = "none";
-    $("game").style.display = "flex";
-    $("inviteBtn").style.display = "none";
-    $("newGameBtn").textContent = "Leave";
-    $("log").innerHTML = "";
-    renderAll();
-  }
-  function guestHandleSnapshot(json) {
-    UI.activeState = SRNet.reviveState(json);
-    if (UI.turn && UI.turn.active) {
-      var np = UI.activeState.players.find(function (p) { return p.id === UI.turn.player.id; });
-      if (np) UI.turn.player = np;
-    }
-    renderAll();
-  }
-  function guestHandleYourTurn(msg) {
-    var p = UI.activeState && UI.activeState.players.find(function (x) { return x.id === msg.playerId; });
-    if (!p) return;
-    UI.turn = { player: p, ap: msg.ap, mustProjectFirst: msg.mustProjectFirst, active: true };
-    renderAll();
-  }
-  function guestHandleApUpdate(msg) {
-    if (UI.turn && UI.turn.active && UI.turn.player.id === msg.playerId) { UI.turn.ap = msg.ap; UI.turn.mustProjectFirst = msg.mustProjectFirst; }
-    renderAll();
-  }
-  function guestHandleTurnEnded(msg) {
-    if (UI.turn && UI.turn.player.id === msg.playerId) UI.turn = null;
-    renderAll();
-  }
-  function guestHandleDecide(msg) {
-    var req = SRNet.unpackPayload(msg.req);
-    if (req.action === "shipsItFriday") {
-      var p = UI.activeState.players.find(function (x) { return x.id === req.playerId; });
-      showShipsChoice(p).then(function (i) { hideModal(); Net.guestSendDecide(msg.reqId, i); });
-      return;
-    }
-    if (req.action === "claimTask") { beginClaimDecision(req).then(function (v) { Net.guestSendDecide(msg.reqId, v); }); return; }
-    showDecision(req).then(function (v) { Net.guestSendDecide(msg.reqId, v); });
-  }
-  function guestHandleGameOver(msg) {
-    UI.activeState = SRNet.reviveState(msg.s); UI.turn = null;
-    renderAll();
-    showGameOver(UI.activeState);
-  }
-  function guestHandleReset() {
-    Net.teardown();
-    UI.activeState = null; UI.turn = null;
+  function guestEnterGame(variant) {
+    Net.mode = "guest"; UI.hasHuman = true; UI.config = { variant: variant }; UI.turn = null;
+    UI.speed = $("speedSel").value; UI.autoAdvanceReview = false;
     hideModal();
-    $("game").style.display = "none"; $("setup").style.display = "block";
-    resetSetupPanels();
-    showModalHTML('<h2>Game ended</h2><div class="msub">The host closed the game.</div><div class="opts"><button class="primary" id="resetOk">OK</button></div>');
-    var b = $("resetOk"); if (b) b.addEventListener("click", hideModal);
+    $("setup").style.display = "none"; $("game").style.display = "flex"; $("inviteBtn").style.display = "none";
+    $("newGameBtn").textContent = "Leave"; $("log").innerHTML = "";
+    renderAll();
   }
-  function guestOnDisconnect() {
-    if (Net.mode !== "guest") { $("joinStatus").textContent = "Connection closed."; return; }
-    // Lost the host mid-game — surface it; the game can't continue without the host.
-    if (UI.activeState) {
-      showModalHTML('<h2>Disconnected</h2><div class="msub">Lost the connection to the host.</div><div class="opts"><button class="primary" id="dcOk">Back to menu</button></div>');
-      var b = $("dcOk"); if (b) b.addEventListener("click", function () { hideModal(); $("newGameBtn").click(); });
-    }
+  function guestHandleSnapshot(content) {
+    UI.activeState = SRNet.reviveState(content);
+    if (UI.turn && UI.turn.active) { var np = UI.activeState.players.filter(function (p) { return p.id === UI.turn.player.id; })[0]; if (np) UI.turn.player = np; }
+    renderAll();
   }
-  Net.guestSendTurnAction = function (act, idx, owner) { if (Net.guest && Net.guest.channel) Net.guest.channel.send({ t: "act", act: act, idx: idx, owner: owner }); };
-  Net.guestSendDecide = function (reqId, value) { if (Net.guest && Net.guest.channel) Net.guest.channel.send({ t: "decideAnswer", reqId: reqId, value: value }); };
+  function guestHandleYourTurn(P) {
+    var p = UI.activeState && UI.activeState.players.filter(function (x) { return x.id === P.playerId; })[0];
+    if (!p) return;
+    UI.turn = { player: p, ap: P.ap, mustProjectFirst: P.mustProjectFirst, active: true };
+    renderAll();
+  }
+  function guestHandleApUpdate(P) {
+    if (UI.turn && UI.turn.active && UI.turn.player.id === P.playerId) { UI.turn.ap = P.ap; UI.turn.mustProjectFirst = P.mustProjectFirst; }
+    renderAll();
+  }
+  function guestHandleTurnEnded(P) { if (UI.turn && UI.turn.player.id === P.playerId) UI.turn = null; renderAll(); }
+  function guestHandleDecide(P) {
+    var req = SRNet.unpackPayload(P.req);
+    if (req.action === "shipsItFriday") { var pl = UI.activeState.players.filter(function (x) { return x.id === req.playerId; })[0]; showShipsChoice(pl).then(function (i) { hideModal(); Net.guestSendDecide(P.reqId, i); }); return; }
+    if (req.action === "claimTask") { beginClaimDecision(req).then(function (v) { Net.guestSendDecide(P.reqId, v); }); return; }
+    showDecision(req).then(function (v) { Net.guestSendDecide(P.reqId, v); });
+  }
+  function guestHandleGameOver(P) { UI.activeState = SRNet.reviveState(P); UI.turn = null; renderAll(); showGameOver(UI.activeState); }
+  function guestKicked(P) {
+    Net.teardown(); UI.activeState = null; UI.turn = null;
+    $("game").style.display = "none"; $("setup").style.display = "block"; resetSetupPanels();
+    showModalHTML('<h2>Removed from game</h2><div class="msub">' + esc((P && P.reason) || "The host closed the room.") + '</div><div class="opts"><button class="primary" id="kOk">OK</button></div>');
+    var b = $("kOk"); if (b) b.addEventListener("click", hideModal);
+  }
+  function guestOnClose() {
+    if (!Net.guest || Net.guest.leaving) return;
+    if (!Net.guest.started) return; // pre-start close handled by the connect path
+    if (Net.guest.retries >= 4) { guestGiveUp(); return; }
+    Net.guest.retries++;
+    var g = Net.guest; try { g.api && g.api.destroy(); } catch (e) {} g.api = null;
+    showModalHTML('<h2>Reconnecting…</h2><div class="msub">Lost the host connection — retrying (' + g.retries + '/4).</div>');
+    setTimeout(function () { if (Net.mode === "guest" && Net.guest === g) SRNet.iceServers().then(guestReconnect, function () { guestReconnect(); }); }, 1500);
+  }
+  function guestReconnect(ice) {
+    if (!Net.guest) return;
+    SRNet.joinRoom({ roomCode: Net.guest.roomCode, clientId: Net.guest.clientId, iceServers: ice, metadata: {}, handlers: guestHandlers() })
+      .then(function (api) {
+        if (Net.mode !== "guest" || !Net.guest) { api.destroy(); return; }
+        Net.guest.api = api; Net.guest.retries = 0; hideModal();
+        api.send(SRNet.msg(MSG.JOIN_REQUEST, { name: Net.guest.name, spectator: Net.guest.spectator, clientId: Net.guest.clientId, caps: { z: SRNet.hasGzip } }));
+      })
+      .catch(function () { setTimeout(function () { if (Net.mode === "guest" && Net.guest) guestOnClose(); }, 1500); });
+  }
+  function guestGiveUp() {
+    showModalHTML('<h2>Disconnected</h2><div class="msub">Couldn’t reconnect to the host.</div><div class="opts"><button class="primary" id="dcOk">Back to menu</button></div>');
+    var b = $("dcOk"); if (b) b.addEventListener("click", function () { Net.teardown(); UI.activeState = null; UI.turn = null; $("game").style.display = "none"; $("setup").style.display = "block"; resetSetupPanels(); hideModal(); });
+  }
+  Net.guestSendTurnAction = function (act, idx, owner) {
+    if (!Net.guest || !Net.guest.api || !UI.activeState) return;
+    Net.guest.api.send(SRNet.msg(MSG.ACTION_INTENT, { act: act, idx: idx, owner: owner, round: UI.activeState.roundNumber, phase: UI.activeState.phase }));
+  };
+  Net.guestSendDecide = function (reqId, value) { if (Net.guest && Net.guest.api) Net.guest.api.send(SRNet.msg(MSG.DECIDE_ANSWER, { reqId: reqId, value: value })); };
 
-  /* ---- invite (mid-game, for spectators) ---- */
+  /* ---- teardown + mid-game invite ---- */
+  Net.teardown = function () {
+    if (Net.host) {
+      if (Net.host.heartbeat) clearInterval(Net.host.heartbeat);
+      var hapi = Net.host.api;
+      if (hapi) { try { hapi.broadcast(SRNet.msg(MSG.KICK, { reason: "The host ended the game." })); } catch (e) {} setTimeout(function () { try { hapi.destroy(); } catch (e) {} }, 200); }
+      Net.host = null;
+    }
+    if (Net.guest) { Net.guest.leaving = true; try { Net.guest.api && Net.guest.api.destroy(); } catch (e) {} Net.guest = null; }
+    Net.mode = "local";
+    $("newGameBtn").textContent = "New Game";
+  };
   function showInviteModal() {
     if (!Net.host) return;
-    if (!Net.host.pending) hostMakeOffer();
-    var link = Net.host.pending ? joinLinkFor(Net.host.pending.offerCode) : "";
-    showModalHTML('<h2>📡 Invite a Spectator</h2>' +
-      '<div class="msub">Share this link/QR; paste the code they send back to connect them.</div>' +
-      '<div class="qr-wrap"><canvas id="inviteQr" class="qr"></canvas></div>' +
-      '<textarea class="codebox" id="inviteLink" readonly>' + esc(link) + '</textarea>' +
-      '<button id="inviteCopy">📋 Copy link</button>' +
-      '<textarea class="codebox" id="inviteAnswer" placeholder="Paste their answer code…" style="margin-top:10px"></textarea>' +
-      '<div class="opts"><button class="primary" id="inviteConnect">Connect</button><button id="inviteClose">Close</button></div>');
-    if (link) drawQr($("inviteQr"), link);
-    $("inviteCopy").addEventListener("click", function () { copyText($("inviteLink").value); });
-    $("inviteConnect").addEventListener("click", function () { $("lobbyAnswer").value = $("inviteAnswer").value; acceptAnswer(); hideModal(); });
+    var link = roomLinkFor(Net.host.roomCode);
+    showModalHTML('<h2>📡 Invite</h2><div class="msub">Room code <b class="mono">' + esc(Net.host.roomCode) + '</b> — players can still join (as spectators once a game is running).</div>' +
+      '<div class="qr-wrap"><canvas id="inviteQr" class="qr"></canvas></div><textarea class="codebox" id="inviteLink" readonly>' + esc(link) + '</textarea>' +
+      '<div class="opts"><button id="inviteCopy">📋 Copy link</button><button class="primary" id="inviteClose">Close</button></div>');
+    drawQr($("inviteQr"), link);
+    $("inviteCopy").addEventListener("click", function () { copyText(link); });
     $("inviteClose").addEventListener("click", hideModal);
   }
 
   /* ---- online button wiring ---- */
-  $("createRoomBtn").addEventListener("click", createRoom);
+  $("createRoomBtn").addEventListener("click", openRoom);
   $("lobbyStartBtn").addEventListener("click", hostStart);
   $("lobbyCancelBtn").addEventListener("click", function () { Net.teardown(); resetSetupPanels(); });
-  $("acceptAnswerBtn").addEventListener("click", acceptAnswer);
+  $("addAiBtn").addEventListener("click", function () { if (Net.host && totalPlayers() < 6) { Net.host.aiCount++; broadcastLobby(); renderLobby(); } });
+  $("removeAiBtn").addEventListener("click", function () { if (Net.host && Net.host.aiCount > 0) { Net.host.aiCount--; broadcastLobby(); renderLobby(); } });
   $("copyLinkBtn").addEventListener("click", function () { copyText($("lobbyLink").value); });
-  $("copyAnswerBtn").addEventListener("click", function () { copyText($("joinAnswerCode").value); });
   $("joinAsPlayerBtn").addEventListener("click", function () { doJoin(false); });
   $("joinAsSpectatorBtn").addEventListener("click", function () { doJoin(true); });
   $("inviteBtn").addEventListener("click", showInviteModal);
-  if (SRNet && SRNet.hasBarcodeDetector) {
-    $("scanAnswerBtn").addEventListener("click", function () { openScanner(function (code) { $("lobbyAnswer").value = code; acceptAnswer(); }); });
-    $("joinScanBtn").addEventListener("click", function () { openScanner(function (code) { $("joinOfferCode").value = code; }); });
-  }
+  $("lobbyRoster").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-kick]"); if (!b || !Net.host) return;
+    var cid = b.getAttribute("data-kick");
+    Net.host.api.kick(cid, "Kicked by host");
+    Net.host.roster = Net.host.roster.filter(function (x) { return x.clientId !== cid; });
+    broadcastLobby(); renderLobby();
+  });
 
-  /* ---- deep link: land here via a scanned #join= URL ---- */
-  (function handleJoinHash() {
-    if (location.hash && location.hash.indexOf("#join=") === 0) {
+  /* ---- deep link: land here via a scanned #room=CODE URL; prefill from storage ---- */
+  (function handleRoomHash() {
+    var saved = {};
+    try { saved = JSON.parse(localStorage.getItem("sr-online") || "{}"); } catch (e) { saved = {}; }
+    var m = location.hash && location.hash.match(/[#&]room=([^&]+)/);
+    if (m) {
       selectMode("join");
-      $("joinOfferCode").value = location.hash.slice(6);
-      $("joinStatus").textContent = "Host invite loaded — tap “Join as Player” or “Join as Spectator”.";
+      $("joinCode").value = decodeURIComponent(m[1]);
+      if (saved.name) $("joinName").value = saved.name;
+      $("joinStatus").textContent = "Room code loaded — enter your name and tap Join.";
       try { $("joinPanel").scrollIntoView({ behavior: "smooth" }); } catch (e) { /* ignore */ }
     } else {
       applyMode("local");
+      if (saved.room) $("joinCode").value = saved.room;
+      if (saved.name) $("joinName").value = saved.name;
     }
   })();
 })();
