@@ -461,8 +461,19 @@
   /* ---------------------------------------------------------------------------
    * 5. WebRTC signaling (non-trickle: one code carries all ICE candidates)
    * ------------------------------------------------------------------------ */
+  // Resolve the RTCPeerConnection constructor, tolerating the legacy webkit
+  // prefix. Returns null when WebRTC is unavailable — e.g. a privacy/VPN
+  // extension or enterprise policy has removed it (the usual reason a
+  // WebRTC-capable browser reports it missing).
+  function getRTC() {
+    if (typeof RTCPeerConnection !== 'undefined') return RTCPeerConnection;
+    if (typeof window !== 'undefined') return window.RTCPeerConnection || window.webkitRTCPeerConnection || null;
+    return null;
+  }
   function newPeer() {
-    return new RTCPeerConnection({ iceServers: [{ urls: STUN }] });
+    var RTC = getRTC();
+    if (!RTC) throw new Error('WebRTC (RTCPeerConnection) is unavailable in this browser');
+    return new RTC({ iceServers: [{ urls: STUN }] });
   }
   function waitIceComplete(pc) {
     if (pc.iceGatheringState === 'complete') return Promise.resolve();
@@ -528,7 +539,7 @@
     wrapChannel: wrapChannel,
     hostCreateOffer: hostCreateOffer,
     guestAnswerOffer: guestAnswerOffer,
-    hasWebRTC: (typeof RTCPeerConnection !== 'undefined'),
+    hasWebRTC: !!getRTC(),
     hasBarcodeDetector: (typeof BarcodeDetector !== 'undefined')
   };
 
