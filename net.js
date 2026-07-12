@@ -1,27 +1,28 @@
 /* =============================================================================
- * STACK RANKED — networked play (serverless WebRTC)
+ * STACK RANKED — networked play (PeerJS, host-authoritative)
  * -----------------------------------------------------------------------------
- * Transport + protocol helpers for online play, kept OUT of the rules engine.
- * The game stays host-authoritative: one peer (the host) runs SR.play() and
- * every remote human answers its turn/decision hooks over a WebRTC data channel.
- * This module never touches the DOM; the browser-only bits (RTCPeerConnection,
- * CompressionStream, BarcodeDetector) are feature-guarded so the pure pieces
- * (state codec, code codec, QR matrix) can be exercised headlessly in Node.
+ * Transport + protocol for online play, kept OUT of the rules engine. The game
+ * stays host-authoritative: one peer (the host) runs SR.play() and every remote
+ * human answers its turn/decision hooks over a WebRTC DataConnection. Clients
+ * are thin renderers of the pushed snapshot and send intents back.
+ *
+ * PeerJS (window.Peer, a CDN global) uses its free public broker for SIGNALLING
+ * ONLY (peer discovery); once a DataConnection opens, data flows peer-to-peer.
+ * The host's broker id IS the room code (namespaced). This module never touches
+ * the DOM; the pure pieces (state codec, protocol, identity, QR) run headlessly
+ * in Node — only the transport (hostRoom/joinRoom) needs a browser + window.Peer.
  *
  * Public surface (window.SRNet / module.exports):
- *   serializeState(state) -> string      snapshot for the wire (card refs folded
- *   reviveState(json)     -> state          to {__ref:id}; log/_hooks dropped)
- *   encodeCode(str)  -> Promise<string>  gzip+base64url signaling code ('g'|'r')
- *   decodeCode(code) -> Promise<string>
- *   qr.encode(text)  -> {size, modules}  dependency-free QR matrix (byte mode)
- *   hostCreateOffer(handlers)  -> Promise<{pc, channel, offerCode, accept}>
- *   guestAnswerOffer(code, h)  -> Promise<{pc, answerCode, channel()}>
- *   wrapChannel(ch, handlers)            JSON message framing over a data channel
- *   STUN                                  the public STUN server URL
+ *   serializeState(s)/reviveState(j)     snapshot codec (card refs -> {__ref}; log/_hooks dropped)
+ *   redactFor(state, viewerId) -> string per-viewer snapshot (perfect-info: trim only)
+ *   MSG / msg(type,payload) / isValid(m) versioned wire envelope + guard
+ *   sanitizeId / deriveRoomCode / deriveClientId / roomPeerId   identity
+ *   iceServers() -> Promise<[...]>       STUN always + TURN when TURN_CONFIG set
+ *   hostRoom(opts) / joinRoom(opts) -> Promise<api>   PeerJS transport
+ *   qr.encode(text) -> {size, modules}   dependency-free QR (room-link QR)
  *
  * The QR encoder is adapted from Project Nayuki's "QR Code generator library"
- * (MIT License) — the algorithm/tables are canonical; folded inline to honor the
- * repo's dependency-free rule.
+ * (MIT License) — algorithm/tables canonical; folded inline.
  * ========================================================================== */
 (function () {
   'use strict';
@@ -88,30 +89,9 @@
   }
 
   /* ---------------------------------------------------------------------------
-   * 2. Signaling code codec — gzip (when available) + base64url, tagged
+   * 2. gzip helpers (built-in CompressionStream) — used to shrink big STATE
+   *    snapshots on the wire (matters on relayed/metered TURN).
    * ------------------------------------------------------------------------ */
-  function bytesToB64url(bytes) {
-    var b64;
-    if (typeof btoa !== 'undefined') {
-      var bin = '';
-      for (var i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
-      b64 = btoa(bin);
-    } else {
-      b64 = Buffer.from(bytes).toString('base64');
-    }
-    return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-  }
-  function b64urlToBytes(str) {
-    var b64 = str.replace(/-/g, '+').replace(/_/g, '/');
-    while (b64.length % 4) b64 += '=';
-    if (typeof atob !== 'undefined') {
-      var bin = atob(b64), out = new Uint8Array(bin.length);
-      for (var i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
-      return out;
-    }
-    return new Uint8Array(Buffer.from(b64, 'base64'));
-  }
-
   function streamThrough(bytes, Ctor, fmt) {
     var s = new Ctor(fmt);
     var writer = s.writable.getWriter();
@@ -133,24 +113,11 @@
     return pump();
   }
 
-  function encodeCode(str) {
-    var bytes = new TextEncoder().encode(str);
-    if (typeof CompressionStream !== 'undefined') {
-      return streamThrough(bytes, CompressionStream, 'gzip').then(function (z) { return 'g' + bytesToB64url(z); });
-    }
-    return Promise.resolve('r' + bytesToB64url(bytes));
-  }
-  function decodeCode(code) {
-    var tag = code.charAt(0), body = code.slice(1);
-    var bytes = b64urlToBytes(body);
-    var out;
-    if (tag === 'g' && typeof DecompressionStream !== 'undefined') {
-      out = streamThrough(bytes, DecompressionStream, 'gzip');
-    } else {
-      out = Promise.resolve(bytes);
-    }
-    return out.then(function (b) { return new TextDecoder().decode(b); });
-  }
+  var HAS_GZIP = (typeof CompressionStream !== 'undefined' && typeof DecompressionStream !== 'undefined');
+  function strToU8(s) { return new TextEncoder().encode(s); }
+  function u8ToStr(u8) { return new TextDecoder().decode(u8); }
+  function gzip(bytes) { return streamThrough(bytes, CompressionStream, 'gzip'); }
+  function gunzip(bytes) { return streamThrough(bytes, DecompressionStream, 'gzip'); }
 
   /* ---------------------------------------------------------------------------
    * 3. QR encoder (byte mode) — adapted from Project Nayuki (MIT). Returns a
@@ -435,93 +402,199 @@
   })();
 
   /* ---------------------------------------------------------------------------
-   * 4. Message framing over an RTCDataChannel (JSON lines)
+   * 4. Wire protocol — a tiny versioned envelope + fixed type set + validity
+   *    guard. Inbound messages come from untrusted peers, so isValid() gates
+   *    every one before it reaches game logic.
    * ------------------------------------------------------------------------ */
-  function wrapChannel(ch, handlers) {
-    handlers = handlers || {};
-    var api = {
-      channel: ch,
-      send: function (obj) {
-        if (ch.readyState !== 'open') return false;
-        try { ch.send(JSON.stringify(obj)); return true; } catch (e) { return false; }
-      },
-      isOpen: function () { return ch.readyState === 'open'; },
-      close: function () { try { ch.close(); } catch (e) { /* ignore */ } }
-    };
-    ch.onopen = function () { if (handlers.onOpen) handlers.onOpen(api); };
-    ch.onclose = function () { if (handlers.onClose) handlers.onClose(api); };
-    ch.onerror = function (e) { if (handlers.onError) handlers.onError(e, api); };
-    ch.onmessage = function (ev) {
-      var msg; try { msg = JSON.parse(ev.data); } catch (e) { return; }
-      if (handlers.onMessage) handlers.onMessage(msg, api);
-    };
-    return api;
+  var PROTO = 1;
+  var MSG = {
+    JOIN_REQUEST: 'JOIN_REQUEST', JOIN_ACCEPTED: 'JOIN_ACCEPTED', JOIN_REJECTED: 'JOIN_REJECTED',
+    LOBBY_UPDATE: 'LOBBY_UPDATE', START_GAME: 'START_GAME', STATE_UPDATE: 'STATE_UPDATE',
+    ACTION_INTENT: 'ACTION_INTENT', ACTION_REJECTED: 'ACTION_REJECTED',
+    DECIDE: 'DECIDE', DECIDE_ANSWER: 'DECIDE_ANSWER',
+    YOUR_TURN: 'YOUR_TURN', AP_UPDATE: 'AP_UPDATE', TURN_ENDED: 'TURN_ENDED',
+    REVIEW: 'REVIEW', REVIEW_DONE: 'REVIEW_DONE', GAME_OVER: 'GAME_OVER',
+    LOG: 'LOG', KICK: 'KICK', PLAYER_CONNECTED: 'PLAYER_CONNECTED', PLAYER_DISCONNECTED: 'PLAYER_DISCONNECTED',
+    PING: 'PING', PONG: 'PONG', ERROR: 'ERROR'
+  };
+  var MSG_SET = {};
+  Object.keys(MSG).forEach(function (k) { MSG_SET[MSG[k]] = true; });
+  function msg(type, payload) { return { v: PROTO, type: type, t: Date.now(), payload: (payload === undefined ? null : payload) }; }
+  function isValid(m) {
+    return !!m && typeof m === 'object' && m.v === PROTO && typeof m.type === 'string' && MSG_SET[m.type] === true && ('payload' in m);
   }
 
   /* ---------------------------------------------------------------------------
-   * 5. WebRTC signaling (non-trickle: one code carries all ICE candidates)
+   * 5. Identity — dependency-free room codes + client ids. PeerJS ids are
+   *    [a-z0-9-] with single separators, no leading/trailing/consecutive '-'.
    * ------------------------------------------------------------------------ */
-  // Resolve the RTCPeerConnection constructor, tolerating the legacy webkit
-  // prefix. Returns null when WebRTC is unavailable — e.g. a privacy/VPN
-  // extension or enterprise policy has removed it (the usual reason a
-  // WebRTC-capable browser reports it missing).
-  function getRTC() {
-    if (typeof RTCPeerConnection !== 'undefined') return RTCPeerConnection;
-    if (typeof window !== 'undefined') return window.RTCPeerConnection || window.webkitRTCPeerConnection || null;
-    return null;
+  var NS = 'srk';
+  function sanitizeId(s) {
+    return String(s == null ? '' : s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40);
   }
-  function newPeer() {
-    var RTC = getRTC();
-    if (!RTC) throw new Error('WebRTC (RTCPeerConnection) is unavailable in this browser');
-    return new RTC({ iceServers: [{ urls: STUN }] });
+  function fnv1a(str) {
+    var h = 0x811c9dc5;
+    for (var i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 0x01000193); }
+    return (h >>> 0);
   }
-  function waitIceComplete(pc) {
-    if (pc.iceGatheringState === 'complete') return Promise.resolve();
-    return new Promise(function (resolve) {
-      var done = false;
-      function finish() { if (done) return; done = true; pc.removeEventListener('icegatheringstatechange', check); resolve(); }
-      function check() { if (pc.iceGatheringState === 'complete') finish(); }
-      pc.addEventListener('icegatheringstatechange', check);
-      setTimeout(finish, 4000); // fall back to whatever candidates we have
+  // Fresh 6-char room code folded from the host name + a time seed, so a new
+  // session doesn't collide with a prior room still tearing down on the broker.
+  function deriveRoomCode(hostName, seed) {
+    var s = (seed == null ? Date.now() : seed);
+    return fnv1a(sanitizeId(hostName) + ':' + s).toString(36).slice(0, 6);
+  }
+  function roomPeerId(code) { return NS + '-' + (sanitizeId(code) || 'room'); }
+  // Deterministic client id from (roomCode, name) so a refresh re-derives the
+  // same id and reclaims the same seat; suffix bumps on duplicate names.
+  function deriveClientId(roomCode, name, suffix) {
+    var base = roomPeerId(roomCode) + '-' + (sanitizeId(name) || 'player');
+    return suffix ? (base + '-' + suffix) : base;
+  }
+
+  /* ---------------------------------------------------------------------------
+   * 6. ICE / TURN. STUN always; TURN only when TURN_CONFIG is filled in.
+   *    NOTE: this is a static site — any credential set here is PUBLIC.
+   * ------------------------------------------------------------------------ */
+  // To enable TURN (needed for symmetric-NAT / two-phones-on-cellular), set ONE:
+  //   TURN_CONFIG = { iceServers: [{ urls:'turn:host:3478', username:'u', credential:'p' }] };  // static creds
+  //   TURN_CONFIG = { meteredSubdomain:'yoursub', meteredApiKey:'KEY' };  // fetch ephemeral (KEY is PUBLIC here)
+  var TURN_CONFIG = null;
+  var STUN_SERVERS = [{ urls: STUN }];
+  function iceServers() {
+    if (!TURN_CONFIG) return Promise.resolve(STUN_SERVERS.slice());
+    if (TURN_CONFIG.iceServers) return Promise.resolve(STUN_SERVERS.concat(TURN_CONFIG.iceServers));
+    if (TURN_CONFIG.meteredApiKey && typeof fetch !== 'undefined') {
+      var url = 'https://' + TURN_CONFIG.meteredSubdomain + '.metered.live/api/v1/turn/credentials?apiKey=' + encodeURIComponent(TURN_CONFIG.meteredApiKey);
+      return fetch(url).then(function (r) { return r.json(); })
+        .then(function (list) { return STUN_SERVERS.concat(list); })
+        .catch(function () { return STUN_SERVERS.slice(); });
+    }
+    return Promise.resolve(STUN_SERVERS.slice());
+  }
+  function hasTurn() { return !!TURN_CONFIG; }
+  function isMobile() { return typeof navigator !== 'undefined' && /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent || ''); }
+
+  /* ---------------------------------------------------------------------------
+   * 7. Wire framing — control envelopes as JSON strings; large STATE_UPDATEs
+   *    gzip'd to an ArrayBuffer when the peer advertised caps.z (version-skew
+   *    safe: peers without it get plain JSON). Receiver tells them apart by
+   *    type (string vs binary). Used with PeerJS serialization:'none'.
+   * ------------------------------------------------------------------------ */
+  var ZIP_THRESHOLD = 3000;
+  function wireEncode(env, useZ) {
+    var s = JSON.stringify(env);
+    if (useZ && HAS_GZIP && s.length > ZIP_THRESHOLD) {
+      return gzip(strToU8(s)).then(function (u8) { return u8.buffer; });
+    }
+    return Promise.resolve(s);
+  }
+  function wireDecode(data) {
+    if (typeof data === 'string') { try { return Promise.resolve(JSON.parse(data)); } catch (e) { return Promise.resolve(null); } }
+    var u8 = (data instanceof Uint8Array) ? data : new Uint8Array(data);
+    return gunzip(u8).then(function (b) { return JSON.parse(u8ToStr(b)); }).catch(function () { return null; });
+  }
+  // Ordered async receive: decode + dispatch in arrival order despite async gunzip.
+  function receiveQueued(conn, data, cb) {
+    conn._srq = (conn._srq || Promise.resolve()).then(function () {
+      return wireDecode(data).then(function (env) { if (env && isValid(env)) cb(env); });
+    }).catch(function () { /* drop malformed */ });
+  }
+
+  /* ---------------------------------------------------------------------------
+   * 8. PeerJS transport (host + client). window.Peer is a CDN global; the
+   *    public broker is used for signalling only — data flows peer-to-peer.
+   * ------------------------------------------------------------------------ */
+  function getPeerCtor() { return (typeof Peer !== 'undefined' && Peer) || (typeof window !== 'undefined' && window.Peer) || null; }
+  var TRANSIENT_ERR = { network: 1, 'server-error': 1, 'socket-error': 1, 'socket-closed': 1, disconnected: 1 };
+
+  function hostRoom(opts) {
+    var P = getPeerCtor();
+    if (!P) return Promise.reject(new Error('PeerJS (window.Peer) not loaded'));
+    var h = opts.handlers || {};
+    return new Promise(function (resolve, reject) {
+      var peer = new P(roomPeerId(opts.roomCode), { config: { iceServers: opts.iceServers || STUN_SERVERS } });
+      var clients = {};   // clientId -> { conn, caps, lastFp, alive, lastSeen }
+      var settled = false;
+      function encodeAndSend(conn, env, useZ) { if (!conn || !conn.open) return; wireEncode(env, useZ).then(function (w) { try { conn.send(w); } catch (e) {} }); }
+      var api = {
+        peer: peer, roomCode: opts.roomCode, clients: clients,
+        setCaps: function (clientId, caps) { if (clients[clientId]) clients[clientId].caps = caps; },
+        send: function (clientId, env) { var c = clients[clientId]; if (c) encodeAndSend(c.conn, env, false); },
+        broadcast: function (env) { Object.keys(clients).forEach(function (id) { encodeAndSend(clients[id].conn, env, false); }); },
+        // dedup + optional compression; `force` bypasses dedup (reconnect/resync)
+        sendState: function (clientId, content, force) {
+          var c = clients[clientId]; if (!c || !c.conn || !c.conn.open) return;
+          if (!force && c.lastFp === content) return;
+          c.lastFp = content;
+          encodeAndSend(c.conn, msg(MSG.STATE_UPDATE, content), !!(c.caps && c.caps.z));
+        },
+        broadcastState: function (content) { Object.keys(clients).forEach(function (id) { api.sendState(id, content); }); },
+        clientIds: function () { return Object.keys(clients); },
+        isAlive: function (clientId) { var c = clients[clientId]; return !!(c && c.conn && c.conn.open && c.alive); },
+        lastSeen: function (clientId) { var c = clients[clientId]; return c ? c.lastSeen : 0; },
+        touch: function (clientId) { var c = clients[clientId]; if (c) { c.alive = true; c.lastSeen = Date.now(); } },
+        kick: function (clientId, reason) {
+          var c = clients[clientId];
+          if (c && c.conn) { encodeAndSend(c.conn, msg(MSG.KICK, { reason: reason || null }), false); setTimeout(function () { try { c.conn.close(); } catch (e) {} }, 150); }
+          delete clients[clientId];
+        },
+        destroy: function () {
+          Object.keys(clients).forEach(function (id) { try { clients[id].conn && clients[id].conn.close(); } catch (e) {} });
+          try { peer.destroy(); } catch (e) {}
+        }
+      };
+      peer.on('open', function () { settled = true; resolve(api); if (h.onOpen) h.onOpen(opts.roomCode); });
+      peer.on('connection', function (conn) {
+        conn.on('open', function () {
+          var rec = clients[conn.peer] || {};
+          rec.conn = conn; rec.alive = true; rec.lastSeen = Date.now();
+          clients[conn.peer] = rec;
+          if (h.onConnect) h.onConnect(conn.peer, conn.metadata || {});
+        });
+        conn.on('data', function (data) {
+          var rec = clients[conn.peer]; if (rec) { rec.alive = true; rec.lastSeen = Date.now(); }
+          receiveQueued(conn, data, function (env) { if (h.onMessage) h.onMessage(conn.peer, env); });
+        });
+        conn.on('close', function () { var rec = clients[conn.peer]; if (rec) rec.alive = false; if (h.onDisconnect) h.onDisconnect(conn.peer); });
+        conn.on('error', function () {});
+      });
+      peer.on('disconnected', function () { if (h.onStatus) h.onStatus('reconnecting'); try { peer.reconnect(); } catch (e) {} });
+      peer.on('error', function (e) {
+        var t = e && e.type;
+        if (!settled && (t === 'unavailable-id' || t === 'invalid-id')) { reject(e); return; }
+        if (TRANSIENT_ERR[t]) { if (h.onStatus) h.onStatus('reconnecting'); return; }
+        if (h.onError) h.onError(e);
+      });
     });
   }
 
-  // HOST side: create an offer + data channel, produce the join code, and return
-  // an `accept(answerCode)` to finish the handshake once the guest replies.
-  function hostCreateOffer(handlers) {
-    var pc = newPeer();
-    var ch = pc.createDataChannel('sr', { ordered: true });
-    var wrapped = wrapChannel(ch, handlers);
-    return pc.createOffer()
-      .then(function (offer) { return pc.setLocalDescription(offer); })
-      .then(function () { return waitIceComplete(pc); })
-      .then(function () { return encodeCode(JSON.stringify(pc.localDescription)); })
-      .then(function (offerCode) {
-        return {
-          pc: pc, channel: wrapped, offerCode: offerCode,
-          accept: function (answerCode) {
-            return decodeCode(answerCode).then(function (json) {
-              return pc.setRemoteDescription(JSON.parse(json));
-            });
-          }
-        };
+  function joinRoom(opts) {
+    var P = getPeerCtor();
+    if (!P) return Promise.reject(new Error('PeerJS (window.Peer) not loaded'));
+    var h = opts.handlers || {};
+    return new Promise(function (resolve, reject) {
+      var peer = new P(opts.clientId, { config: { iceServers: opts.iceServers || STUN_SERVERS } });
+      var conn = null, settled = false;
+      var api = {
+        peer: peer,
+        send: function (env) { if (conn && conn.open) wireEncode(env, false).then(function (w) { try { conn.send(w); } catch (e) {} }); },
+        destroy: function () { try { conn && conn.close(); } catch (e) {} try { peer.destroy(); } catch (e) {} }
+      };
+      peer.on('open', function () {
+        conn = peer.connect(roomPeerId(opts.roomCode), { serialization: 'none', reliable: true, metadata: opts.metadata || {} });
+        conn.on('open', function () { settled = true; resolve(api); if (h.onOpen) h.onOpen(); });
+        conn.on('data', function (data) { receiveQueued(conn, data, function (env) { if (h.onMessage) h.onMessage(env); }); });
+        conn.on('close', function () { if (h.onClose) h.onClose(); });
+        conn.on('error', function () {});
       });
-  }
-
-  // GUEST side: consume the host's offer code, produce an answer code to send back.
-  function guestAnswerOffer(offerCode, handlers) {
-    var pc = newPeer();
-    var chRef = { ch: null, wrapped: null };
-    pc.ondatachannel = function (ev) { chRef.ch = ev.channel; chRef.wrapped = wrapChannel(ev.channel, handlers); };
-    return decodeCode(offerCode)
-      .then(function (json) { return pc.setRemoteDescription(JSON.parse(json)); })
-      .then(function () { return pc.createAnswer(); })
-      .then(function (answer) { return pc.setLocalDescription(answer); })
-      .then(function () { return waitIceComplete(pc); })
-      .then(function () { return encodeCode(JSON.stringify(pc.localDescription)); })
-      .then(function (answerCode) {
-        return { pc: pc, answerCode: answerCode, channel: function () { return chRef.wrapped; } };
+      peer.on('disconnected', function () { if (h.onStatus) h.onStatus('reconnecting'); try { peer.reconnect(); } catch (e) {} });
+      peer.on('error', function (e) {
+        var t = e && e.type;
+        if (!settled && (t === 'unavailable-id' || t === 'peer-unavailable' || t === 'invalid-id')) { reject(e); return; }
+        if (TRANSIENT_ERR[t]) { if (h.onStatus) h.onStatus('reconnecting'); return; }
+        if (h.onError) h.onError(e);
       });
+    });
   }
 
   /* ---------------------------------------------------------------------------
@@ -529,17 +602,31 @@
    * ------------------------------------------------------------------------ */
   var SRNet = {
     STUN: STUN,
+    NS: NS,
+    PROTO: PROTO,
+    MSG: MSG,
+    msg: msg,
+    isValid: isValid,
     serializeState: serializeState,
     reviveState: reviveState,
+    // Perfect-information game: redaction is payload-trimming only (drops
+    // _hooks/log, folds card refs). viewerId is kept as a seam for future use.
+    redactFor: function (state, viewerId) { return serializeState(state); },
     packPayload: packPayload,
     unpackPayload: unpackPayload,
-    encodeCode: encodeCode,
-    decodeCode: decodeCode,
     qr: QR,
-    wrapChannel: wrapChannel,
-    hostCreateOffer: hostCreateOffer,
-    guestAnswerOffer: guestAnswerOffer,
-    hasWebRTC: !!getRTC(),
+    sanitizeId: sanitizeId,
+    fnv1a: fnv1a,
+    deriveRoomCode: deriveRoomCode,
+    deriveClientId: deriveClientId,
+    roomPeerId: roomPeerId,
+    iceServers: iceServers,
+    hasTurn: hasTurn,
+    isMobile: isMobile,
+    hostRoom: hostRoom,
+    joinRoom: joinRoom,
+    hasPeerJS: function () { return !!getPeerCtor(); },
+    hasGzip: HAS_GZIP,
     hasBarcodeDetector: (typeof BarcodeDetector !== 'undefined')
   };
 
