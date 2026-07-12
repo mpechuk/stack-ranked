@@ -474,6 +474,18 @@
   function hasTurn() { return !!TURN_CONFIG; }
   function isMobile() { return typeof navigator !== 'undefined' && /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent || ''); }
 
+  // Signalling broker. Default = PeerJS's free public cloud (0.peerjs.com). It
+  // is best-effort and sometimes fails to relay the peer handshake; if online
+  // play won't connect, point this at a dedicated PeerServer, e.g.:
+  //   PEERJS_CONFIG = { host:'your.peerserver.com', port:443, path:'/', secure:true, key:'peerjs' };
+  // (You can run one anywhere: `npx peerjs --port 9000`, or PeerServer Cloud.)
+  var PEERJS_CONFIG = null;
+  function peerOptions(ice) {
+    var o = { config: { iceServers: ice || STUN_SERVERS } };
+    if (PEERJS_CONFIG) { for (var k in PEERJS_CONFIG) { if (Object.prototype.hasOwnProperty.call(PEERJS_CONFIG, k)) o[k] = PEERJS_CONFIG[k]; } }
+    return o;
+  }
+
   /* ---------------------------------------------------------------------------
    * 7. Wire framing — control envelopes as JSON strings; large STATE_UPDATEs
    *    gzip'd to an ArrayBuffer when the peer advertised caps.z (version-skew
@@ -512,9 +524,10 @@
     if (!P) return Promise.reject(new Error('PeerJS (window.Peer) not loaded'));
     var h = opts.handlers || {};
     return new Promise(function (resolve, reject) {
-      var peer = new P(roomPeerId(opts.roomCode), { config: { iceServers: opts.iceServers || STUN_SERVERS } });
+      var peer = new P(roomPeerId(opts.roomCode), peerOptions(opts.iceServers));
       var clients = {};   // clientId -> { conn, caps, lastFp, alive, lastSeen }
       var settled = false;
+      var openTimer = setTimeout(function () { if (settled) return; settled = true; try { peer.destroy(); } catch (e) {} reject({ type: 'timeout', message: 'Timed out reaching the matchmaking server.' }); }, opts.timeout || 15000);
       function encodeAndSend(conn, env, useZ) { if (!conn || !conn.open) return; wireEncode(env, useZ).then(function (w) { try { conn.send(w); } catch (e) {} }); }
       var api = {
         peer: peer, roomCode: opts.roomCode, clients: clients,
@@ -543,7 +556,7 @@
           try { peer.destroy(); } catch (e) {}
         }
       };
-      peer.on('open', function () { settled = true; resolve(api); if (h.onOpen) h.onOpen(opts.roomCode); });
+      peer.on('open', function () { if (settled) return; settled = true; clearTimeout(openTimer); resolve(api); if (h.onOpen) h.onOpen(opts.roomCode); });
       peer.on('connection', function (conn) {
         conn.on('open', function () {
           var rec = clients[conn.peer] || {};
@@ -561,7 +574,7 @@
       peer.on('disconnected', function () { if (h.onStatus) h.onStatus('reconnecting'); try { peer.reconnect(); } catch (e) {} });
       peer.on('error', function (e) {
         var t = e && e.type;
-        if (!settled && (t === 'unavailable-id' || t === 'invalid-id')) { reject(e); return; }
+        if (!settled && (t === 'unavailable-id' || t === 'invalid-id')) { settled = true; clearTimeout(openTimer); reject(e); return; }
         if (TRANSIENT_ERR[t]) { if (h.onStatus) h.onStatus('reconnecting'); return; }
         if (h.onError) h.onError(e);
       });
@@ -573,24 +586,34 @@
     if (!P) return Promise.reject(new Error('PeerJS (window.Peer) not loaded'));
     var h = opts.handlers || {};
     return new Promise(function (resolve, reject) {
-      var peer = new P(opts.clientId, { config: { iceServers: opts.iceServers || STUN_SERVERS } });
-      var conn = null, settled = false;
+      var peer = new P(opts.clientId, peerOptions(opts.iceServers));
+      var conn = null, settled = false, tries = 0;
       var api = {
         peer: peer,
         send: function (env) { if (conn && conn.open) wireEncode(env, false).then(function (w) { try { conn.send(w); } catch (e) {} }); },
         destroy: function () { try { conn && conn.close(); } catch (e) {} try { peer.destroy(); } catch (e) {} }
       };
-      peer.on('open', function () {
-        conn = peer.connect(roomPeerId(opts.roomCode), { serialization: 'none', reliable: true, metadata: opts.metadata || {} });
-        conn.on('open', function () { settled = true; resolve(api); if (h.onOpen) h.onOpen(); });
+      // Overall guard: reject if we never open a DataConnection (broker down /
+      // won't relay, or ICE can't traverse the NAT). Lets the UI show an error
+      // instead of hanging forever.
+      var overall = setTimeout(function () { if (settled) return; settled = true; try { peer.destroy(); } catch (e) {} reject({ type: 'timeout', message: 'Could not reach the host.' }); }, opts.timeout || 22000);
+      function attemptConnect() {
+        tries++;
+        try { conn = peer.connect(roomPeerId(opts.roomCode), { serialization: 'none', reliable: true, metadata: opts.metadata || {} }); }
+        catch (e) { return; }
+        var opened = false;
+        conn.on('open', function () { opened = true; if (settled) return; settled = true; clearTimeout(overall); resolve(api); if (h.onOpen) h.onOpen(); });
         conn.on('data', function (data) { receiveQueued(conn, data, function (env) { if (h.onMessage) h.onMessage(env); }); });
         conn.on('close', function () { if (h.onClose) h.onClose(); });
         conn.on('error', function () {});
-      });
+        // The public broker sometimes drops the first connect offer; re-issue it.
+        setTimeout(function () { if (!opened && !settled && tries < 3) { try { conn.close(); } catch (e) {} attemptConnect(); } }, 7000);
+      }
+      peer.on('open', function () { attemptConnect(); });
       peer.on('disconnected', function () { if (h.onStatus) h.onStatus('reconnecting'); try { peer.reconnect(); } catch (e) {} });
       peer.on('error', function (e) {
         var t = e && e.type;
-        if (!settled && (t === 'unavailable-id' || t === 'peer-unavailable' || t === 'invalid-id')) { reject(e); return; }
+        if (!settled && (t === 'unavailable-id' || t === 'peer-unavailable' || t === 'invalid-id')) { settled = true; clearTimeout(overall); reject(e); return; }
         if (TRANSIENT_ERR[t]) { if (h.onStatus) h.onStatus('reconnecting'); return; }
         if (h.onError) h.onError(e);
       });
