@@ -1411,8 +1411,17 @@
   }
 
   /* ---- HOST ---- */
+  // Diagnose why online play can't start; null when everything's fine.
+  function netUnavailableMsg() {
+    if (typeof SRNet === "undefined" || !SRNet)
+      return "The networking module (net.js) didn't load. Make sure net.js sits in the same folder as index.html, then hard-refresh (Cmd/Ctrl+Shift+R).";
+    if (!SRNet.hasWebRTC)
+      return "WebRTC is turned off in this browser — almost always a privacy or VPN extension (or an enterprise policy) that removes RTCPeerConnection. Try an Incognito/Private window, or disable that extension for this page, then reload.";
+    return null;
+  }
   function createRoom() {
-    if (!SRNet || !SRNet.hasWebRTC) { showModalHTML('<h2>WebRTC unavailable</h2><div class="msub">This browser can\'t open peer-to-peer connections. Try Chrome, Edge, Firefox, or Safari.</div><div class="opts"><button class="primary" id="wrClose">Close</button></div>'); var wb = $("wrClose"); if (wb) wb.addEventListener("click", hideModal); return; }
+    var problem = netUnavailableMsg();
+    if (problem) { showModalHTML('<h2>Can’t start an online game</h2><div class="msub">' + esc(problem) + '</div><div class="opts"><button class="primary" id="wrClose">Close</button></div>'); var wb = $("wrClose"); if (wb) wb.addEventListener("click", hideModal); return; }
     var config = readConfig();
     var plan = readSeatPlan();
     config.players.forEach(function (p, i) { p.kind = (plan[i] === "ai") ? "ai" : "human"; });
@@ -1671,7 +1680,8 @@
 
   /* ---- GUEST ---- */
   function doJoin(spectator) {
-    if (!SRNet || !SRNet.hasWebRTC) { $("joinAnswer").style.display = ""; $("joinStatus").textContent = "This browser doesn't support WebRTC."; return; }
+    var problem = netUnavailableMsg();
+    if (problem) { $("joinAnswer").style.display = ""; $("joinStatus").textContent = problem; return; }
     var code = extractJoinCode($("joinOfferCode").value);
     if (!code) { $("joinAnswer").style.display = ""; $("joinStatus").textContent = "Paste the host's invite link or code first."; return; }
     var name = ($("joinName").value || "Player").trim() || "Player";
