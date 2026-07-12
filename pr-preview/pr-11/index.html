@@ -1408,7 +1408,11 @@
       .catch(function (e) {
         var t = e && e.type;
         Net.host = null; Net.mode = "local";
-        showErr(t === "unavailable-id" ? "That room code is taken — pick another (or leave it blank for an auto code)." : ("Couldn't open the room: " + ((e && e.message) || t || e)));
+        var m;
+        if (t === "unavailable-id") m = "That room code is taken — pick another (or leave it blank for an auto code).";
+        else if (t === "timeout") m = "Couldn't reach the matchmaking server (PeerJS broker). Check your internet connection and try again.";
+        else m = "Couldn't open the room: " + ((e && e.message) || t || e);
+        showErr(m);
       });
   }
   function showLobby(code) {
@@ -1634,19 +1638,28 @@
     var code = Net.guest.roomCode, name = Net.guest.name, spectator = Net.guest.spectator;
     var clientId = SRNet.deriveClientId(code, name, suffix || 0);
     Net.guest.clientId = clientId;
+    $("joinStatus").textContent = "Connecting to room " + code + "…";
     SRNet.joinRoom({ roomCode: code, clientId: clientId, iceServers: ice, metadata: {}, handlers: guestHandlers() })
       .then(function (api) {
         if (Net.mode !== "guest" || !Net.guest) { api.destroy(); return; }
         Net.guest.api = api;
         api.send(SRNet.msg(MSG.JOIN_REQUEST, { name: name, spectator: spectator, clientId: clientId, caps: { z: SRNet.hasGzip } }));
         $("joinStatus").textContent = "Connected — waiting for the host…";
+        // If the host never acknowledges, say so rather than "waiting" forever.
+        Net.guest.ackTimer = setTimeout(function () {
+          if (Net.guest && !Net.guest.accepted && !Net.guest.started) $("joinStatus").textContent = "Connected, but the host isn't responding. They may have closed the room or moved on — ask them to reopen it.";
+        }, 12000);
       })
       .catch(function (e) {
         var t = e && e.type;
         if (t === "unavailable-id" && (suffix || 0) < 5) { guestConnect(ice, (suffix || 0) + 1); return; }
         $("joinAsPlayerBtn").disabled = false; $("joinAsSpectatorBtn").disabled = false;
         Net.mode = "local"; Net.guest = null;
-        $("joinStatus").textContent = (t === "peer-unavailable") ? "No open room with that code — double-check it with the host." : ("Couldn't connect: " + ((e && e.message) || t || e));
+        var m;
+        if (t === "peer-unavailable") m = "No open room with that code. Double-check it with the host (and that they've opened the room).";
+        else if (t === "timeout") m = "Couldn't reach the host — the matchmaking server may be busy, or a firewall/NAT is blocking the direct connection. Tap Join to retry; if it keeps failing, the host may need TURN (see net.js TURN_CONFIG).";
+        else m = "Couldn't connect: " + ((e && e.message) || t || e);
+        $("joinStatus").textContent = m;
       });
   }
   function guestHandlers() {
@@ -1662,6 +1675,7 @@
     var P = env.payload;
     switch (env.type) {
       case MSG.JOIN_ACCEPTED:
+        Net.guest.accepted = true; if (Net.guest.ackTimer) { clearTimeout(Net.guest.ackTimer); Net.guest.ackTimer = null; }
         Net.guest.spectator = !!P.spectator; UI.config = { variant: P.variant };
         $("joinStatus").textContent = P.spectator ? "Joined as spectator — waiting for the host to start…" : "Joined — waiting for the host to start…";
         break;
