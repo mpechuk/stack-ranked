@@ -18,7 +18,8 @@ JS and runs headlessly in Node.
 | File | What it is |
 |---|---|
 | `game.js` | The rules engine + AI. **DOM-free**, Node-runnable. Exports `SR` (also `window.SR`/`globalThis.SR`). Embeds all card data verbatim in `CARDS`. |
-| `index.html` | The whole UI (inline CSS/JS). Loads `game.js` via `<script src>`, drives it through async hooks. `SR` aliased as `SR`, `SR.constants` as `C`, `SR.helpers` as `H`. |
+| `index.html` | The whole UI (inline CSS/JS). Loads `game.js` **and `net.js`** via `<script src>`, drives the engine through async hooks. `SR` aliased as `SR`, `SR.constants` as `C`, `SR.helpers` as `H`, `SRNet` for online play. |
+| `net.js` | **Online play** transport (loaded like `game.js`). **DOM-free**, Node-runnable (`module.exports`/`window.SRNet`). Holds the snapshot codec (`serializeState`/`reviveState` — folds card refs ↔ `SR.DEFS`), the gzip signaling-code codec (`encodeCode`/`decodeCode`), a dependency-free QR encoder (`SRNet.qr`), and serverless-WebRTC offer/answer helpers over public STUN. See §8. |
 | `cards.json` | Canonical card data **plus** an `image` field per card. `game.js`'s `CARDS` is the same data **without** `image` — keep them in sync. |
 | `leaderboard.md` | Career Ladder rung data (AP, CC thresholds, badges) — source for the ladder PDF. |
 | `docs/STACK_RANKED_GAME_SPEC.md` | Implementer spec (exact numbers/ordering). §13 covers the variant rules. |
@@ -128,4 +129,21 @@ Keep the game, the written/printable rules, and the visuals in lockstep. After a
 
 6. **Only regenerate PDFs whose source actually changed** — regenerating from an unchanged source just rewrites an identical file. (Map: rulebook.md→Rulebook.pdf; cards.json→PrintAndPlay.pdf; player_mat.py→PlayerMat.pdf; leaderboard.md→CareerLadder.pdf.)
 
-7. **Verify before finishing:** `node --check game.js`, `node stack_ranked_montecarlo.js 300` (no crash, sane balance), and a headless AI game. `index.html`'s inline script isn't browser-tested here — syntax-check it and confirm every `SR.*` it calls exists.
+7. **Changed a `hooks.decide` action, an action button, or the Review columns** → the **online guest** must mirror it (§8). The host serializes each `decide` request over the wire and the guest re-renders it with the *same* modal functions; a new `decide` action needs a matching branch in `guestHandleDecide`, and a new Sprint action verb needs a branch in `applyTurnAction` (shared by local clicks and the host's remote-turn driver). Net play adds **no** rules — don't touch spec/rulebook/PDFs for it.
+
+8. **Verify before finishing:** `node --check game.js net.js`, `node stack_ranked_montecarlo.js 300` (no crash, sane balance), and a headless AI game. `index.html`'s inline script isn't browser-tested by default — syntax-check it and confirm every `SR.*`/`SRNet.*` it calls exists. Online play is verifiable headlessly via the CDP harness pattern in §8 (real Chrome WebRTC loopback) plus the `serializeState`/`reviveState` and `applyTurnAction` unit tests.
+
+---
+
+## 8. Networked play (online) — `net.js` + `index.html`
+
+Serverless **WebRTC**, **host-authoritative**, **star topology** (host ↔ each guest, no mesh). Layered entirely over the existing engine hooks — **`game.js` is unchanged**.
+
+- **Host** runs `SR.play(state, makeNetHostHooks(state))` on the real state; **guests never run the engine**. The host `onChange`/`log` **broadcast** a snapshot/log line to all peers; `humanTurn`/`decide` for a **remote** seat are **addressed** to that seat's peer (`beginRemoteTurn`/`remoteDecide`) instead of the local modal. Seat ownership lives in `Net.host.seatOwner[playerId]` = `'host'` (local/AI) or a `peerId`; `isLocalSeat()` picks the branch.
+- **Guest** rehydrates each snapshot into `UI.activeState` (so **all existing render/modal functions work unchanged**) and, on its turn, sends `{t:'act',…}` / `{t:'decideAnswer',…}` back. `onAction` routes to `Net.guestSendTurnAction` when `Net.mode==='guest'`; the take/skip claim path resolves the same `beginClaimDecision`/`showDecision` promises, whose value is shipped back.
+- **Roles:** host may own **zero** seats ("board-only" — shared screen, everyone on phones); any peer with no seat is a **spectator** (gets broadcasts, never `yourTurn`/`decide`). Host advances the Review (guests get a read-only copy that closes on `reviewDone`). A dropped peer **falls back to AI** (`SR.aiTakeTurn`/`SR.aiDecide`).
+- **Signaling:** one-shot, no trickle (wait for `iceGatheringState==='complete'`), public STUN. **QR-to-join:** the host shows a `…/#join=<offer>` QR (offer in the URL **fragment** → never hits a server); the guest scans with a native camera, the page auto-loads the offer, and the **answer returns as a short text code** (paste, or optional `BarcodeDetector` scan). `#join=` on load → auto Join mode.
+- **Codec (`net.js`):** `serializeState` folds canonical `SR.DEFS` cards to `{__ref:id}` and drops `_hooks`/`log` (log is sent incrementally); `reviveState` restores them. Keep board/tableau/pile entries as **canonical `SR.DEFS` references** in the engine or the fold/rehydrate breaks.
+- **Message protocol** (host→guest / guest→host) — keep symmetric: host sends `assigned·started·snapshot·log·yourTurn·apUpdate·turnEnded·decide·review·reviewDone·gameOver·reset`; guest sends `join·act·decideAnswer`.
+- **Perfect-information game**, so broadcasting full snapshots leaks nothing (give-one Feedback stays fair — host resolves all gifts then reveals, as the engine already does). STUN-only ⇒ symmetric-NAT pairs may not connect (no TURN).
+- **Headless verification** (no browser UI harness in-repo — scratch scripts): pure pieces (`serializeState`/`reviveState`, `encodeCode`/`decodeCode`, `SRNet.qr`) test in Node against `require('./game.js')`; `applyTurnAction` extracts from `index.html` and tests against a real state; the **WebRTC handshake + data channel** test by driving **headless Chrome via CDP** (native `fetch`+`WebSocket`, no deps) with two `RTCPeerConnection`s connecting in-page.
