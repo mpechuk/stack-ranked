@@ -40,14 +40,17 @@ IIFE with numbered sections. Rough map:
 - **§2 Constants** — `RUNG_NAMES`, `AP_BY_RUNG=[2,2,3,3,4,4,4]`, `CC_THRESHOLD={1:8,2:18,3:30,4:44,5:60,6:78}`, `BADGE_REQ={4:2,5:4}`, `CEO_CC_BAR=78`, `BURNOUT_MAX=10`, `BURNOUT_CRISIS_RESET=6`, `LONG_GAME_ROUNDS=24`, `SAFETY_CAP=60`, **`DEFAULT_RULES`** (variant dials), `buildRules()`.
 - **§3 Metadata** — `SKILL_META`, `MGMT_META`, `TRAINING_META`: hand-encoded structured effects keyed by `slug(name)`. **New cards with mechanical effects need an entry here** (plain +P/+PC/burnout live in meta; anything conditional is handled at its trigger site).
 - **Helpers** — `slug`, `shuffle`, `leaderRung`, `threatLeader` (rung→CC→PC front-runner), `feedbackNegTarget`, `meetsRequirement`, `effective{Hire,Project,BacklogItem}Cost`, `mm(player)` (management meta), etc.
-- **Actions** — `doHire`, `doWorkProject`, `doNetwork`, `doSelfCare`, `doOvertime`, `applyShipsItFriday`, `doShareProject`, `doContribute` (last two = collaboration).
+- **Actions** — `doHire`, `doWorkProject`, `doNetwork`, `doSelfCare`, `doOvertime`, `applyShipsItFriday`, `doShareProject`, `doContribute` (last two = collaboration), `doSwitchManager`/`applyChooseManager` (Request a Transfer — see below).
 - **Round loop** (`play`): `startRound → startQuarterEffects → incomePhase → assignTasks` (Stand-Up backlog claim, shared Kanban) `→ Sprint` (`aiTakeTurn`/`hooks.humanTurn`, sequential by turn order) `→ lunch` (Office Chaos) `→ postmortem` (refill boards, Scope Creep, advance First Player, **Review every 3rd round**, Mandatory Training every 2nd review).
 - **Review** (`runReview`, exact 5-step order): Step 1 score `= CCgainedThisQuarter + PC + feedback − ⌊burnout/4⌋`; Step 2 CEO Board Vote (rung-5 & CC≥78, PC+feedback tiebreak, independent); Step 3 promotions **eligible-first then rank by score**, exactly **one rung per Review** (no level-skipping); Step 4 PIP/demote lowest; Step 5 reset (move Quarter Marker LAST, zero P/PC). Do not reorder — see spec §9.
-- **AI** — `ARCH` archetype weights (`grinder`, `politician`, `balanced`, `workaholic`, `cautious`); `aiTakeTurn` (scores Work/Collaborate/Hire/Network per AP), `aiDecide` (event/feedback choices).
+- **AI** — `ARCH` archetype weights (`grinder`, `politician`, `balanced`, `workaholic`, `cautious`); `aiTakeTurn` (scores Work/Collaborate/Hire/Network/**SwitchManager** per AP — the last only when `managerValue(current)` is clearly negative), `aiDecide` (event/feedback/**chooseManager** choices).
 - **Hooks** (all optional): `log`, `onChange`, `wait`, `humanTurn`, `decide(req)`, `onEvent(card)` (Office Chaos announcement — awaited so the host can hold the table on the drawn card), `onReview(summary)`, `onGameOver`. AI-only games pass `{}` or just `{log}`.
 
 ### Resources / persistence
-`rung`(0–6), `productivity`(resets each Review), `politicalCapital`(resets), `burnout`(persistent 0–10, Crisis at 10), `careerCapital`(persistent, ~monotonic), `quarterMarker`, `complianceBadges`, `hasPip`, `backlog[]`.
+`rung`(0–6), `productivity`(resets each Review), `politicalCapital`(resets), `burnout`(persistent 0–10, Crisis at 10), `careerCapital`(persistent, ~monotonic), `quarterMarker`, `complianceBadges`, `hasPip`, `backlog[]`, `_transferUsedThisQuarter`(resets each Quarter).
+
+### Request a Transfer (core rule, always-on — NOT a variant dial)
+Sprint action to escape a punishing early boss: costs 1 AP + 2 Burnout, **once per Quarter** (`_transferUsedThisQuarter`, reset in `startRound`). `doSwitchManager` draws the top **2** of the Management deck (before discarding the current, so a near-empty deck can't strand you), discards the current boss, and returns `{ok:true, pending:'chooseManager'}` holding the 2 on `player._managerChoice`; the driver then calls `applyChooseManager(state, player, id)` to keep one + `syncImmunity`. AI: `aiTakeTurn` scores a switch only when `managerValue(current) < -0.5` (leave a clearly-bad boss), then keeps the higher-`managerValue` candidate; `aiDecide` case `chooseManager` mirrors that. `managerValue(player, mgrDef)` (exported in `SR.helpers`) is the heuristic boss-quality score. **Test-only seam:** `state._noTransfer` disables it (never set by `newGame`/UI). Because AP is fixed at `beginTurn`, a mid-Sprint switch doesn't retroactively change this turn's AP. Public: `SR.actions.{switchManager,chooseManager}`, `SR.helpers.managerValue`.
 
 ### Variant rules (both default ON; all dials in `DEFAULT_RULES` / per-game `config.rules`)
 - **Feedback deck** — 18 cards (9 Positive +2 / 9 Constructive −2). `resolveFeedbackPhase(state, hooks)` runs at the **top of every Review, before `runReview`** (called from `postmortem`, async so humans can be asked); it's a **dispatcher** on `feedbackMode` → `resolveFeedbackClassic` or `resolveFeedbackGiveOne`, then a shared `tallyFeedback`. Net folds into Review Score + CEO tiebreak, clamped to ±`feedbackNetCap` (=4). Dials: `feedbackMode`(`'classic'` default | `'give-one'`), `feedbackValue`(2), `feedbackNetCap`(4), `feedbackTarget`(`'score'` default | `'rung'` | `'blend'` | `'spread'`), `feedbackNegLeaderOnly`, `feedbackBlendPcWeight`(6). Transient — never touches persistent PC. UI is selectable ("Feedback Round" on setup → `config.rules.feedbackMode`).
@@ -56,7 +59,7 @@ IIFE with numbered sections. Rough map:
   - Review summary rows carry `feedback` either way.
 - **Collaborative Projects** — a backlog item can be `shared`; anyone contributes Productivity (`doContribute`/`contributeToProject`) across turns; on completion (`completeCollaborative`): **CC follows the Productivity that paid for it** — solo owner → full CC; lone outside funder → that funder takes full CC; ≥`collabMinContributors`(2) with ≥1 non-owner → contributors split CC proportionally and the **owner takes PC = max(cardCC−2,1) IN LIEU of a CC share** (capped by `collabOwnerPcCap`=3; `collabOwnerMustContribute`=true → owner must pay ≥1 P to earn it). Dials also: `collabLeaderCannotReceive`. **Semantic invariant:** never credit a non-contributing owner with CC; owner PC is *instead of*, not *on top of*, CC. (Getting this wrong made the Politician win ~45–60% — see spec §13.3.)
 
-Public: `SR.actions.{shareProject,contribute}`, `SR.helpers.sharedProjects`. Internal (tests): `SR._internal.{resolveFeedbackPhase,resolveFeedbackGiveOne,resolveFeedbackClassic,contributeToProject,completeCollaborative,sharedProjects,threatLeader,buildRules}`.
+Public (variants): `SR.actions.{shareProject,contribute}`, `SR.helpers.sharedProjects`. Internal (tests): `SR._internal.{resolveFeedbackPhase,resolveFeedbackGiveOne,resolveFeedbackClassic,contributeToProject,completeCollaborative,sharedProjects,threatLeader,buildRules}`.
 
 ---
 
@@ -84,7 +87,12 @@ Review Score must count **CC gained this Quarter** (not banked P/PC alone). Prom
 ```
 node stack_ranked_montecarlo.js [gamesPerCell=1500] [variant=race-to-ceo]
 ```
-Seeded (reproducible). For each ruleset it runs **DISTINCT** games (5 different archetypes → strategy balance) and **MIRROR** games (all-Balanced → any lead is pure luck → comeback metrics), then a player-count/variant sanity sweep. Metrics: win-rate spread (`balSD`), comeback (bottom-half / dead-last-at-halftime wins), runaway (halftime leader wins), % CEO endings. **Recommended defaults are the most balanced config measured** (balSD ~6pp, tighter than the base game); `feedbackTarget:'rung'` trades balance for stronger comebacks. Full writeup: spec §13.3.
+Seeded (reproducible). For each ruleset it runs **DISTINCT** games (5 different archetypes → strategy balance) and **MIRROR** games (all-Balanced → any lead is pure luck → comeback metrics), then a player-count/variant sanity sweep. Metrics: win-rate spread (`balSD`), comeback (bottom-half / dead-last-at-halftime wins), runaway (halftime leader wins), % CEO endings. **Recommended defaults are the most balanced config measured** (balSD ~8–9pp with Request-a-Transfer on, still far tighter than the base game and with *lower* runaway); `feedbackTarget:'rung'` trades balance for stronger comebacks. Full writeup: spec §13.3.
+
+```
+node stack_ranked_manager_switch_test.js [gamesPerArm=1000] [variant=race-to-ceo]
+```
+Focused catch-up test for Request-a-Transfer: 6 identical (Balanced) seats split into a cohort forced onto The Micromanager vs a clean-boss field; runs Arm A (`state._noTransfer=true`) vs Arm B (transfers on) on the **same seeds**. Proves the causal lift — being able to switch ~triples the bad cohort's win share (~8%→~25%) and nearly doubles its final rung.
 
 The Python sim (`stack_ranked_balance_simulator.py`) is the older coarse tool — do NOT use it for the variant rules (it abstracts cards).
 

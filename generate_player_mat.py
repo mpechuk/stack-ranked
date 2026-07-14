@@ -259,6 +259,8 @@ def draw_quick_reference(c, x, top, w, h):
         f"{icon_tag(RESOURCE_EMOJI['Political Capital'], 8)}<b>Network</b> (free): "
         "+2 Political Capital, +1 Career Capital.<br/>"
         f"<b>Self-Care</b> (free): −2 {icon_tag(RESOURCE_EMOJI['Burnout'], 8)}Burnout.<br/>"
+        f"<b>Request a Transfer</b> (1/Quarter): +2 {icon_tag(RESOURCE_EMOJI['Burnout'], 8)}Burnout; "
+        "discard your boss, draw 2 Management Styles, keep 1.<br/>"
         f"<b>Overtime</b> (1/round): +1 Action Point, +2 {icon_tag(RESOURCE_EMOJI['Burnout'], 8)}Burnout.<br/>"
         f"{icon_tag(RESOURCE_EMOJI['Burnout'], 8)}<b>Burnout Crisis</b> at 10: reset to 6, "
         "−2 Political Capital, skip next Sprint.<br/>"
