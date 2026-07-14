@@ -30,7 +30,7 @@ jobs:
       - name: Stage site
         run: |
           mkdir -p _site
-          cp index.html game.js _site/
+          cp index.html game.js net.js _site/
 
       - name: Deploy preview
         uses: rossjrw/pr-preview-action@v1
