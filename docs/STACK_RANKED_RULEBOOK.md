@@ -328,12 +328,10 @@ they become Employee of the Quarter: gain 1 Political Capital immediately and
 keep a token (worth bonus points in the Advanced Variant — see
 [Winning the Game](#winning-the-game)).
 
-#### Meteoric Rise
-
-If a promoted player's Review Score is at least double the next-highest
-Review Score, and they also meet the Career Capital (and Badge) requirement
-for the rung after that, they leap two rungs instead of one. This cannot
-leapfrog directly into CEO — the Board Vote is the only door to the top.
+A promotion always moves you up **exactly one rung** — you climb the ladder one
+level at a time and can never skip a level, no matter how dominant your Review
+Score is. (The only door to the top rung, CEO, is the Board Vote in Step 2, and
+it only opens for players already sitting at VP.)
 
 ### Step 4 — PIP and Demotion
 
