@@ -8,9 +8,12 @@
  *
  * PeerJS (window.Peer, a CDN global) uses its free public broker for SIGNALLING
  * ONLY (peer discovery); once a DataConnection opens, data flows peer-to-peer.
- * The host's broker id IS the room code (namespaced). This module never touches
- * the DOM; the pure pieces (state codec, protocol, identity, QR) run headlessly
- * in Node — only the transport (hostRoom/joinRoom) needs a browser + window.Peer.
+ * The host's broker id IS the room code (namespaced). We use PeerJS's DEFAULT
+ * serialization and send plain envelope objects — `serialization:'none'` does
+ * NOT complete the handshake in PeerJS 1.5.x. Per-client snapshot dedup keeps an
+ * idle table cheap. This module never touches the DOM; the pure pieces (state
+ * codec, protocol, identity, QR) run headlessly in Node — only the transport
+ * (hostRoom/joinRoom) needs a browser + window.Peer.
  *
  * Public surface (window.SRNet / module.exports):
  *   serializeState(s)/reviveState(j)     snapshot codec (card refs -> {__ref}; log/_hooks dropped)
@@ -88,36 +91,6 @@
     return walk(obj);
   }
 
-  /* ---------------------------------------------------------------------------
-   * 2. gzip helpers (built-in CompressionStream) — used to shrink big STATE
-   *    snapshots on the wire (matters on relayed/metered TURN).
-   * ------------------------------------------------------------------------ */
-  function streamThrough(bytes, Ctor, fmt) {
-    var s = new Ctor(fmt);
-    var writer = s.writable.getWriter();
-    writer.write(bytes); writer.close();
-    var reader = s.readable.getReader();
-    var chunks = [];
-    function pump() {
-      return reader.read().then(function (r) {
-        if (r.done) {
-          var len = chunks.reduce(function (a, c) { return a + c.length; }, 0);
-          var out = new Uint8Array(len), off = 0;
-          chunks.forEach(function (c) { out.set(c, off); off += c.length; });
-          return out;
-        }
-        chunks.push(r.value);
-        return pump();
-      });
-    }
-    return pump();
-  }
-
-  var HAS_GZIP = (typeof CompressionStream !== 'undefined' && typeof DecompressionStream !== 'undefined');
-  function strToU8(s) { return new TextEncoder().encode(s); }
-  function u8ToStr(u8) { return new TextDecoder().decode(u8); }
-  function gzip(bytes) { return streamThrough(bytes, CompressionStream, 'gzip'); }
-  function gunzip(bytes) { return streamThrough(bytes, DecompressionStream, 'gzip'); }
 
   /* ---------------------------------------------------------------------------
    * 3. QR encoder (byte mode) — adapted from Project Nayuki (MIT). Returns a
@@ -487,32 +460,6 @@
   }
 
   /* ---------------------------------------------------------------------------
-   * 7. Wire framing — control envelopes as JSON strings; large STATE_UPDATEs
-   *    gzip'd to an ArrayBuffer when the peer advertised caps.z (version-skew
-   *    safe: peers without it get plain JSON). Receiver tells them apart by
-   *    type (string vs binary). Used with PeerJS serialization:'none'.
-   * ------------------------------------------------------------------------ */
-  var ZIP_THRESHOLD = 3000;
-  function wireEncode(env, useZ) {
-    var s = JSON.stringify(env);
-    if (useZ && HAS_GZIP && s.length > ZIP_THRESHOLD) {
-      return gzip(strToU8(s)).then(function (u8) { return u8.buffer; });
-    }
-    return Promise.resolve(s);
-  }
-  function wireDecode(data) {
-    if (typeof data === 'string') { try { return Promise.resolve(JSON.parse(data)); } catch (e) { return Promise.resolve(null); } }
-    var u8 = (data instanceof Uint8Array) ? data : new Uint8Array(data);
-    return gunzip(u8).then(function (b) { return JSON.parse(u8ToStr(b)); }).catch(function () { return null; });
-  }
-  // Ordered async receive: decode + dispatch in arrival order despite async gunzip.
-  function receiveQueued(conn, data, cb) {
-    conn._srq = (conn._srq || Promise.resolve()).then(function () {
-      return wireDecode(data).then(function (env) { if (env && isValid(env)) cb(env); });
-    }).catch(function () { /* drop malformed */ });
-  }
-
-  /* ---------------------------------------------------------------------------
    * 8. PeerJS transport (host + client). window.Peer is a CDN global; the
    *    public broker is used for signalling only — data flows peer-to-peer.
    * ------------------------------------------------------------------------ */
@@ -528,18 +475,22 @@
       var clients = {};   // clientId -> { conn, caps, lastFp, alive, lastSeen }
       var settled = false;
       var openTimer = setTimeout(function () { if (settled) return; settled = true; try { peer.destroy(); } catch (e) {} reject({ type: 'timeout', message: 'Timed out reaching the matchmaking server.' }); }, opts.timeout || 15000);
-      function encodeAndSend(conn, env, useZ) { if (!conn || !conn.open) return; wireEncode(env, useZ).then(function (w) { try { conn.send(w); } catch (e) {} }); }
+      // PeerJS default serialization (BinaryPack) — we send plain envelope
+      // objects. (serialization:'none' does NOT complete the handshake in
+      // PeerJS 1.5.x, so we don't use it.)
+      function rawSend(conn, env) { if (!conn || !conn.open) return; try { conn.send(env); } catch (e) {} }
       var api = {
         peer: peer, roomCode: opts.roomCode, clients: clients,
         setCaps: function (clientId, caps) { if (clients[clientId]) clients[clientId].caps = caps; },
-        send: function (clientId, env) { var c = clients[clientId]; if (c) encodeAndSend(c.conn, env, false); },
-        broadcast: function (env) { Object.keys(clients).forEach(function (id) { encodeAndSend(clients[id].conn, env, false); }); },
-        // dedup + optional compression; `force` bypasses dedup (reconnect/resync)
+        send: function (clientId, env) { var c = clients[clientId]; if (c) rawSend(c.conn, env); },
+        broadcast: function (env) { Object.keys(clients).forEach(function (id) { rawSend(clients[id].conn, env); }); },
+        // dedup: skip a re-send when the redacted content is byte-identical
+        // (`force` bypasses it for reconnect/resync).
         sendState: function (clientId, content, force) {
           var c = clients[clientId]; if (!c || !c.conn || !c.conn.open) return;
           if (!force && c.lastFp === content) return;
           c.lastFp = content;
-          encodeAndSend(c.conn, msg(MSG.STATE_UPDATE, content), !!(c.caps && c.caps.z));
+          rawSend(c.conn, msg(MSG.STATE_UPDATE, content));
         },
         broadcastState: function (content) { Object.keys(clients).forEach(function (id) { api.sendState(id, content); }); },
         clientIds: function () { return Object.keys(clients); },
@@ -548,7 +499,7 @@
         touch: function (clientId) { var c = clients[clientId]; if (c) { c.alive = true; c.lastSeen = Date.now(); } },
         kick: function (clientId, reason) {
           var c = clients[clientId];
-          if (c && c.conn) { encodeAndSend(c.conn, msg(MSG.KICK, { reason: reason || null }), false); setTimeout(function () { try { c.conn.close(); } catch (e) {} }, 150); }
+          if (c && c.conn) { rawSend(c.conn, msg(MSG.KICK, { reason: reason || null })); setTimeout(function () { try { c.conn.close(); } catch (e) {} }, 150); }
           delete clients[clientId];
         },
         destroy: function () {
@@ -564,9 +515,9 @@
           clients[conn.peer] = rec;
           if (h.onConnect) h.onConnect(conn.peer, conn.metadata || {});
         });
-        conn.on('data', function (data) {
+        conn.on('data', function (env) {
           var rec = clients[conn.peer]; if (rec) { rec.alive = true; rec.lastSeen = Date.now(); }
-          receiveQueued(conn, data, function (env) { if (h.onMessage) h.onMessage(conn.peer, env); });
+          if (env && isValid(env) && h.onMessage) h.onMessage(conn.peer, env);
         });
         conn.on('close', function () { var rec = clients[conn.peer]; if (rec) rec.alive = false; if (h.onDisconnect) h.onDisconnect(conn.peer); });
         conn.on('error', function () {});
@@ -590,7 +541,7 @@
       var conn = null, settled = false, tries = 0;
       var api = {
         peer: peer,
-        send: function (env) { if (conn && conn.open) wireEncode(env, false).then(function (w) { try { conn.send(w); } catch (e) {} }); },
+        send: function (env) { if (conn && conn.open) { try { conn.send(env); } catch (e) {} } },
         destroy: function () { try { conn && conn.close(); } catch (e) {} try { peer.destroy(); } catch (e) {} }
       };
       // Overall guard: reject if we never open a DataConnection (broker down /
@@ -599,11 +550,11 @@
       var overall = setTimeout(function () { if (settled) return; settled = true; try { peer.destroy(); } catch (e) {} reject({ type: 'timeout', message: 'Could not reach the host.' }); }, opts.timeout || 22000);
       function attemptConnect() {
         tries++;
-        try { conn = peer.connect(roomPeerId(opts.roomCode), { serialization: 'none', reliable: true, metadata: opts.metadata || {} }); }
+        try { conn = peer.connect(roomPeerId(opts.roomCode), { reliable: true, metadata: opts.metadata || {} }); }
         catch (e) { return; }
         var opened = false;
         conn.on('open', function () { opened = true; if (settled) return; settled = true; clearTimeout(overall); resolve(api); if (h.onOpen) h.onOpen(); });
-        conn.on('data', function (data) { receiveQueued(conn, data, function (env) { if (h.onMessage) h.onMessage(env); }); });
+        conn.on('data', function (env) { if (env && isValid(env) && h.onMessage) h.onMessage(env); });
         conn.on('close', function () { if (h.onClose) h.onClose(); });
         conn.on('error', function () {});
         // The public broker sometimes drops the first connect offer; re-issue it.
@@ -649,7 +600,6 @@
     hostRoom: hostRoom,
     joinRoom: joinRoom,
     hasPeerJS: function () { return !!getPeerCtor(); },
-    hasGzip: HAS_GZIP,
     hasBarcodeDetector: (typeof BarcodeDetector !== 'undefined')
   };
 
