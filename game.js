@@ -1789,10 +1789,6 @@
       }
     }
 
-    // Precompute the 2nd-highest score among ALL players (for Meteoric Rise)
-    const allScoresDesc = players.map(function (p) { return score[p.id]; }).sort(function (a, b) { return b - a; });
-    const secondHighest = allScoresDesc.length > 1 ? allScoresDesc[1] : 0;
-
     // Step 3 — Standard Promotions (eligible-first, then rank by score)
     const eligible = players.filter(function (p) {
       return p.rung < 5 && p !== newCeo && meetsRequirement(p, p.rung + 1);
@@ -1805,13 +1801,9 @@
     const promotedSet = new Set(promoted.map(function (p) { return p.id; }));
 
     promoted.forEach(function (p) {
+      // Exactly one rung per Review — a player must climb the ladder one level
+      // at a time and can never skip a rung, no matter how high their score.
       p.rung += 1;
-      const nextTarget = Math.min(p.rung + 1, 5);
-      if (secondHighest > 0 && score[p.id] >= 2 * secondHighest &&
-          nextTarget > p.rung && meetsRequirement(p, nextTarget)) {
-        log(state, "⭐ Meteoric Rise: " + p.name + " leaps an extra rung!", "promote");
-        p.rung = nextTarget;
-      }
       if (p.rung === 5 && p.firstVpReviewNumber == null) p.firstVpReviewNumber = state.reviewCount;
       rowById[p.id].rungAfter = p.rung;
       summary.promotedIds.push(p.id);

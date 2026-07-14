@@ -278,17 +278,10 @@ def run_review(players, review_num, cfg, rng, stats):
                 continue
             target = p.rung + 1
             if meets_requirement(p, target, cfg):
+                # exactly one rung per Review — never skip a level
                 p.rung = target
                 if p.rung == 5 and p.first_vp_round is None:
                     p.first_vp_round = review_num
-                # meteoric rise: score >= 2x runner-up, next rung also clears
-                second = scores[order_desc[1]] if len(order_desc) > 1 else 0
-                target2 = min(p.rung + 1, 5)
-                if (second > 0 and scores[i] >= 2 * second and
-                        target2 > p.rung and meets_requirement(p, target2, cfg)):
-                    p.rung = target2
-                    if p.rung == 5 and p.first_vp_round is None:
-                        p.first_vp_round = review_num
                 promoted_idx.add(i)
                 used_slots += 1
             elif not cfg.fallback_promotion:
