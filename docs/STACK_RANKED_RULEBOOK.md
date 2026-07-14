@@ -52,8 +52,8 @@ this rulebook is detail.
    just claiming it, not paying for it yet.
 2. **Sprint**: spend your Action Points to Hire a Skill card, Work a Project
    (pay to finish any one entry in your Backlog — your choice which), Network,
-   or Self-Care. You may also take one Overtime action per round for a bonus
-   Action Point.
+   Self-Care, or Request a Transfer (swap your boss — once per Quarter). You may
+   also take one Overtime action per round for a bonus Action Point.
 3. **Lunch**: draw an Office Chaos card and resolve it.
 4. **Postmortem**: refill the boards and pass the First Player token. Every
    3rd round is a Quarterly Performance Review — the top performer(s) may get
@@ -267,6 +267,11 @@ Each Action Point buys one of the following:
   is completely empty (rare — Stand-Up adds an entry every round).
 - **Network** — no cost. Gain 2 Political Capital and 1 Career Capital.
 - **Self-Care** — no cost. Remove 2 Burnout.
+- **Request a Transfer** — gain 2 Burnout (job-hunting is stressful). Discard
+  your current Management Style card, draw the top **2** of the Management Style
+  deck, keep **one**, and discard the other. You may do this only **once per
+  Quarter**. Use it to escape a boss whose downside is hurting you — see
+  [Management Styles](#management-styles).
 
 Once per round, before or after your normal Action Points, you may also take
 Overtime: gain 1 extra Action Point to spend this round, but gain 2 Burnout.
@@ -379,6 +384,14 @@ At setup, and again every time you're promoted or demoted, you draw a
 Management Style card and keep it face-up on your Desk mat. It's a passive,
 asymmetric power that lasts until your next promotion or demotion — for
 better or (usually) worse.
+
+**A bad boss is no longer a life sentence.** On your Sprint you may
+**Request a Transfer** (see [Sprint](#62-sprint-action-phase)): gain 2 Burnout,
+discard your current boss, draw the top 2 of the deck and keep the one you
+prefer. It costs an Action Point and you may only do it **once per Quarter**, so
+it's a deliberate escape from a boss whose downside is dragging you down — not a
+free re-roll every turn. The player who drew a punishing boss early can climb
+back out; the player who's happy with theirs simply never spends the action.
 
 Full text for all 16 Management Style cards is in the
 [Card Reference Appendix](#card-reference-appendix). A few highlights:
@@ -513,11 +526,26 @@ pitching in — while the owner banks the political goodwill.
 >
 > The **360° Review** feedback style was measured against Standard the same way
 > (3,000 games/cell): with the default targeting it's **balance-neutral** — the
-> five archetypes land in the same order and the same 14–33% band (std-dev
-> 7.0pp for both), and comebacks and runaway-leader rates are indistinguishable.
+> five archetypes land in the same order and the same ~14–37% band (std-dev
+> ~8.7pp for both), and comebacks and runaway-leader rates are indistinguishable.
 > It changes how the table *feels* (secret, simultaneous, everyone throws
 > exactly one card), not who wins, because the ±4 net cap already bounds the
 > biggest possible swing in either style. So pick it for the drama, not an edge.
+>
+> **Request a Transfer** was added to fix a specific unfairness: a punishing boss
+> dealt early (The Micromanager, The Credit-Stealing Boss, The Tenure-Not-Talent
+> Manager, …) used to be a near-life-sentence, because it slowed the very
+> promotions that were the only escape from it. In the catch-up harness
+> (`stack_ranked_manager_switch_test.js`), six identical (Balanced) seats were
+> split into a cohort forced onto The Micromanager and a field of clean bosses.
+> With transfers **disabled** the bad cohort won only ~8–9% of games (fair share
+> is 50%) and barely climbed off the bottom rung; with transfers **on** — same
+> seeds, same bots — its win share roughly **tripled to ~25%** and its average
+> final rung nearly doubled. It doesn't fully erase the disadvantage of a rough
+> start (a happy front-runner never bothers to switch), and in exchange for
+> reducing that luck it lets strategy show through a touch more (recommended
+> std-dev ticks from ~7.0 to ~8.7pp) while lowering the runaway-leader rate — a
+> net *more forgiving* game.
 
 ---
 
@@ -883,6 +911,7 @@ Mandatory Training.
 | Work a Project | Chosen Backlog entry's Productivity cost | Gain its Career Capital reward + listed effects; that entry leaves your Backlog |
 | Network | Free | +2 Political Capital, +1 Career Capital |
 | Self-Care | Free | −2 Burnout |
+| Request a Transfer (once/Quarter) | +2 Burnout | Discard your boss; draw 2 Management Styles, keep 1 |
 | Overtime (once/round, not an AP) | +2 Burnout | +1 Action Point this round |
 
 ### Your Backlog
