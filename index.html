@@ -1643,7 +1643,7 @@
       .then(function (api) {
         if (Net.mode !== "guest" || !Net.guest) { api.destroy(); return; }
         Net.guest.api = api;
-        api.send(SRNet.msg(MSG.JOIN_REQUEST, { name: name, spectator: spectator, clientId: clientId, caps: { z: SRNet.hasGzip } }));
+        api.send(SRNet.msg(MSG.JOIN_REQUEST, { name: name, spectator: spectator, clientId: clientId, caps: {} }));
         $("joinStatus").textContent = "Connected — waiting for the host…";
         // If the host never acknowledges, say so rather than "waiting" forever.
         Net.guest.ackTimer = setTimeout(function () {
@@ -1750,7 +1750,7 @@
       .then(function (api) {
         if (Net.mode !== "guest" || !Net.guest) { api.destroy(); return; }
         Net.guest.api = api; Net.guest.retries = 0; hideModal();
-        api.send(SRNet.msg(MSG.JOIN_REQUEST, { name: Net.guest.name, spectator: Net.guest.spectator, clientId: Net.guest.clientId, caps: { z: SRNet.hasGzip } }));
+        api.send(SRNet.msg(MSG.JOIN_REQUEST, { name: Net.guest.name, spectator: Net.guest.spectator, clientId: Net.guest.clientId, caps: {} }));
       })
       .catch(function () { setTimeout(function () { if (Net.mode === "guest" && Net.guest) guestOnClose(); }, 1500); });
   }
