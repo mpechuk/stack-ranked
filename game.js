@@ -11,6 +11,7 @@
  *   hooks.wait(ms)            - pause for animation (no-op in Node)
  *   hooks.humanTurn(player)   - hand control to a human for their Sprint
  *   hooks.decide(request)     - ask a human an in-flight question (returns answer)
+ *   hooks.onEvent(card)       - an Office Chaos card was drawn; announce it (awaited)
  *   hooks.onReview(summary)   - a Quarterly Review resolved; show it
  *   hooks.onGameOver(state)   - the game ended
  *
@@ -1218,6 +1219,12 @@
     state.currentEvent = card;
     if (!card) { log(state, "Office Chaos deck is empty.", "event"); return; }
     log(state, "🍽️ Office Chaos — " + card.name + ": " + card.effect, "event");
+
+    // Announce the drawn card (modal in the UI) before its effects resolve, so
+    // players get a beat to read it. Awaited: the host holds the game here until
+    // the card is dismissed. No-op headlessly / when the hook is absent.
+    if (hooks && hooks.onChange) hooks.onChange();
+    if (hooks && hooks.onEvent) await hooks.onEvent(card);
 
     // AI Prompt Engineer hallucination triggers whenever an Office Chaos card is drawn.
     state.players.forEach(function (p) {

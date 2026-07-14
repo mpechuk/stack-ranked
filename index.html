@@ -237,6 +237,10 @@
   .event-card .en { font-weight: 700; color: var(--warn); font-size: 13px; }
   .event-card .ee { font-size: 12px; color: var(--txt-dim); margin-top: 3px; }
   .event-card .ef { font-size: 10px; color: var(--txt-faint); font-style: italic; margin-top: 4px; }
+  .event-card.big { padding: 18px 20px; margin-top: 8px; }
+  .event-card.big .en { font-size: 20px; }
+  .event-card.big .ee { font-size: 15px; margin-top: 8px; }
+  .event-card.big .ef { font-size: 12px; margin-top: 10px; }
 
   .log-panel { flex: 1; min-height: 0; display: flex; flex-direction: column; }
   .log-head { padding: 8px 14px; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--txt-faint); border-bottom: 1px solid var(--line); }
@@ -736,6 +740,10 @@
         if (req.action === "claimTask") return beginClaimDecision(req);
         return showDecision(req);
       },
+      onEvent: function (card) {
+        if (stale()) return Promise.resolve();
+        return showEvent(card);
+      },
       onReview: function (summary) {
         if (stale()) return Promise.resolve();
         return showReview(summary);
@@ -1234,6 +1242,36 @@
     });
   }
 
+  // Trim an Office Chaos card to the fields the announcement modal needs.
+  function eventPayload(card) { return { name: card.name, effect: card.effect, flavor: card.flavor }; }
+
+  // Office Chaos announcement modal. Shows the drawn card for ~5 s; the host (or
+  // a solo local player) can dismiss it early. Guests can't dismiss — they just
+  // display it until the host's EVENT_DONE arrives (see guestDispatch). AI-only
+  // games (no human watching) skip it so spectating stays fast.
+  function showEvent(card) {
+    if (!UI.hasHuman) return Promise.resolve();
+    var isGuest = Net.mode === "guest";
+    return new Promise(function (res) {
+      showModalHTML(
+        '<h2>🍽️ Office Chaos</h2>' +
+        '<div class="event-card big"><div class="en">' + esc(card.name) + "</div>" +
+          '<div class="ee">' + esc(card.effect) + "</div>" +
+          '<div class="ef">' + esc(card.flavor) + "</div></div>" +
+        '<div class="opts" style="margin-top:16px">' +
+          (isGuest ? '<span class="faint">Waiting for the host…</span>'
+                   : '<button class="primary" id="evDismiss">Dismiss ▸</button>') +
+        "</div>");
+      // Guests wait for the host's EVENT_DONE (or a REVIEW/DECIDE that overrides
+      // the modal); they never resolve this promise themselves.
+      if (isGuest) return;
+      var done = false, timer = null;
+      function finish() { if (done) return; done = true; if (timer) clearTimeout(timer); hideModal(); res(); }
+      var btn = $("evDismiss"); if (btn) btn.addEventListener("click", finish);
+      timer = setTimeout(finish, 5000);
+    });
+  }
+
   function outcomeBadge(sum, id) {
     if (sum.newCeoId === id) return '<span class="rev-out ceo">👑 CEO</span>';
     if (sum.promotedIds.indexOf(id) >= 0) return '<span class="rev-out promote">⬆ Promoted</span>';
@@ -1563,6 +1601,7 @@
       wait: function (key) { if (stale()) return Promise.resolve(); var d = SPEEDS[UI.speed][key || "action"]; return new Promise(function (r) { setTimeout(r, d); }); },
       humanTurn: function (player) { if (stale()) return Promise.resolve(); return isLocalSeat(player.id) ? beginHumanTurn(state, player) : beginRemoteTurn(state, player); },
       decide: function (req) { if (stale()) return Promise.resolve(defaultDecision(req)); return isLocalSeat(req.playerId) ? localDecide(req) : remoteDecide(req); },
+      onEvent: function (card) { if (stale()) return Promise.resolve(); Net.host.api.broadcast(SRNet.msg(MSG.EVENT, eventPayload(card))); return showEvent(card).then(function () { if (Net.host) Net.host.api.broadcast(SRNet.msg(MSG.EVENT_DONE)); }); },
       onReview: function (summary) { if (stale()) return Promise.resolve(); Net.host.api.broadcast(SRNet.msg(MSG.REVIEW, SRNet.packPayload(summary))); return showReview(summary).then(function () { if (Net.host) Net.host.api.broadcast(SRNet.msg(MSG.REVIEW_DONE)); }); },
       onGameOver: function (st) { if (stale()) return Promise.resolve(); Net.host.api.broadcast(SRNet.msg(MSG.GAME_OVER, SRNet.serializeState(st))); return showGameOver(st); }
     };
@@ -1690,6 +1729,8 @@
       case MSG.AP_UPDATE: guestHandleApUpdate(P); break;
       case MSG.TURN_ENDED: guestHandleTurnEnded(P); break;
       case MSG.DECIDE: guestHandleDecide(P); break;
+      case MSG.EVENT: if (Net.mode === "guest") showEvent(P); break;
+      case MSG.EVENT_DONE: hideModal(); break;
       case MSG.REVIEW: if (Net.mode === "guest") showReview(P); break;
       case MSG.REVIEW_DONE: hideModal(); break;
       case MSG.GAME_OVER: guestHandleGameOver(P); break;
