@@ -431,15 +431,7 @@ eligible.sort(descending by reviewScore)          // rank ONLY among the eligibl
 promoted = eligible[0 : promotionSlots]
 
 for p in promoted:
-    p.rung += 1
-    // Meteoric Rise check:
-    secondHighestScore = the 2nd-highest reviewScore among ALL players this review (not just eligible)
-    nextTarget = min(p.rung + 1, 5)                // capped at VP — cannot leapfrog into CEO
-    if secondHighestScore > 0
-       and p.reviewScore >= 2 * secondHighestScore
-       and nextTarget > p.rung
-       and meetsRequirement(p, nextTarget):
-        p.rung = nextTarget
+    p.rung += 1                                    // exactly one rung — never skip a level
 
 for p in eligible not in promoted:                 // eligible but slot(s) already taken
     p.employeeOfQuarterTokens += 1
@@ -779,10 +771,12 @@ to `burnout`, not a once-per-round batch check.** A player can cross the
 threshold mid-Action-Phase (e.g., from Overtime) and must have the Crisis
 resolve before their next action, not queued until end of round.
 
-**9.5 — Meteoric Rise is capped at VP (rung 5); it can never jump a player
-directly into CEO.** The Board Vote is the only path to rung 6, by design —
-otherwise a single spectacular Quarter could end the game without ever
-passing through the political gate that's supposed to matter at the top.
+**9.5 — Promotions advance exactly one rung per Review; a player can never
+skip a level.** No matter how dominant a Quarter's Review Score is, Standard
+Promotion moves a player up by one rung only — you must actually stand at each
+level of the ladder before climbing to the next. The Board Vote (Step 2) is
+the sole exception path to rung 6, and it too only fires for players already
+sitting at VP (rung 5).
 
 **9.6 — The Evergreen slot never depletes.** Every other Project is a
 one-time board slot; the 5th Kanban Board slot is a repeatable action

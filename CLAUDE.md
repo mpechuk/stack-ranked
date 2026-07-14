@@ -42,7 +42,7 @@ IIFE with numbered sections. Rough map:
 - **Helpers** — `slug`, `shuffle`, `leaderRung`, `threatLeader` (rung→CC→PC front-runner), `feedbackNegTarget`, `meetsRequirement`, `effective{Hire,Project,BacklogItem}Cost`, `mm(player)` (management meta), etc.
 - **Actions** — `doHire`, `doWorkProject`, `doNetwork`, `doSelfCare`, `doOvertime`, `applyShipsItFriday`, `doShareProject`, `doContribute` (last two = collaboration).
 - **Round loop** (`play`): `startRound → startQuarterEffects → incomePhase → assignTasks` (Stand-Up backlog claim, shared Kanban) `→ Sprint` (`aiTakeTurn`/`hooks.humanTurn`, sequential by turn order) `→ lunch` (Office Chaos) `→ postmortem` (refill boards, Scope Creep, advance First Player, **Review every 3rd round**, Mandatory Training every 2nd review).
-- **Review** (`runReview`, exact 5-step order): Step 1 score `= CCgainedThisQuarter + PC + feedback − ⌊burnout/4⌋`; Step 2 CEO Board Vote (rung-5 & CC≥78, PC+feedback tiebreak, independent); Step 3 promotions **eligible-first then rank by score** (+ Meteoric Rise capped at VP); Step 4 PIP/demote lowest; Step 5 reset (move Quarter Marker LAST, zero P/PC). Do not reorder — see spec §9.
+- **Review** (`runReview`, exact 5-step order): Step 1 score `= CCgainedThisQuarter + PC + feedback − ⌊burnout/4⌋`; Step 2 CEO Board Vote (rung-5 & CC≥78, PC+feedback tiebreak, independent); Step 3 promotions **eligible-first then rank by score**, exactly **one rung per Review** (no level-skipping); Step 4 PIP/demote lowest; Step 5 reset (move Quarter Marker LAST, zero P/PC). Do not reorder — see spec §9.
 - **AI** — `ARCH` archetype weights (`grinder`, `politician`, `balanced`, `workaholic`, `cautious`); `aiTakeTurn` (scores Work/Collaborate/Hire/Network per AP), `aiDecide` (event/feedback choices).
 - **Hooks** (all optional): `log`, `onChange`, `wait`, `humanTurn`, `decide(req)`, `onEvent(card)` (Office Chaos announcement — awaited so the host can hold the table on the drawn card), `onReview(summary)`, `onGameOver`. AI-only games pass `{}` or just `{log}`.
 
@@ -75,7 +75,7 @@ await SR.play(st, { /* hooks; {} for silent AI-only */ });
 
 ## 4. Design invariants (don't "simplify" these — spec §9)
 
-Review Score must count **CC gained this Quarter** (not banked P/PC alone). Promotions **filter to eligible, then rank by score** (not score-first). CEO Board Vote is independent and the new CEO is excluded from Steps 3–4. Burnout Crisis is an **immediate interrupt** on any burnout change. Meteoric Rise is capped at VP. Quarter Marker moves **last**. Evergreen Kanban slot never depletes / is Scope-Creep-exempt. Plus the variant semantics in §2.
+Review Score must count **CC gained this Quarter** (not banked P/PC alone). Promotions **filter to eligible, then rank by score** (not score-first). CEO Board Vote is independent and the new CEO is excluded from Steps 3–4. Burnout Crisis is an **immediate interrupt** on any burnout change. Promotions advance **exactly one rung** — never skip a level. Quarter Marker moves **last**. Evergreen Kanban slot never depletes / is Scope-Creep-exempt. Plus the variant semantics in §2.
 
 ---
 

@@ -43,7 +43,7 @@ Pages (see below). No build step, no server, no dependencies.
   Management Styles, each with its exact effect.
 - **Faithful rules:** the full round loop (Stand-Up → Sprint → Lunch →
   Postmortem), the exact 5-step Quarterly Review (eligibility-first promotion, the
-  independent CEO Board Vote, Meteoric Rise capped at VP, PIP/demotion, and the
+  independent CEO Board Vote, one-rung-per-Review promotions, PIP/demotion, and the
   Quarter-Marker-moves-last ordering), Burnout Crisis as an interrupt, Scope
   Creep, tier unlocks, and every documented edge case from the spec's postmortem.
 - **Perfect information**, as the rules intend — every stat, board, tableau, and
