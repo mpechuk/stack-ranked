@@ -304,11 +304,15 @@ these steps in order:
 ### Step 1 — Calculate Review Score
 
 Review Score = (Career Capital gained since your Quarter Marker) + (Political
-Capital on hand) + (Feedback held — variant rule) − (Burnout ÷ 4, rounded
-down).
+Capital on hand) + (Feedback held — variant rule) − (Tasks on hand).
+
+*Tasks on hand* = the claimed Tasks still sitting uncompleted in your backlog
+when the Review runs — every unfinished Task is −1. Close your tickets before
+your performance review.
 
 This rewards real output delivered this Quarter and current visibility — not
-just whoever happens to be holding the most cash at the buzzer.
+just whoever happens to be holding the most cash at the buzzer, and not just
+whoever hoarded a pile of unshipped work.
 
 ### Step 2 — CEO Board Vote
 
@@ -426,6 +430,10 @@ hand) − Burnout + (5 × Employee-of-the-Quarter tokens).
 
 Highest Final Score wins — even if nobody ever reaches CEO. This variant
 rewards consistent, well-rounded play over a single lucky Board Vote.
+
+Note: this end-of-game Final Score still subtracts full Burnout. Burnout no
+longer affects your per-Quarter Review Score (that's Tasks on hand now), but it
+still weighs on your final standing — and a Burnout Crisis still hits at 10.
 
 ---
 
@@ -854,6 +862,29 @@ ascension where the specialist who ignores politics entirely, or the one who
 ignores real output entirely, wins as often as the well-rounded player would
 be a strange piece of satire to ship.
 
+### v4 — Tasks on Hand Replace the Burnout Tax
+
+The Review Score used to end with a small "− ⌊Burnout ÷ 4⌋" penalty. We replaced
+it with "− Tasks on hand": one point off your Review Score for every claimed
+Project still sitting unfinished in your Backlog when the Review runs. It's more
+on-theme — your performance review dings you for unshipped work-in-progress, not
+for how many late nights it took — and it can't be gamed, because finishing a
+Project both clears it from your Backlog *and* books its Career Capital, so
+lowering the penalty and raising your score are the same move.
+
+Two consequences worth knowing. First, the bots were taught not to hoard: a bot
+now declines to pick up a new task while it's already holding work it can't
+afford to finish, so backlogs stay small (about one task on average) instead of
+piling up all game. Second, since Burnout no longer costs you *at the Review*,
+the hardest grinder is no longer taxed for it — so across the card-faithful
+balance sweep the Workaholic overtakes the Politician as the single strongest
+strategy (the Politician had topped the old formula). Overall spread between the
+five strategies is essentially unchanged, and equal-skill games actually got a
+little *more* forgiving: the halftime leader wins less often (~29% vs 37%) and a
+dead-last player comes back more often (~24% vs 15%). Burnout still bites in the
+two places it always did — a Burnout Crisis at 10, and the end-of-game Final
+Score in the Long Game.
+
 ### Other Numbers Worth Knowing
 
 | Metric | v1 | v2 | v3 |
@@ -927,7 +958,7 @@ the AP and Productivity for it.
 ### Review Score
 
 (Career Capital gained since your Quarter Marker) + (Political Capital on
-hand) + (Feedback held — variant) − (Burnout ÷ 4, rounded down)
+hand) + (Feedback held — variant) − (Tasks on hand: uncompleted Tasks in your backlog)
 
 ### Burnout Crisis (at 10)
 
