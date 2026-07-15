@@ -265,7 +265,7 @@ def draw_quick_reference(c, x, top, w, h):
         f"{icon_tag(RESOURCE_EMOJI['Burnout'], 8)}<b>Burnout Crisis</b> at 10: reset to 6, "
         "−2 Political Capital, skip next Sprint.<br/>"
         "<b>Review Score</b> = CC gained since Quarter Marker + Political Capital "
-        "on hand + Feedback held − (Burnout ÷ 4, rounded down).<br/>"
+        "on hand + Feedback held − (Tasks on hand).<br/>"
         f"{memo_icon}<b>Feedback</b> (variant): 1 card each at Review, keep or "
         "give; ±2 pts, net capped ±4. <i>360° mode:</i> get a +/− pair, secretly "
         "give one &amp; discard one.<br/>"

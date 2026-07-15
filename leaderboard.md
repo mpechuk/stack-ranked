@@ -19,7 +19,7 @@ left-to-right in the order they appear here, Intern first.
 
 ## Stack Rank Formula
 
-Review Score = Career Capital gained since Quarter Marker + Political Capital on hand + Feedback held (variant) − (Burnout ÷ 4, rounded down)
+Review Score = Career Capital gained since Quarter Marker + Political Capital on hand + Feedback held (variant) − (Tasks on hand)
 
 ## Quick Reference
 
