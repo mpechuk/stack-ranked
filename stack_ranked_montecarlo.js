@@ -47,7 +47,16 @@ async function playOne(archetypes, rules, variant) {
 
   // midpoint snapshot: ranks as of Review #2 (round 6)
   let midRankBySeat = null; // seat -> rank (1 = ahead)
+  // burnout-load counters (log-hook based; no effect on RNG/determinism)
+  let crises = 0, selfcare = 0, overtime = 0;
   const hooks = {
+    log: function (e) {
+      if (e.cls === 'crisis') crises++;
+      else if (e.cls === 'action') {
+        if (e.text.indexOf('Self-Care') >= 0) selfcare++;
+        else if (e.text.indexOf('Overtime') >= 0) overtime++;
+      }
+    },
     onReview: function (summary) {
       if (summary.reviewNumber === 2 && !midRankBySeat) {
         const ranked = state.players.slice().sort(function (a, b) {
@@ -84,7 +93,9 @@ async function playOne(archetypes, rules, variant) {
     winnerMidRank: winnerMidRank,          // 1..n (n = dead last at halftime)
     midLeaderWon: midLeaderWon,            // bool
     n: n,
-    finalRungByArch: state.players.reduce(function (m, p) { (m[p.archetype] = m[p.archetype] || []).push(p.rung); return m; }, {})
+    finalRungByArch: state.players.reduce(function (m, p) { (m[p.archetype] = m[p.archetype] || []).push(p.rung); return m; }, {}),
+    crises: crises, selfcare: selfcare, overtime: overtime,
+    endBurnAvg: state.players.reduce(function (s, p) { return s + p.burnout; }, 0) / n
   };
 }
 
@@ -95,6 +106,7 @@ async function runCell(archetypesFactory, rules, variant, nGames, baseSeed) {
   const winsBySeat = [0, 0, 0, 0, 0, 0];
   let rounds = 0, ceoEndings = 0;
   let midKnown = 0, winnerWasBottomHalf = 0, winnerWasLast = 0, midLeaderWon = 0;
+  let crisesSum = 0, selfcareSum = 0, overtimeSum = 0, burnSum = 0;
   const rungSum = {}; const rungCnt = {}; ARCHES.forEach(function (a) { rungSum[a] = 0; rungCnt[a] = 0; });
 
   for (let g = 0; g < nGames; g++) {
@@ -104,6 +116,7 @@ async function runCell(archetypesFactory, rules, variant, nGames, baseSeed) {
     winsByArch[r.winnerArch] = (winsByArch[r.winnerArch] || 0) + 1;
     winsBySeat[r.winnerSeat] = (winsBySeat[r.winnerSeat] || 0) + 1;
     rounds += r.rounds;
+    crisesSum += r.crises; selfcareSum += r.selfcare; overtimeSum += r.overtime; burnSum += r.endBurnAvg;
     if (r.endedViaCeo) ceoEndings++;
     if (r.winnerMidRank != null) {
       midKnown++;
@@ -127,7 +140,9 @@ async function runCell(archetypesFactory, rules, variant, nGames, baseSeed) {
     pctWinnerBottomHalf: midKnown ? 100 * winnerWasBottomHalf / midKnown : 0,
     pctWinnerLast: midKnown ? 100 * winnerWasLast / midKnown : 0,
     pctMidLeaderWon: midKnown ? 100 * midLeaderWon / midKnown : 0,
-    avgRungByArch: ARCHES.reduce(function (m, a) { m[a] = rungCnt[a] ? rungSum[a] / rungCnt[a] : 0; return m; }, {})
+    avgRungByArch: ARCHES.reduce(function (m, a) { m[a] = rungCnt[a] ? rungSum[a] / rungCnt[a] : 0; return m; }, {}),
+    crisesPerGame: crisesSum / nGames, selfcarePerGame: selfcareSum / nGames,
+    overtimePerGame: overtimeSum / nGames, endBurnAvg: burnSum / nGames
   };
 }
 
@@ -151,6 +166,8 @@ function printCell(title, res) {
   });
   console.log('  balance: sd=' + bs.sdPct + 'pp  spread(max-min)=' + bs.spreadPct + 'pp  [' + bs.minPct + '%..' + bs.maxPct + '%]');
   console.log('  pacing:  avg ' + res.avgRounds.toFixed(1) + ' rounds, ' + res.pctCeo.toFixed(1) + '% end via CEO');
+  console.log('  burnout: avg end ' + res.endBurnAvg.toFixed(1) + ',  ' + res.crisesPerGame.toFixed(1) +
+    ' crises/game,  ' + res.selfcarePerGame.toFixed(1) + ' self-care/game,  ' + res.overtimePerGame.toFixed(1) + ' overtime/game');
 }
 
 function printMirror(title, res) {
@@ -206,7 +223,7 @@ async function main() {
 
   // compact comparison table
   console.log('\n\n===================== SUMMARY TABLE =====================');
-  console.log('ruleset         balSD  spread   comeback(botHalf/last)  runaway  ceo%');
+  console.log('ruleset         balSD  spread   comeback(botHalf/last)  runaway  ceo%  crisis/g');
   order.forEach(function (key) {
     const d = summary[key].distinct, m = summary[key].mirror;
     const bs = balanceStats(d.winsByArch, d.nGames);
@@ -215,7 +232,8 @@ async function main() {
       ' ' + (bs.spreadPct + 'pp').padStart(7) +
       '   ' + (m.pctWinnerBottomHalf.toFixed(0) + '%/' + m.pctWinnerLast.toFixed(0) + '%').padStart(9) +
       '           ' + (m.pctMidLeaderWon.toFixed(0) + '%').padStart(5) +
-      '   ' + d.pctCeo.toFixed(0) + '%');
+      '   ' + d.pctCeo.toFixed(0) + '%' +
+      '   ' + d.crisesPerGame.toFixed(1));
   });
   console.log('  (lower balSD/spread = more even strategies; higher comeback & lower runaway = more forgiving of bad luck)');
 
