@@ -760,6 +760,7 @@
     if (req.action === "therapyTarget") return null;
     if (req.action === "giveFeedback") return req.playerId; // safe default: keep the card
     if (req.action === "giveFeedbackChoose") return false;  // safe default: engine slings the negative at the leader
+    if (req.action === "chooseManager") return req.candidates && req.candidates[0] && req.candidates[0].id;
     return false;
   }
 
@@ -844,6 +845,12 @@
       if (cr.ok) { ctx.ap -= 1; return { ok: true }; }
       return { ok: false };
     }
+    if (act === "switchmgr") {
+      if (ctx.ap < 1 || ctx.mustProjectFirst || p._transferUsedThisQuarter) return { ok: false };
+      var sm = SR.actions.switchManager(s, p);
+      if (sm.ok) { ctx.ap -= 1; return { ok: true, pending: sm.pending }; }
+      return { ok: false };
+    }
     return { ok: false };
   }
 
@@ -875,6 +882,7 @@
     if (act === "endturn") return endTurn();
     var res = applyTurnAction(s, t, act, idx, owner);
     if (res.ok && res.pending === "shipsItFriday") { renderAll(); hostBroadcastIfHosting(); return openShipsModal(p); }
+    if (res.ok && res.pending === "chooseManager") { renderAll(); hostBroadcastIfHosting(); return openManagerModal(p); }
     renderAll();
     hostBroadcastIfHosting();
     maybeAutoEnd();
@@ -912,6 +920,23 @@
   function openShipsModal(player) {
     return showShipsChoice(player).then(function (i) {
       SR.actions.applyShipsItFriday(UI.activeState, player, i);
+      hideModal(); renderAll(); hostBroadcastIfHosting(); maybeAutoEnd();
+    });
+  }
+
+  // Request a Transfer: the two drawn candidates are held on player._managerChoice.
+  // Trim them to what the chooser needs and reuse showDecision. UI-only (the engine
+  // already mutated resources in doSwitchManager); works for a local player and,
+  // via the same `chooseManager` decide, for a host prompting a guest.
+  function managerChoiceOptions(player) {
+    return (player._managerChoice || []).map(function (c) { return { id: c.id, name: c.name, effect: c.effect }; });
+  }
+  function openManagerModal(player) {
+    var cands = managerChoiceOptions(player);
+    return showDecision({ action: "chooseManager", playerId: player.id,
+      prompt: "Choose your new manager", candidates: cands,
+      options: cands.map(function (c) { return { key: c.id, label: c.name }; }) }).then(function (id) {
+      SR.actions.chooseManager(UI.activeState, player, id);
       hideModal(); renderAll(); hostBroadcastIfHosting(); maybeAutoEnd();
     });
   }
@@ -1155,6 +1180,9 @@
           '<button data-act="network"' + ((t.ap >= 1 && netOk && !block) ? "" : " disabled") + ">Network<br><span class='faint'>+2 PC, +1 CC</span></button>" +
           '<button data-act="selfcare"' + ((t.ap >= scCost && scOk && !block) ? "" : " disabled") + ">Self-Care<br><span class='faint'>−2 🔥 (" + scCost + " AP)</span></button>" +
           '<button data-act="overtime"' + ((!p.overtimeUsedThisRound && !block) ? "" : " disabled") + ">Overtime<br><span class='faint'>+1 AP, +2 🔥</span></button>" +
+          '<button data-act="switchmgr"' + ((t.ap >= 1 && !p._transferUsedThisQuarter && !block) ? "" : " disabled") +
+            ' title="Discard your current boss' + (p.managementStyle ? " (" + esc(p.managementStyle.name) + ")" : "") +
+            ', draw 2 managers and keep one. Once per Quarter.">Request Transfer<br><span class=\'faint\'>swap boss · 1 AP, +2 🔥</span></button>' +
           '<button class="primary" data-act="endturn">End Turn</button>' +
         "</div>" +
         '<div class="hint">' + turnHint(s, p, t) + "</div>";
@@ -1222,6 +1250,8 @@
         body += '<button data-k="__none">Decline</button>';
       } else if (req.action === "giveFeedback" || req.action === "giveFeedbackChoose") {
         body = req.options.map(function (o) { return '<button data-k="' + esc(o.key) + '">' + esc(o.label) + "</button>"; }).join("");
+      } else if (req.action === "chooseManager") {
+        body = req.candidates.map(function (c) { return '<button data-k="' + esc(c.id) + '"><b>' + esc(c.name) + "</b><br><span class='faint'>" + esc(c.effect || "") + "</span></button>"; }).join("");
       } else {
         body = '<button data-k="yes">Yes</button><button data-k="no">No</button>';
       }
@@ -1236,6 +1266,7 @@
           if (req.action === "discardSkill") return res(k);
           if (req.action === "therapyTarget") return res(k === "__none" ? null : k);
           if (req.action === "giveFeedback" || req.action === "giveFeedbackChoose") return res(k);
+          if (req.action === "chooseManager") return res(k);
           return res(k === "yes");
         });
       });
@@ -1629,6 +1660,17 @@
       renderAll(); Net.pushState();
       remoteDecide({ action: "shipsItFriday", playerId: rt.turn.player.id }).then(function (i) {
         if (Net.host && Net.host.remoteTurn === rt && rt.turn.active) SR.actions.applyShipsItFriday(state, rt.turn.player, parseInt(i, 10));
+        afterRemoteAction(rt);
+      });
+      return;
+    }
+    if (res.ok && res.pending === "chooseManager") {
+      renderAll(); Net.pushState();
+      var pl = rt.turn.player;
+      var cands = (pl._managerChoice || []).map(function (c) { return { id: c.id, name: c.name, effect: c.effect }; });
+      remoteDecide({ action: "chooseManager", playerId: pl.id, prompt: "Choose your new manager",
+        candidates: cands, options: cands.map(function (c) { return { key: c.id, label: c.name }; }) }).then(function (id) {
+        if (Net.host && Net.host.remoteTurn === rt && rt.turn.active) SR.actions.chooseManager(state, pl, id);
         afterRemoteAction(rt);
       });
       return;
