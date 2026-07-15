@@ -50,7 +50,7 @@ Companion files in this project (not required to read first, but useful):
 | **Compliance Badges** | persistent counter | Gained from Mandatory Training. Gates Director (needs 2) and VP (needs 4). Never decreases. |
 | **PIP token** | boolean flag | Held or not held. A second consecutive PIP converts to a demotion. |
 | **Employee of the Quarter token** | persistent counter | Consolation for eligible-but-not-selected promotion candidates. Worth points only in the Advanced Variant. |
-| **Management Style** | card reference | One per player, asymmetric passive power. Redrawn on every promotion or demotion. |
+| **Management Style** | card reference | One per player, asymmetric passive power. Redrawn on every promotion or demotion, and swappable at will via the **Request a Transfer** Sprint action (draw 2, keep 1; once per Quarter — see 5.2.2). |
 | **Action Points (AP)** | per-round budget | 2 / 3 / 4 depending on rung — see 6.1. |
 | **First Player token** | rotating marker | Passes clockwise (i.e., to the next player in seating/turn order) every round. Determines Action Phase order and tie-breaks for several card effects ("the First Player…"). |
 
@@ -128,6 +128,7 @@ Player {
   immuneToDemotion: bool         // true if holding Golden Handcuffs (Fully Vested)
   firstVpReviewNumber: int|null  // first Review at which this player reached rung 5 (VP) — for analytics/"upset" tracking only, not required for correctness
   overtimeUsedThisRound: bool    // resets every round
+  _transferUsedThisQuarter: bool // Request-a-Transfer gate; resets at the top of each Quarter (5.2.2)
 }
 ```
 
@@ -298,6 +299,22 @@ Income/Lunch/Postmortem.)
   independent of the player's backlog.
 - **Network**: no cost. `politicalCapital += 2`, `careerCapital += 1`.
 - **Self-Care**: no cost. `burnout = max(0, burnout - 2)`.
+- **Request a Transfer** (once per player per Quarter — gate on a
+  `_transferUsedThisQuarter` flag reset at the top of each Quarter, alongside the
+  other per-Quarter usage flags): costs the AP slot **and** `burnout += 2`
+  (checking for a Crisis right away — see 5.2.5). Draw the top **2** cards of the
+  Management Style deck (reshuffling the discard when the draw pile empties, same
+  as any deck), discard the player's current Management Style card, let the player
+  **keep one** of the two drawn and discard the other, then re-sync any Skill-based
+  immunity. Edge cases: draw the candidates *before* discarding the current card
+  so a near-empty deck can't strand the player with no manager; if only one
+  candidate is available it is kept automatically (no choice); if none are, the
+  action is illegal (charge nothing). **Always-on core rule** (not a variant
+  dial). Because the AP budget is fixed at the top of the turn (6.1), a mid-Sprint
+  switch does **not** retroactively change *this* turn's AP / free-AP /
+  force-first-Project effect — the new boss's passives take effect from the next
+  income/quarter/turn read onward. This is the escape hatch for a punishing
+  early-game boss (the Management Style cards are listed in Section 8).
 - **Overtime** (once per player per round, doesn't consume an AP slot — check
   and clear `overtimeUsedThisRound` at the top of each player's turn): grants
   **+1 AP to spend this round**, and immediately applies `burnout += 2` (checking

@@ -421,7 +421,9 @@
       // per-quarter usage flags
       _rubberDuckUsedThisQuarter: false,
       _offlineUsedThisQuarter: false,
-      _pagerUsedThisQuarter: false
+      _pagerUsedThisQuarter: false,
+      _transferUsedThisQuarter: false,
+      _managerChoice: null           // transient: 2 candidates held mid-transfer
     };
   }
 
@@ -531,6 +533,47 @@
    * 9. Small state queries
    * ------------------------------------------------------------------------ */
   function mm(player) { return MGMT_META[player.managementStyle ? player.managementStyle.id : ""] || {}; }
+
+  // Rough "how good is this boss for me?" score (positive = helpful). Used by the
+  // AI to decide whether to Request a Transfer and which of two candidates to keep,
+  // and by the UI to hint at a swap. Deliberately heuristic — manager effects are
+  // heterogeneous and contextual (rung, archetype), so this only needs to be good
+  // enough to leave a clearly-bad boss and pick the better of two.
+  function managerValue(player, mgrDef) {
+    if (!mgrDef) return 0;
+    const m = MGMT_META[mgrDef.id] || {};
+    const w = ARCH[player.archetype] || ARCH.balanced;
+    let v = 0;
+    // Action-point economy
+    if (m.freeAp) v += m.freeAp * 2.0;
+    if (m.apFixed != null) v += (m.apFixed - AP_BY_RUNG[player.rung]) * 1.5;
+    // Income (per round)
+    if (m.pcPerIncome) v += m.pcPerIncome * w.pc * 0.8;
+    if (m.pPerIncome) v += m.pPerIncome * w.p * 0.8;
+    // Costs — a positive delta is a penalty
+    if (m.skillHireDelta) v -= m.skillHireDelta * 1.0;
+    if (m.projectCostDelta) v -= m.projectCostDelta * 1.2;
+    if (m.selfCareApCost) v -= (m.selfCareApCost - 1) * 0.6;
+    if (m.trainingApCost) v -= (m.trainingApCost - 1) * 0.4;
+    // Network
+    if (m.networkExtraPc) v += m.networkExtraPc * w.net * 0.3;
+    if (m.noNetwork) v -= w.net * 0.6;
+    // Overtime
+    if (m.overtimeExtraP) v += m.overtimeExtraP * (w.overtime ? 0.8 : 0.2) * w.p * 0.5;
+    if (m.overtimeExtraBurnout) v -= m.overtimeExtraBurnout * (w.overtime ? 1.0 : 0.5);
+    // Restrictions / per-Quarter risk
+    if (m.forceFirstActionProject) v -= 1.5;
+    if (m.quarterCoin) v -= 1.0;            // 50% chance to discard a Skill
+    if (m.seagullQuarterCoin) v += 0.3;     // mild net-positive for the holder
+    // Compliance badges only pay off near the rung 4-5 gates
+    if (m.badgesCountDouble) v += player.rung >= 3 ? 1.0 : 0.2;
+    // Credit-Stealing Boss: CC drain per project taxes the promotion gate
+    if (m.onProjectComplete) {
+      v += (m.onProjectComplete.cc || 0) * w.cc * 0.5;
+      v += (m.onProjectComplete.pc || 0) * w.pc * 0.3;
+    }
+    return v;
+  }
   function hasSkill(player, id) { return player.tableau.some(function (c) { return c.id === id; }); }
   function skillCount(player) { return player.tableau.length; }
   function leaderRung(state) { return Math.max.apply(null, state.players.map(function (p) { return p.rung; })); }
@@ -1046,6 +1089,57 @@
     return { ok: true, grantAp: 1 };
   }
 
+  // Request a Transfer — escape a punishing boss. Costs the caller 1 AP (charged
+  // by the driver) plus 2 Burnout here. Draws 2 replacement managers, holds them
+  // on the player, and returns { pending:"chooseManager" } so the driver can let
+  // the player keep one (via applyChooseManager). Once per Quarter.
+  function doSwitchManager(state, player) {
+    if (state._noTransfer) {   // test-only kill switch (never set by newGame or the UI)
+      return { ok: false, reason: "Transfers are disabled." };
+    }
+    if (player._transferUsedThisQuarter) {
+      return { ok: false, reason: "You've already requested a transfer this Quarter." };
+    }
+    if (state.managementDrawPile.length + state.managementDiscardPile.length < 1) {
+      return { ok: false, reason: "No other managers are available." };
+    }
+    // Draw candidates BEFORE discarding the current boss, so a near-empty deck
+    // can never strand the player with no manager.
+    const candidates = [];
+    let c = drawManagement(state);
+    if (c) candidates.push(c);
+    c = drawManagement(state);
+    if (c) candidates.push(c);
+    if (candidates.length === 0) return { ok: false, reason: "No other managers are available." };
+
+    if (player.managementStyle) state.managementDiscardPile.push(player.managementStyle);
+    const leaving = player.managementStyle;
+    player.managementStyle = null;      // held pending choice; effects read {} until chosen
+    player._managerChoice = candidates;
+    player._transferUsedThisQuarter = true;
+    log(state, player.name + " requests a transfer" + (leaving ? " out from “" + leaving.name + "”" : "") +
+      " (+2 Burnout).", "action");
+    addBurnout(state, player, 2, "transfer");
+    // Exactly one candidate available → nothing to choose; resolve immediately.
+    if (candidates.length === 1) {
+      applyChooseManager(state, player, candidates[0].id);
+      return { ok: true };
+    }
+    return { ok: true, pending: "chooseManager" };
+  }
+
+  // Resolve a pending transfer: keep the chosen candidate, discard the rest.
+  function applyChooseManager(state, player, chosenId) {
+    const cands = player._managerChoice || [];
+    let chosen = cands.filter(function (c) { return c.id === chosenId; })[0] || cands[0] || null;
+    cands.forEach(function (c) { if (c !== chosen) state.managementDiscardPile.push(c); });
+    player.managementStyle = chosen;
+    player._managerChoice = null;
+    syncImmunity(player);
+    if (chosen) log(state, player.name + " now reports to “" + chosen.name + ".”", "muted");
+    return { ok: true };
+  }
+
   /* ---------------------------------------------------------------------------
    * 13. Turn budget
    * ------------------------------------------------------------------------ */
@@ -1082,6 +1176,7 @@
         p._rubberDuckUsedThisQuarter = false;
         p._offlineUsedThisQuarter = false;
         p._pagerUsedThisQuarter = false;
+        p._transferUsedThisQuarter = false;
       });
     }
   }
@@ -2000,7 +2095,20 @@
         });
       }
 
-      const best = Math.max(projVal, bestSkillVal, netVal, collabVal, 0);
+      // Request a Transfer: an escape valve, not a routine action. Only worth an
+      // Action Point when the current boss is clearly hurting THIS archetype, and
+      // only when Burnout has room for the +2 cost. Drawing 2 and keeping the
+      // better makes the expected replacement roughly neutral, so the value is
+      // the swing away from a bad boss.
+      let switchVal = -Infinity;
+      const canSwitch = !state._noTransfer && !player._transferUsedThisQuarter && player.burnout <= 6 &&
+        (state.managementDrawPile.length + state.managementDiscardPile.length >= 1);
+      if (canSwitch) {
+        const curVal = managerValue(player, player.managementStyle);
+        if (curVal < -0.5) switchVal = Math.min(0.5 - curVal, 3) + 0.3;
+      }
+
+      const best = Math.max(projVal, bestSkillVal, netVal, collabVal, switchVal, 0);
       if (best <= 0) break;
 
       if (best === projVal && proj.index >= 0) {
@@ -2013,6 +2121,17 @@
           const p2 = pickBestHalfProject(state, player);
           if (p2 >= 0) applyShipsItFriday(state, player, p2);
         }
+      } else if (best === switchVal) {
+        const r = doSwitchManager(state, player);
+        if (r.ok) {
+          ap -= 1;
+          if (r.pending === "chooseManager") {
+            const cands = player._managerChoice || [];
+            let pick = cands[0], pv = -Infinity;
+            cands.forEach(function (cd) { const v = managerValue(player, cd); if (v > pv) { pv = v; pick = cd; } });
+            applyChooseManager(state, player, pick ? pick.id : null);
+          }
+        } else break;   // couldn't switch (e.g. deck empty) — stop looping on it
       } else if (best === netVal && netOk) {
         doNetwork(state, player); ap -= 1;
       } else {
@@ -2066,6 +2185,12 @@
       case "discardSkill": {
         const idx = pickWorstSkillIndex(player);
         return player.tableau[idx] ? player.tableau[idx].id : (request.candidates[0] && request.candidates[0].id);
+      }
+      case "chooseManager": {
+        const cands = request.candidates || [];
+        let pick = cands[0], pv = -Infinity;
+        cands.forEach(function (c) { const v = managerValue(player, c); if (v > pv) { pv = v; pick = c; } });
+        return pick ? pick.id : null;
       }
       default:
         return false;
@@ -2178,7 +2303,9 @@
       overtime: doOvertime,
       applyShipsItFriday: applyShipsItFriday,
       shareProject: doShareProject,
-      contribute: doContribute
+      contribute: doContribute,
+      switchManager: doSwitchManager,
+      chooseManager: applyChooseManager
     },
     helpers: {
       beginTurn: beginTurn,
@@ -2200,6 +2327,7 @@
       finalScore: finalScore,
       computeStandings: computeStandings,
       mm: mm,
+      managerValue: managerValue,
       slug: slug
     },
     // Internal functions exposed for unit testing.
