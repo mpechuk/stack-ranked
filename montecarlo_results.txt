@@ -2,122 +2,128 @@ STACK RANKED — Monte-Carlo balance harness
 variant=race-to-ceo  games/cell=3000  (seeded, reproducible)
 
 ### DISTINCT — baseline  (3000 games)
-  grinder      25.5%  #############              avg rung 2.38
-  politician   12.0%  ######                     avg rung 1.75
-  balanced     18.5%  #########                  avg rung 1.91
-  workaholic   33.2%  #################          avg rung 2.86
-  cautious     10.9%  #####                      avg rung 1.33
-  balance: sd=8.4pp  spread(max-min)=22.3pp  [10.9%..33.2%]
-  pacing:  avg 31.4 rounds, 100.0% end via CEO
+  grinder      18.8%  #########                  avg rung 1.86
+  politician   20.3%  ##########                 avg rung 2.49
+  balanced     22.0%  ###########                avg rung 2.22
+  workaholic   22.6%  ###########                avg rung 2.19
+  cautious     16.3%  ########                   avg rung 1.84
+  balance: sd=2.3pp  spread(max-min)=6.2pp  [16.3%..22.6%]
+  pacing:  avg 32.4 rounds, 100.0% end via CEO
+  burnout: avg end 4.3,  5.0 crises/game,  60.6 self-care/game,  10.2 overtime/game
 
 ### MIRROR   — baseline  (3000 games, all-Balanced mirror — leads are pure luck)
-  seat win% : 20.0  19.6  20.4  19.8  20.2   (fair = 20.0 each)
-  COMEBACK — winner was in the BOTTOM HALF at halftime: 34.6%
-  COMEBACK — winner was DEAD LAST at halftime:          24.4%
-  RUNAWAY  — halftime leader went on to win:            28.7%
-  pacing:  avg 30.8 rounds, 100.0% end via CEO
-
-### DISTINCT — literalNaive  (3000 games)
-  grinder      26.7%  #############              avg rung 2.45
-  politician   16.1%  ########                   avg rung 2.34
-  balanced     15.4%  ########                   avg rung 1.76
-  workaholic   30.2%  ###############            avg rung 2.71
-  cautious     11.6%  ######                     avg rung 1.55
-  balance: sd=7.2pp  spread(max-min)=18.7pp  [11.6%..30.2%]
-  pacing:  avg 34.6 rounds, 100.0% end via CEO
-
-### MIRROR   — literalNaive  (3000 games, all-Balanced mirror — leads are pure luck)
-  seat win% : 19.3  19.9  19.3  20.5  20.9   (fair = 20.0 each)
-  COMEBACK — winner was in the BOTTOM HALF at halftime: 42.5%
-  COMEBACK — winner was DEAD LAST at halftime:          29.9%
-  RUNAWAY  — halftime leader went on to win:            20.1%
-  pacing:  avg 32.8 rounds, 100.0% end via CEO
-
-### DISTINCT — recommended  (3000 games)
-  grinder      25.3%  #############              avg rung 2.33
-  politician   13.5%  #######                    avg rung 1.90
-  balanced     15.2%  ########                   avg rung 1.71
-  workaholic   34.4%  #################          avg rung 2.91
-  cautious     11.6%  ######                     avg rung 1.57
-  balance: sd=8.6pp  spread(max-min)=22.8pp  [11.6%..34.4%]
-  pacing:  avg 32.1 rounds, 100.0% end via CEO
-
-### MIRROR   — recommended  (3000 games, all-Balanced mirror — leads are pure luck)
-  seat win% : 17.7  19.0  19.3  21.6  22.4   (fair = 20.0 each)
-  COMEBACK — winner was in the BOTTOM HALF at halftime: 35.6%
-  COMEBACK — winner was DEAD LAST at halftime:          24.5%
-  RUNAWAY  — halftime leader went on to win:            29.1%
+  seat win% : 19.4  20.3  19.7  20.1  20.5   (fair = 20.0 each)
+  COMEBACK — winner was in the BOTTOM HALF at halftime: 38.5%
+  COMEBACK — winner was DEAD LAST at halftime:          28.9%
+  RUNAWAY  — halftime leader went on to win:            25.5%
   pacing:  avg 31.2 rounds, 100.0% end via CEO
 
+### DISTINCT — literalNaive  (3000 games)
+  grinder      15.7%  ########                   avg rung 1.77
+  politician   30.5%  ###############            avg rung 3.26
+  balanced     18.5%  #########                  avg rung 2.05
+  workaholic   18.1%  #########                  avg rung 2.00
+  cautious     17.2%  #########                  avg rung 2.05
+  balance: sd=5.3pp  spread(max-min)=14.8pp  [15.7%..30.5%]
+  pacing:  avg 35.4 rounds, 100.0% end via CEO
+  burnout: avg end 4.5,  5.7 crises/game,  67.5 self-care/game,  9.4 overtime/game
+
+### MIRROR   — literalNaive  (3000 games, all-Balanced mirror — leads are pure luck)
+  seat win% : 19.0  22.3  18.4  20.2  20.1   (fair = 20.0 each)
+  COMEBACK — winner was in the BOTTOM HALF at halftime: 43.0%
+  COMEBACK — winner was DEAD LAST at halftime:          31.5%
+  RUNAWAY  — halftime leader went on to win:            18.0%
+  pacing:  avg 33.1 rounds, 100.0% end via CEO
+
+### DISTINCT — recommended  (3000 games)
+  grinder      16.4%  ########                   avg rung 1.75
+  politician   22.6%  ###########                avg rung 2.69
+  balanced     18.9%  #########                  avg rung 2.06
+  workaholic   23.5%  ############               avg rung 2.23
+  cautious     18.6%  #########                  avg rung 2.10
+  balance: sd=2.6pp  spread(max-min)=7.1pp  [16.4%..23.5%]
+  pacing:  avg 33.3 rounds, 100.0% end via CEO
+  burnout: avg end 4.4,  5.2 crises/game,  62.8 self-care/game,  9.0 overtime/game
+
+### MIRROR   — recommended  (3000 games, all-Balanced mirror — leads are pure luck)
+  seat win% : 17.4  20.4  18.3  21.5  22.4   (fair = 20.0 each)
+  COMEBACK — winner was in the BOTTOM HALF at halftime: 39.2%
+  COMEBACK — winner was DEAD LAST at halftime:          27.8%
+  RUNAWAY  — halftime leader went on to win:            25.9%
+  pacing:  avg 31.9 rounds, 100.0% end via CEO
+
 ### DISTINCT — rungToggle  (3000 games)
-  grinder      26.4%  #############              avg rung 2.42
-  politician   16.1%  ########                   avg rung 2.31
-  balanced     15.5%  ########                   avg rung 1.77
-  workaholic   30.5%  ###############            avg rung 2.72
-  cautious     11.4%  ######                     avg rung 1.53
-  balance: sd=7.2pp  spread(max-min)=19.1pp  [11.4%..30.5%]
-  pacing:  avg 34.3 rounds, 100.0% end via CEO
+  grinder      15.6%  ########                   avg rung 1.79
+  politician   30.1%  ###############            avg rung 3.23
+  balanced     18.8%  #########                  avg rung 2.05
+  workaholic   18.3%  #########                  avg rung 2.01
+  cautious     17.3%  #########                  avg rung 2.03
+  balance: sd=5.2pp  spread(max-min)=14.5pp  [15.6%..30.1%]
+  pacing:  avg 35.2 rounds, 100.0% end via CEO
+  burnout: avg end 4.5,  5.7 crises/game,  67.1 self-care/game,  9.4 overtime/game
 
 ### MIRROR   — rungToggle  (3000 games, all-Balanced mirror — leads are pure luck)
-  seat win% : 19.0  19.9  19.2  20.8  21.0   (fair = 20.0 each)
-  COMEBACK — winner was in the BOTTOM HALF at halftime: 42.2%
-  COMEBACK — winner was DEAD LAST at halftime:          29.5%
-  RUNAWAY  — halftime leader went on to win:            20.1%
-  pacing:  avg 32.6 rounds, 100.0% end via CEO
+  seat win% : 18.9  21.8  18.5  20.5  20.4   (fair = 20.0 each)
+  COMEBACK — winner was in the BOTTOM HALF at halftime: 42.4%
+  COMEBACK — winner was DEAD LAST at halftime:          31.1%
+  RUNAWAY  — halftime leader went on to win:            18.4%
+  pacing:  avg 32.9 rounds, 100.0% end via CEO
 
 ### DISTINCT — giveOne  (3000 games)
-  grinder      25.8%  #############              avg rung 2.32
-  politician   12.6%  ######                     avg rung 1.80
-  balanced     13.1%  #######                    avg rung 1.60
-  workaholic   36.4%  ##################         avg rung 3.01
-  cautious     12.1%  ######                     avg rung 1.59
-  balance: sd=9.7pp  spread(max-min)=24.3pp  [12.1%..36.4%]
-  pacing:  avg 31.7 rounds, 100.0% end via CEO
+  grinder      16.1%  ########                   avg rung 1.72
+  politician   22.9%  ###########                avg rung 2.66
+  balanced     18.5%  #########                  avg rung 1.99
+  workaholic   24.9%  ############               avg rung 2.35
+  cautious     17.6%  #########                  avg rung 2.05
+  balance: sd=3.3pp  spread(max-min)=8.7pp  [16.1%..24.9%]
+  pacing:  avg 33.0 rounds, 100.0% end via CEO
+  burnout: avg end 4.4,  5.1 crises/game,  62.1 self-care/game,  9.0 overtime/game
 
 ### MIRROR   — giveOne  (3000 games, all-Balanced mirror — leads are pure luck)
-  seat win% : 16.5  18.0  20.9  20.9  23.7   (fair = 20.0 each)
-  COMEBACK — winner was in the BOTTOM HALF at halftime: 34.8%
-  COMEBACK — winner was DEAD LAST at halftime:          23.6%
-  RUNAWAY  — halftime leader went on to win:            28.7%
-  pacing:  avg 30.9 rounds, 100.0% end via CEO
+  seat win% : 17.0  19.0  20.1  21.4  22.5   (fair = 20.0 each)
+  COMEBACK — winner was in the BOTTOM HALF at halftime: 37.9%
+  COMEBACK — winner was DEAD LAST at halftime:          26.4%
+  RUNAWAY  — halftime leader went on to win:            26.1%
+  pacing:  avg 31.5 rounds, 100.0% end via CEO
 
 ### DISTINCT — giveOneRung  (3000 games)
-  grinder      27.3%  ##############             avg rung 2.43
-  politician   16.5%  ########                   avg rung 2.31
-  balanced     14.4%  #######                    avg rung 1.68
-  workaholic   28.6%  ##############             avg rung 2.65
-  cautious     13.2%  #######                    avg rung 1.61
-  balance: sd=6.6pp  spread(max-min)=15.4pp  [13.2%..28.6%]
-  pacing:  avg 34.4 rounds, 100.0% end via CEO
+  grinder      16.2%  ########                   avg rung 1.77
+  politician   30.2%  ###############            avg rung 3.24
+  balanced     18.3%  #########                  avg rung 2.02
+  workaholic   17.4%  #########                  avg rung 1.96
+  cautious     17.8%  #########                  avg rung 2.07
+  balance: sd=5.1pp  spread(max-min)=14.0pp  [16.2%..30.2%]
+  pacing:  avg 35.4 rounds, 100.0% end via CEO
+  burnout: avg end 4.4,  5.7 crises/game,  67.5 self-care/game,  9.4 overtime/game
 
 ### MIRROR   — giveOneRung  (3000 games, all-Balanced mirror — leads are pure luck)
-  seat win% : 18.2  20.8  19.9  20.2  21.0   (fair = 20.0 each)
-  COMEBACK — winner was in the BOTTOM HALF at halftime: 43.1%
-  COMEBACK — winner was DEAD LAST at halftime:          29.7%
-  RUNAWAY  — halftime leader went on to win:            19.0%
-  pacing:  avg 33.0 rounds, 100.0% end via CEO
+  seat win% : 18.8  21.1  19.3  20.6  20.2   (fair = 20.0 each)
+  COMEBACK — winner was in the BOTTOM HALF at halftime: 44.8%
+  COMEBACK — winner was DEAD LAST at halftime:          32.6%
+  RUNAWAY  — halftime leader went on to win:            18.4%
+  pacing:  avg 33.1 rounds, 100.0% end via CEO
 
 
 ===================== SUMMARY TABLE =====================
-ruleset         balSD  spread   comeback(botHalf/last)  runaway  ceo%
-  baseline        8.4pp  22.3pp     35%/24%             29%   100%
-  literalNaive    7.2pp  18.7pp     43%/30%             20%   100%
-  recommended     8.6pp  22.8pp     36%/25%             29%   100%
-  rungToggle      7.2pp  19.1pp     42%/29%             20%   100%
-  giveOne         9.7pp  24.3pp     35%/24%             29%   100%
-  giveOneRung     6.6pp  15.4pp     43%/30%             19%   100%
+ruleset         balSD  spread   comeback(botHalf/last)  runaway  ceo%  crisis/g
+  baseline        2.3pp   6.2pp     38%/29%             26%   100%   5.0
+  literalNaive    5.3pp  14.8pp     43%/32%             18%   100%   5.7
+  recommended     2.6pp   7.1pp     39%/28%             26%   100%   5.2
+  rungToggle      5.2pp  14.5pp     42%/31%             18%   100%   5.7
+  giveOne         3.3pp   8.7pp     38%/26%             26%   100%   5.1
+  giveOneRung     5.1pp  14.0pp     45%/33%             18%   100%   5.7
   (lower balSD/spread = more even strategies; higher comeback & lower runaway = more forgiving of bad luck)
 
 
 =========== RECOMMENDED ruleset — player-count & variant sanity ===========
 (all-mirror; leads are luck) players  variant       comeback(botHalf/last)  runaway  ceo%  avgRounds
-                      2  race-to-ceo     40%/40%             60%   100%   29.7
-                      3  race-to-ceo     20%/20%             47%   100%   28.9
-                      4  race-to-ceo     36%/23%             36%   100%   30.2
-                      5  race-to-ceo     37%/25%             28%   100%   31.6
-                      6  race-to-ceo     35%/13%             28%   100%   25.3
-                      2  long-game       37%/37%             63%   100%   24.0
-                      3  long-game       19%/19%             50%   100%   24.0
-                      4  long-game       35%/18%             40%   100%   24.0
-                      5  long-game       29%/16%             33%   100%   24.0
-                      6  long-game       39%/15%             29%   100%   24.0
+                      2  race-to-ceo     43%/43%             57%   100%   30.6
+                      3  race-to-ceo     22%/22%             44%   100%   29.5
+                      4  race-to-ceo     36%/24%             32%   100%   30.8
+                      5  race-to-ceo     40%/28%             24%   100%   31.6
+                      6  race-to-ceo     40%/17%             23%   100%   26.1
+                      2  long-game       38%/38%             62%   100%   24.0
+                      3  long-game       21%/21%             46%   100%   24.0
+                      4  long-game       37%/21%             36%   100%   24.0
+                      5  long-game       35%/22%             29%   100%   24.0
+                      6  long-game       45%/21%             23%   100%   24.0

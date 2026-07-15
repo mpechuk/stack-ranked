@@ -89,6 +89,13 @@ odds and reshuffle-when-depleted behavior):
 | Mandatory Training | 12 | ×1 each | Round 1 (reshuffle when empty) |
 | Management Style | 16 | ×1 each | Round 1 (reshuffle when empty) |
 
+> **Every Project carries a Burnout cost.** All 31 Project designs (Early, Mid,
+> Late, and Evergreen) inflict Burnout on completion — the amount is printed in
+> each card's `reward` (roughly +1 across the board, more for the nastiest
+> tech-debt cards). Grinding Projects at volume is the game's primary Burnout
+> source, and the lever that keeps the run-hot strategies in check (see 5.2.5 for
+> the Crisis it feeds, and 13.3 for the balance effect).
+
 > **Tier-unlock implementation note:** "Quarter 3" = once the Quarter-3 Review
 > has happened (i.e., starting round 7 onward, since reviews land on rounds 3,
 > 6, 9…). Practically: when refilling the Job Board or Kanban Board (Postmortem
@@ -593,7 +600,10 @@ mid-game option.
 > `burnout`. Burnout no longer affects the per-Review Score (§6 Step 1 uses
 > Tasks on hand there), but it still tolls the end-of-game standing and still
 > triggers the Burnout Crisis at 10 — so running hot has a delayed, not a
-> per-Quarter, cost.
+> per-Quarter, cost. Because **every Project inflicts Burnout on completion**,
+> that delayed cost is unavoidable for anyone shipping at volume — the Crisis,
+> plus the Action Points spent on Self-Care to dodge it, is what reins in the
+> pure-grind strategies (see 13.3).
 
 ---
 
@@ -648,43 +658,43 @@ Field meanings:
   },
   "projects": {
     "early": [
-      {"name": "Update the README (Nobody Reads It Anyway)", "cost": 2, "reward": "3 Career Capital.", "flavor": "Now technically documented."},
-      {"name": "Fix the Bug in Production (On a Friday)", "cost": 3, "reward": "4 Career Capital; +1 Burnout.", "flavor": "It's fine. Everything is fine."},
-      {"name": "Onboard the New Hire", "cost": 3, "reward": "3 Career Capital; +1 Political Capital.", "flavor": "They seem nice. Give it two Quarters."},
-      {"name": "Clean Up the Shared Drive", "cost": 2, "reward": "3 Career Capital.", "flavor": "Found 40 folders named \u2018final_FINAL_v2.\u2019"},
-      {"name": "Respond to the Simple Support Ticket", "cost": 2, "reward": "2 Career Capital; +1 Political Capital.", "flavor": "It was a browser cache issue. It's always a browser cache issue."},
-      {"name": "Write the Sprint Retro Notes", "cost": 4, "reward": "5 Career Capital.", "flavor": "Action items: none of these will happen."}
+      {"name": "Update the README (Nobody Reads It Anyway)", "cost": 2, "reward": "3 Career Capital; +1 Burnout.", "flavor": "Now technically documented."},
+      {"name": "Fix the Bug in Production (On a Friday)", "cost": 3, "reward": "4 Career Capital; +2 Burnout.", "flavor": "It's fine. Everything is fine."},
+      {"name": "Onboard the New Hire", "cost": 3, "reward": "3 Career Capital; +1 Political Capital; +1 Burnout.", "flavor": "They seem nice. Give it two Quarters."},
+      {"name": "Clean Up the Shared Drive", "cost": 2, "reward": "3 Career Capital; +1 Burnout.", "flavor": "Found 40 folders named \u2018final_FINAL_v2.\u2019"},
+      {"name": "Respond to the Simple Support Ticket", "cost": 2, "reward": "2 Career Capital; +1 Political Capital; +1 Burnout.", "flavor": "It was a browser cache issue. It's always a browser cache issue."},
+      {"name": "Write the Sprint Retro Notes", "cost": 4, "reward": "5 Career Capital; +1 Burnout.", "flavor": "Action items: none of these will happen."}
     ],
     "mid": [
-      {"name": "Migrate the Legacy Codebase", "cost": 6, "reward": "8 Career Capital; +1 Burnout.", "flavor": "Nobody who wrote the original code still works here."},
-      {"name": "Launch the Feature Nobody Asked For", "cost": 5, "reward": "7 Career Capital.", "flavor": "It tested well with exactly one user: the VP's nephew."},
-      {"name": "Respond to the RFP (Due Tomorrow, Started Today)", "cost": 5, "reward": "6 Career Capital; +1 Political Capital.", "flavor": "Yes, we can absolutely do all of this by Q2."},
-      {"name": "Survive the Compliance Audit", "cost": 6, "reward": "7 Career Capital; 1 Compliance Badge.", "flavor": "Everyone suddenly remembers where the fire extinguishers are."},
-      {"name": "Rebuild the CI/CD Pipeline (Third Time's the Charm)", "cost": 6, "reward": "8 Career Capital; +1 Burnout.", "flavor": "This one's permanent. Definitely. For real this time."},
-      {"name": "Run the All-Hands Presentation", "cost": 5, "reward": "6 Career Capital; +1 Political Capital.", "flavor": "Slides are just screenshots of Slack messages, but with a logo now."}
+      {"name": "Migrate the Legacy Codebase", "cost": 6, "reward": "8 Career Capital; +2 Burnout.", "flavor": "Nobody who wrote the original code still works here."},
+      {"name": "Launch the Feature Nobody Asked For", "cost": 5, "reward": "7 Career Capital; +1 Burnout.", "flavor": "It tested well with exactly one user: the VP's nephew."},
+      {"name": "Respond to the RFP (Due Tomorrow, Started Today)", "cost": 5, "reward": "6 Career Capital; +1 Political Capital; +1 Burnout.", "flavor": "Yes, we can absolutely do all of this by Q2."},
+      {"name": "Survive the Compliance Audit", "cost": 6, "reward": "7 Career Capital; 1 Compliance Badge; +1 Burnout.", "flavor": "Everyone suddenly remembers where the fire extinguishers are."},
+      {"name": "Rebuild the CI/CD Pipeline (Third Time's the Charm)", "cost": 6, "reward": "8 Career Capital; +2 Burnout.", "flavor": "This one's permanent. Definitely. For real this time."},
+      {"name": "Run the All-Hands Presentation", "cost": 5, "reward": "6 Career Capital; +1 Political Capital; +1 Burnout.", "flavor": "Slides are just screenshots of Slack messages, but with a logo now."}
     ],
     "late": [
-      {"name": "Ship the Major Redesign Before the Conference", "cost": 8, "reward": "11 Career Capital; +1 Burnout.", "flavor": "The demo gods are watching. They are not merciful."},
-      {"name": "Turn Around the Failing Division", "cost": 9, "reward": "13 Career Capital.", "flavor": "Everyone competent already quietly left. You didn't get the memo in time."},
-      {"name": "Land the Whale Client", "cost": 8, "reward": "11 Career Capital; +2 Political Capital.", "flavor": "They want it fully custom, half price, by Friday."},
-      {"name": "Lead the Company-Wide Reorganization", "cost": 9, "reward": "13 Career Capital; +1 Burnout.", "flavor": "Nobody's title changed, but everyone's manager did. Twice."},
-      {"name": "Present to the Board (12 Minutes to Justify a Department)", "cost": 7, "reward": "10 Career Capital; +2 Political Capital.", "flavor": "They looked at their phones for eleven of them."},
-      {"name": "Negotiate the Vendor Contract (40 Pages of Terms)", "cost": 7, "reward": "10 Career Capital.", "flavor": "Nobody read past page 3. That's where the bad clause is."}
+      {"name": "Ship the Major Redesign Before the Conference", "cost": 8, "reward": "11 Career Capital; +2 Burnout.", "flavor": "The demo gods are watching. They are not merciful."},
+      {"name": "Turn Around the Failing Division", "cost": 9, "reward": "13 Career Capital; +1 Burnout.", "flavor": "Everyone competent already quietly left. You didn't get the memo in time."},
+      {"name": "Land the Whale Client", "cost": 8, "reward": "11 Career Capital; +2 Political Capital; +1 Burnout.", "flavor": "They want it fully custom, half price, by Friday."},
+      {"name": "Lead the Company-Wide Reorganization", "cost": 9, "reward": "13 Career Capital; +2 Burnout.", "flavor": "Nobody's title changed, but everyone's manager did. Twice."},
+      {"name": "Present to the Board (12 Minutes to Justify a Department)", "cost": 7, "reward": "10 Career Capital; +2 Political Capital; +1 Burnout.", "flavor": "They looked at their phones for eleven of them."},
+      {"name": "Negotiate the Vendor Contract (40 Pages of Terms)", "cost": 7, "reward": "10 Career Capital; +1 Burnout.", "flavor": "Nobody read past page 3. That's where the bad clause is."}
     ],
     "evergreen": [
-      {"name": "Answer a “Quick Question” on Slack", "cost": 2, "reward": "3 Career Capital; +1 Burnout.", "flavor": "That was forty-five minutes ago. There are now six people in the thread.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
-      {"name": "Reduce Technical Debt", "cost": 4, "reward": "5 Career Capital; +1 Burnout.", "flavor": "Perpetually 80% done. It has always been 80% done. It will always be 80% done.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
-      {"name": "Untangle the Legacy Spaghetti (One More Time)", "cost": 5, "reward": "6 Career Capital; +1 Burnout.", "flavor": "Found a comment that says “DO NOT REMOVE, NOT SURE WHY.” Removed it anyway.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
-      {"name": "Reply to the Jira Comment From Six Months Ago", "cost": 1, "reward": "1 Career Capital; +1 Burnout.", "flavor": "The person who filed it left the company in Q2. The ticket did not.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
-      {"name": "Delete the Commented-Out Code From 2019", "cost": 2, "reward": "2 Career Capital; +1 Burnout.", "flavor": "It's not documentation. It was never documentation.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
-      {"name": "Un-hardcode the Hardcoded Value", "cost": 3, "reward": "3 Career Capital; +1 Burnout.", "flavor": "Replaced “prod-server-3” with a config flag that defaults to “prod-server-3.”", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
-      {"name": "Rotate the API Keys You Forgot About", "cost": 3, "reward": "4 Career Capital; +2 Burnout.", "flavor": "Rotated three keys. Broke a fourth integration nobody remembered existed.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
-      {"name": "Bump the Node Version (Nothing Breaks. Probably.)", "cost": 4, "reward": "4 Career Capital; +1 Burnout.", "flavor": "247 transitive dependencies quietly disagree.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
-      {"name": "Consolidate the Three Config Files Into One (Now Four)", "cost": 4, "reward": "4 Career Capital; +2 Burnout.", "flavor": "Progress, technically.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
-      {"name": "Archive the Zombie Microservice", "cost": 5, "reward": "7 Career Capital; +2 Burnout.", "flavor": "Nobody knows what calls it. Everybody's afraid to find out.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
-      {"name": "Migrate Off the Framework You Migrated To Last Year", "cost": 6, "reward": "7 Career Capital; +1 Burnout.", "flavor": "The last migration's postmortem recommended this framework.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
-      {"name": "Squash 40 Commits Into “misc fixes”", "cost": 6, "reward": "8 Career Capital; +2 Burnout.", "flavor": "git blame now blames everyone equally.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
-      {"name": "Finally Read the Incident Postmortem Action Items", "cost": 8, "reward": "10 Career Capital; +2 Burnout.", "flavor": "Item 1: “Add more monitoring.” Filed fourteen months ago. Still open.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."}
+      {"name": "Answer a “Quick Question” on Slack", "cost": 2, "reward": "3 Career Capital; +2 Burnout.", "flavor": "That was forty-five minutes ago. There are now six people in the thread.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
+      {"name": "Reduce Technical Debt", "cost": 4, "reward": "5 Career Capital; +2 Burnout.", "flavor": "Perpetually 80% done. It has always been 80% done. It will always be 80% done.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
+      {"name": "Untangle the Legacy Spaghetti (One More Time)", "cost": 5, "reward": "6 Career Capital; +2 Burnout.", "flavor": "Found a comment that says “DO NOT REMOVE, NOT SURE WHY.” Removed it anyway.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
+      {"name": "Reply to the Jira Comment From Six Months Ago", "cost": 1, "reward": "1 Career Capital; +2 Burnout.", "flavor": "The person who filed it left the company in Q2. The ticket did not.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
+      {"name": "Delete the Commented-Out Code From 2019", "cost": 2, "reward": "2 Career Capital; +2 Burnout.", "flavor": "It's not documentation. It was never documentation.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
+      {"name": "Un-hardcode the Hardcoded Value", "cost": 3, "reward": "3 Career Capital; +2 Burnout.", "flavor": "Replaced “prod-server-3” with a config flag that defaults to “prod-server-3.”", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
+      {"name": "Rotate the API Keys You Forgot About", "cost": 3, "reward": "4 Career Capital; +3 Burnout.", "flavor": "Rotated three keys. Broke a fourth integration nobody remembered existed.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
+      {"name": "Bump the Node Version (Nothing Breaks. Probably.)", "cost": 4, "reward": "4 Career Capital; +2 Burnout.", "flavor": "247 transitive dependencies quietly disagree.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
+      {"name": "Consolidate the Three Config Files Into One (Now Four)", "cost": 4, "reward": "4 Career Capital; +3 Burnout.", "flavor": "Progress, technically.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
+      {"name": "Archive the Zombie Microservice", "cost": 5, "reward": "7 Career Capital; +3 Burnout.", "flavor": "Nobody knows what calls it. Everybody's afraid to find out.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
+      {"name": "Migrate Off the Framework You Migrated To Last Year", "cost": 6, "reward": "7 Career Capital; +2 Burnout.", "flavor": "The last migration's postmortem recommended this framework.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
+      {"name": "Squash 40 Commits Into “misc fixes”", "cost": 6, "reward": "8 Career Capital; +3 Burnout.", "flavor": "git blame now blames everyone equally.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
+      {"name": "Finally Read the Incident Postmortem Action Items", "cost": 8, "reward": "10 Career Capital; +3 Burnout.", "flavor": "Item 1: “Add more monitoring.” Filed fourteen months ago. Still open.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."}
     ]
   },
   "events": [
@@ -856,14 +866,15 @@ same five-archetype, one-of-each methodology as Section 10:
   it holds) and never past `AI_BACKLOG_CAP` (3). Measured effect: bot backlogs
   collapse to a mean ≈ 1 (median 1, rarely above 2), evenly across archetypes,
   so the Tasks-on-hand term acts as a gentle, near-uniform nudge rather than a
-  systematic tax on the low-Productivity seats. Over a 3000-game distinct sweep
-  (recommended ruleset, race-to-ceo): Workaholic 34%, Grinder 25%, Balanced
-  15%, Politician 14%, Cautious 12% (balSD 8.6pp — on par with the pre-change
-  8.7pp), with **improved** comeback (bottom-half winner 36% vs 25%) and
-  **lower** runaway (29% vs 34%). The dominant seat shifts from Politician
-  (which had topped the old ⌊Burnout/4⌋ formula) to Workaholic — the on-theme
-  consequence of no longer taxing Burnout at review: the hardest grinder is no
-  longer docked for it. See §13.1 / §13.3.
+  systematic tax on the low-Productivity seats. That change alone left the
+  run-hot Workaholic the strongest seat (~34%). A subsequent rebalance —
+  **every Project now inflicts Burnout on completion** — reined it back in: over
+  a 3000-game distinct sweep (recommended ruleset, race-to-ceo) the five
+  archetypes now sit at Workaholic 24%, Politician 23%, Balanced 19%, Cautious
+  19%, Grinder 16% (balSD 2.6pp, down from 8.6pp), with comeback and runaway
+  held (bottom-half winner 39%, dead-last 28%, runaway 26%). Burnout does the
+  flattening — Crises rise to ~5/game and Self-Care to ~63 actions/game, so
+  grinding at volume is now self-limiting. See §13.1 / §13.3.
 
 ---
 
@@ -1076,50 +1087,50 @@ the canonical `montecarlo_results.txt` run; re-run to reproduce.)
 
 | Ruleset | balSD | archetype win-rate range | comeback: bottom-half / dead-last wins | runaway (halftime leader wins) |
 |---|---|---|---|---|
-| **Base game** (both variant rules off) | 8.4pp | 10.9–33.2% (Workaholic) | 35% / 24% | 29% |
-| **Naive literal** (no guardrails, `rung` targeting) | 7.2pp | 11.6–30.2% (Workaholic) | 43% / 30% | 20% |
-| **Recommended** (tuned defaults; `classic` feedback, `score` targeting) | 8.6pp | 11.6–34.4% (Workaholic) | 36% / 25% | 29% |
-| **Aggressive rubber-band** (`classic`, `rung` targeting) | 7.2pp | 11.4–30.5% (Workaholic) | 42% / 30% | 20% |
-| **360° Review** (`give-one` feedback, `score` targeting) | 9.7pp | 12.1–36.4% (Workaholic) | 35% / 24% | 29% |
-| **360° Review + rung** (`give-one`, `rung` targeting) | **6.6pp** | 13.2–28.6% (Workaholic) | 43% / 30% | 19% |
+| **Base game** (both variant rules off) | 2.3pp | 16.3–22.6% (Workaholic) | 38% / 29% | 26% |
+| **Naive literal** (no guardrails, `rung` targeting) | 5.3pp | 15.7–30.5% (Politician) | 43% / 32% | 18% |
+| **Recommended** (tuned defaults; `classic` feedback, `score` targeting) | **2.6pp** | 16.4–23.5% (Workaholic) | 39% / 28% | 26% |
+| **Aggressive rubber-band** (`classic`, `rung` targeting) | 5.2pp | 15.6–30.1% (Politician) | 42% / 31% | 18% |
+| **360° Review** (`give-one` feedback, `score` targeting) | 3.3pp | 16.1–24.9% (Workaholic) | 38% / 26% | 26% |
+| **360° Review + rung** (`give-one`, `rung` targeting) | 5.1pp | 16.2–30.2% (Politician) | 45% / 33% | 18% |
 
-These numbers are the **post-change** engine: Review Score subtracts **Tasks on
-hand** (§6 Step 1) instead of ⌊Burnout/4⌋, and bots keep their backlogs small
-(§9.8). The headline shift from the pre-change tuning is that **Workaholic is now
-the strongest seat in every ruleset** — it drives itself hardest and no longer
-pays a Burnout tax at review — while the **Politician**, which used to top the old
-formula at 35–47%, settles to 12–16%.
+These numbers are the **post-change** engine: **every Project inflicts Burnout on
+completion** (roughly +1 across the board; see the deck note in Section 3 and the
+Crisis in 5.2.5). The headline shift from the pre-change tuning is that the field
+is now **flat** — under `score` targeting no archetype wins more than ~24% or less
+than ~16% (balSD 2.3–2.6pp, down from ~8.6). The per-Project Burnout tolls the
+run-hot **Workaholic** and **Grinder** — via more Burnout Crises and the Self-Care
+they must spend Action Points on — so they fall back to the pack while the
+steadier **Balanced/Cautious/Politician** rise. Burnout load roughly doubles: ~5
+Crises/game and ~63 Self-Care actions/game (vs ~2.4 and ~44 before), so Burnout is
+now a resource players manage all game rather than ignore.
 
 Takeaways:
-- The **base game is comeback-friendly** — the halftime leader wins only ~29% of
-  equal-skill games and a dead-last player still wins ~24%. It is not a
-  runaway-leader game, and the Tasks-on-hand change made it *more* forgiving than
-  the ⌊Burnout/4⌋ version (dead-last wins 15%→24%, runaway 37%→29%).
-- The **recommended tuning** (`classic` feedback, `score` targeting) holds balSD
-  at 8.6pp — on par with the pre-change game (≈8.7pp) — and ships as the default
-  for continuity and table-feel. It is **no longer the single tightest**
-  configuration measured (see `rung` below); it is a deliberate texture choice,
-  not the balance optimum.
-- **`rung` targeting is now a near-free rubber band — the pre-change tension has
-  inverted.** Before, negatives aimed at the rung leader missed the Politician
-  (who led on Review Score, not the ladder) and re-inflated it to ~45%. Now the
-  ladder leader *is* the dominant seat (Workaholic/Grinder), so `rung` targeting
-  bashes exactly who's ahead: it **tightens** balance (8.6→7.2pp), **raises**
-  comeback (bottom-half 36%→42–43%, dead-last 25%→30%) and **lowers** runaway
-  (29%→~20%), with no archetype-balance cost. Groups who want a stronger catch-up
-  game should set `feedbackTarget:'rung'`; the default stays `score` only to
-  preserve the shipped feel. (Candidate for a future default change — flagged,
-  not taken here.)
-- **360° Review (`give-one`)** remains a table-feel choice, not a balance lever,
-  but under this engine it is slightly swingier with `score` targeting (balSD
-  9.7pp, Workaholic 36.4%) and the tightest of all with `rung` targeting (6.6pp).
-  The same ±`feedbackNetCap` bound governs both feedback modes; what changed is
-  only *who* the bounded negative now lands on.
-- The **Pareto choice** now favors the catch-up option: `score` preserves the
-  shipped texture at ~8.6pp; `rung` improves both balance and comeback. Ship
-  `score` as the default; expose `rung` as an optional group-preference toggle.
-  `give-one` stays a texture choice (secret, simultaneous, everyone-throws-one),
-  not a balance lever.
+- The **base game is comeback-friendly and now very even** — under `score`
+  targeting balSD sits at 2.3–2.6pp (was ~8.6pp). The halftime leader still wins
+  only ~26% of equal-skill games and a dead-last player ~28–29%: the per-Project
+  Burnout tightened archetype balance without disturbing the (already good)
+  comeback/runaway profile.
+- The **recommended tuning** (`classic` feedback, `score` targeting) is now among
+  the **tightest** configurations measured (balSD 2.6pp) and ships as the default
+  — for the first time the shipped texture and the balance optimum coincide.
+- **`rung` targeting now *loosens* balance — the pre-change tension has inverted
+  again.** Because the ladder leader is now most often the burnt-out Grinder,
+  aiming the bounded negative at the rung leader over-lifts the low-output
+  **Politician** to ~30% (balSD ~5.1–5.3pp). It still **raises** comeback
+  (bottom-half 42–45%, dead-last 31–33%) and **lowers** runaway (~18%), so it
+  remains the stronger *catch-up* toggle — but it is no longer the balance
+  optimum. Groups who want a more aggressive rubber band can still set
+  `feedbackTarget:'rung'`; the default stays `score`, now both the tightest and
+  the shipped feel.
+- **360° Review (`give-one`)** remains a table-feel choice, not a balance lever:
+  balSD 3.3pp with `score` targeting and 5.1pp with `rung`, tracking the `classic`
+  modes closely. The same ±`feedbackNetCap` bound governs both feedback modes;
+  what changed is only *who* the bounded negative lands on.
+- The **Pareto choice** is now unambiguous: `score` targeting is simultaneously
+  the tightest balance *and* the shipped texture, so it stays the default; `rung`
+  is exposed as an optional stronger-comeback toggle, and `give-one` as a texture
+  choice (secret, simultaneous, everyone-throws-one) — neither a balance lever.
 
 Design guidance drawn from published work on catch-up / leader-bashing (Sirlin
 on skill-preserving "perpetual comeback"; the runaway-leader literature; the
