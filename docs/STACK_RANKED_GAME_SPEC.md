@@ -245,14 +245,17 @@ FIFO/LIFO). A player's backlog grows by at most one entry every Stand-Up
 round depends entirely on how much AP and Productivity they spend Working
 entries during their Sprint.
 
-**Implementation note on the skip decision:** the reference AI always
-accepts the claim (never voluntarily skips) — the balance data in Section
-9.8 was measured under unconditional claiming and remains valid for AI-only
-or mixed games, since AI behavior is unchanged by this option. The skip
-choice is a capability for human players; nothing prevents implementing a
-smarter AI heuristic for it later (e.g., skip once the backlog already
-exceeds some multiple of the player's typical AP budget), but that's a
-deliberate future tuning decision, not assumed here.
+**Implementation note on the skip decision:** because the Review Score now
+subtracts a player's Tasks on hand (§6 Step 1), a bot that hoards work it
+can't finish would tax its own score, so the reference AI no longer claims
+unconditionally. A bot takes the mandatory pickup whenever its backlog is
+empty, but claims a *further* Project voluntarily only when it is not already
+"behind" — i.e. it can currently afford to complete every entry it already
+holds — and never past a small backstop cap (`AI_BACKLOG_CAP`, currently 3).
+This keeps bot backlogs in the 0–2 band the Tasks-on-hand penalty is tuned
+for (measured mean ≈ 1, evenly across archetypes). The skip choice remains a
+free capability for human players. See Section 9.8 for the balance data under
+this heuristic.
 
 This whole sub-phase (like Income) is skipped for a round in which
 `restrictions.skipIncome` is set (IT Outage) — Backlog Grooming is part of
@@ -408,7 +411,10 @@ Section 9 for the "why" behind each one). Resolve in exactly this order:
 ```
 for each player:
     ccGainedThisQuarter = player.careerCapital - player.quarterMarker
-    reviewScore = ccGainedThisQuarter + player.politicalCapital - floor(player.burnout / 4)
+    reviewScore = ccGainedThisQuarter + player.politicalCapital - len(player.backlog)
+    # len(player.backlog) = "Tasks on hand": claimed-but-uncompleted Tasks still
+    #   sitting in the backlog when the Review runs (completed Tasks are already
+    #   removed, and the Review itself never clears the backlog).
     # + feedbackPoints[player] when the Feedback variant is on (§13.1) — the
     #   Feedback phase resolves immediately before this step and its net ±value
     #   folds into this same political term (and the Step 2 CEO-vote tiebreak).
@@ -582,6 +588,12 @@ winner = argmax(players, key = finalScore)
 Highest Final Score wins, even if nobody ever reached CEO. This should be a
 game-setup-time toggle (`variant: 'race-to-ceo' | 'long-game'`), not a
 mid-game option.
+
+> **Burnout asymmetry (intentional):** `finalScore` still subtracts full
+> `burnout`. Burnout no longer affects the per-Review Score (§6 Step 1 uses
+> Tasks on hand there), but it still tolls the end-of-game standing and still
+> triggers the Burnout Crisis at 10 — so running hot has a delayed, not a
+> per-Quarter, cost.
 
 ---
 
@@ -809,12 +821,12 @@ Review Score (Step 1) must be computed against the marker position left over
 from the *previous* Review. Moving the marker is explicitly the last
 sub-step (Step 5) of the current Review.
 
-**9.8 — Backlog Grooming (5.1.2) adds unconditionally every round with no
-size cap, and Work a Project can target any backlog entry — this changes
-the archetype balance from the v3 baseline, though choice among entries
-prevents the outright soft-lock an earlier single-held-task design had.**
-Two designs were tried here, in order, each simulated with the same
-five-archetype, one-of-each methodology as Section 10:
+**9.8 — Backlog Grooming (5.1.2) adds at most one entry per Stand-Up and Work
+a Project can pay off any entry, so the size of a player's backlog is a real
+strategic quantity — and, since the Review Score subtracts Tasks on hand (§6
+Step 1), one that feeds directly back into scoring, so bots deliberately keep
+it small.** The feature went through three iterations, each simulated with the
+same five-archetype, one-of-each methodology as Section 10:
 
 - **v1 of this feature (superseded):** each player could hold at most one
   task, claimed via a heuristic (`bestClaimIndex`) that always grabbed the
@@ -826,27 +838,32 @@ five-archetype, one-of-each methodology as Section 10:
   rounds in a representative Long Game, consistently across repeated runs.
   Win rates: Workaholic/Grinder ~30% each, Balanced/Cautious/Politician
   ~13-14% each.
-- **Current design:** the one-task cap is gone. Every player's backlog
-  grows by exactly one entry every Stand-Up regardless of size (still via
-  `bestClaimIndex`, still with no regard for affordability), but Work a
-  Project can now pay off **any** backlog entry, not just the most recent
-  or most valuable one — so a player who can't afford their priciest entry
-  can simply Work a cheaper one instead. This removes the multi-round
-  soft-lock: the same instrumentation now shows every archetype making
-  steady Career Capital progress, though low-Productivity archetypes
-  (Politician especially) still end a 24-round game with a visibly larger,
-  more slowly-draining backlog (15-19 entries typical) than
-  Productivity-heavy ones (Workaholic, often single digits) — which reads
-  as an intentional, on-theme consequence ("the backlog always grows")
-  rather than a bug. Win rates over a 300-game sweep: Workaholic ~27%,
-  Grinder/Politician ~23% each, Balanced ~17%, Cautious ~11% — closer to
-  even than v1 of this feature, though still not a match for the v3
-  baseline (Balanced 51%, Cautious 36%, Grinder+Workaholic under 2%
-  combined) from before this feature existed at all. Whether that
-  remaining gap is worth a further rebalance (e.g., retuning the claim
-  heuristic, or the AI's Work-vs-Hire-vs-Network weighting now that
-  Working can happen many times per Sprint) is a follow-up decision, not
-  something addressed here.
+- **v2 of this feature (superseded):** the one-task cap was removed and Work
+  a Project could pay off **any** backlog entry, but the AI still claimed one
+  card **unconditionally** every Stand-Up (via `bestClaimIndex`, with no
+  regard for affordability). That removed v1's soft-lock and let every
+  archetype make steady Career Capital progress, but because a bot never
+  declined a card it couldn't afford, low-Productivity archetypes accumulated
+  a large, slowly-draining backlog (Politician routinely 15-21 entries by late
+  game; Workaholic usually single digits). Harmless while nothing scored the
+  backlog — but see below.
+- **Current design (capacity-aware claiming):** the Review Score now subtracts
+  Tasks on hand (§6 Step 1), so an ever-growing backlog is no longer free — it
+  directly drags a hoarder's Review Score. The AI claim heuristic
+  (`pickTaskToClaim`) was updated to match: a bot still takes the mandatory
+  pickup when its backlog is empty, but claims a further card voluntarily only
+  when it is not already "behind" (can currently afford to complete everything
+  it holds) and never past `AI_BACKLOG_CAP` (3). Measured effect: bot backlogs
+  collapse to a mean ≈ 1 (median 1, rarely above 2), evenly across archetypes,
+  so the Tasks-on-hand term acts as a gentle, near-uniform nudge rather than a
+  systematic tax on the low-Productivity seats. Over a 3000-game distinct sweep
+  (recommended ruleset, race-to-ceo): Workaholic 34%, Grinder 25%, Balanced
+  15%, Politician 14%, Cautious 12% (balSD 8.6pp — on par with the pre-change
+  8.7pp), with **improved** comeback (bottom-half winner 36% vs 25%) and
+  **lower** runaway (29% vs 34%). The dominant seat shifts from Politician
+  (which had topped the old ⌊Burnout/4⌋ formula) to Workaholic — the on-theme
+  consequence of no longer taxing Burnout at review: the hardest grinder is no
+  longer docked for it. See §13.1 / §13.3.
 
 ---
 
@@ -985,7 +1002,7 @@ Constructive** (−2), each worth `rules.feedbackValue` (=2) "political points".
 **Targeting of Constructive cards (`rules.feedbackTarget`)** — who the AI (and
 `feedbackNegLeaderOnly` humans) may dump a negative on:
 - `'score'` *(default)* — whoever tops *this* Review (provisional Review Score
-  = CC gained this Quarter + PC − ⌊Burnout/4⌋). Self-balancing: it lands on the
+  = CC gained this Quarter + PC − tasks on hand). Self-balancing: it lands on the
   political front-runner, so the strongest scorer eats the negatives.
 - `'rung'` — the ladder / Career-Capital leader. A **stronger comeback** lever
   (negatives hit whoever is literally ahead), at some archetype-balance cost —
@@ -1059,43 +1076,50 @@ the canonical `montecarlo_results.txt` run; re-run to reproduce.)
 
 | Ruleset | balSD | archetype win-rate range | comeback: bottom-half / dead-last wins | runaway (halftime leader wins) |
 |---|---|---|---|---|
-| **Base game** (both variant rules off) | 8.1pp | 11.5–34.8% | 24% / 15% | 37% |
-| **Naive literal** (no guardrails, `rung` targeting) | 13.5pp | 11.8–**47.0%** (Politician) | 32% / 20% | 23% |
-| **Recommended** (tuned defaults; `classic` feedback, `score` targeting) | **7.0pp** | 14.3–32.6% | 24% / 14% | 37% |
-| **Aggressive rubber-band** (`classic`, `rung` targeting) | 13.1pp | 11.7–46.0% (Politician) | 32% / 19% | 24% |
-| **360° Review** (`give-one` feedback, `score` targeting) | 7.0pp | 13.0–32.7% | 24% / 14% | 37% |
-| **360° Review + rung** (`give-one`, `rung` targeting) | 13.5pp | 11.8–47.0% (Politician) | 35% / 21% | 23% |
+| **Base game** (both variant rules off) | 8.4pp | 10.9–33.2% (Workaholic) | 35% / 24% | 29% |
+| **Naive literal** (no guardrails, `rung` targeting) | 7.2pp | 11.6–30.2% (Workaholic) | 43% / 30% | 20% |
+| **Recommended** (tuned defaults; `classic` feedback, `score` targeting) | 8.6pp | 11.6–34.4% (Workaholic) | 36% / 25% | 29% |
+| **Aggressive rubber-band** (`classic`, `rung` targeting) | 7.2pp | 11.4–30.5% (Workaholic) | 42% / 30% | 20% |
+| **360° Review** (`give-one` feedback, `score` targeting) | 9.7pp | 12.1–36.4% (Workaholic) | 35% / 24% | 29% |
+| **360° Review + rung** (`give-one`, `rung` targeting) | **6.6pp** | 13.2–28.6% (Workaholic) | 43% / 30% | 19% |
+
+These numbers are the **post-change** engine: Review Score subtracts **Tasks on
+hand** (§6 Step 1) instead of ⌊Burnout/4⌋, and bots keep their backlogs small
+(§9.8). The headline shift from the pre-change tuning is that **Workaholic is now
+the strongest seat in every ruleset** — it drives itself hardest and no longer
+pays a Burnout tax at review — while the **Politician**, which used to top the old
+formula at 35–47%, settles to 12–16%.
 
 Takeaways:
-- The **base game is already comeback-friendly** — even with no new rules the
-  halftime leader wins only ~36% of equal-skill games and a dead-last player
-  still wins ~14%. It is not a runaway-leader game.
-- The **naive literal** rules are imbalanced: they hand the (already-strongest)
-  Politician a runaway PC engine (35% → 47%). Two root causes — (1) crediting
-  the owner for others' work, and (2) negatives targeting the rung leader,
-  which the Politician never is, so it dodges them.
-- The **recommended tuning is the most balanced configuration measured** —
-  tighter than the base game (balSD 7.0 vs 8.1pp; all five archetypes 14–33%) —
-  while preserving the base game's comeback rate and adding collaboration as a
-  genuine catch-up channel.
-- **360° Review (`give-one`) keeps the game balanced.** With the default `score`
-  targeting it is a near-drop-in alternative to `classic` feedback: balSD 7.0 vs
-  7.0pp, identical archetype ordering and Politician ceiling (32.7% vs 32.6%),
-  and comeback/runaway indistinguishable (24%/14% & 37% for both) — and still
-  tighter than the base game's 8.1pp. It changes the *texture* (every non-leader
-  reliably lands a bounded −`feedbackNetCap` on the front-runner, and Positives
-  are mostly sacrificed) without shifting who wins, because the ±4 net cap
-  already governs the maximum swing in both modes. **Answer to "is it still
-  balanced?": yes.**
-- There is a real **Pareto tension**: the ladder leader and the Review-score
-  leader are usually different players (a Grinder vs the Politician), and a
-  single leader-penalty can only hit one. `score` targeting maximizes archetype
-  balance; `rung` targeting maximizes comeback (dead-last wins 14%→19–20%,
-  runaway 36%→23–25%) at the Politician's expense — and this holds in **both**
-  feedback modes (`rung` re-inflates the Politician to ~45% either way). Ship
-  `score` as the default in both modes; expose `rung` as an optional
-  group-preference toggle. `give-one` is a table-feel choice (secret,
-  simultaneous, everyone-throws-one), not a balance lever.
+- The **base game is comeback-friendly** — the halftime leader wins only ~29% of
+  equal-skill games and a dead-last player still wins ~24%. It is not a
+  runaway-leader game, and the Tasks-on-hand change made it *more* forgiving than
+  the ⌊Burnout/4⌋ version (dead-last wins 15%→24%, runaway 37%→29%).
+- The **recommended tuning** (`classic` feedback, `score` targeting) holds balSD
+  at 8.6pp — on par with the pre-change game (≈8.7pp) — and ships as the default
+  for continuity and table-feel. It is **no longer the single tightest**
+  configuration measured (see `rung` below); it is a deliberate texture choice,
+  not the balance optimum.
+- **`rung` targeting is now a near-free rubber band — the pre-change tension has
+  inverted.** Before, negatives aimed at the rung leader missed the Politician
+  (who led on Review Score, not the ladder) and re-inflated it to ~45%. Now the
+  ladder leader *is* the dominant seat (Workaholic/Grinder), so `rung` targeting
+  bashes exactly who's ahead: it **tightens** balance (8.6→7.2pp), **raises**
+  comeback (bottom-half 36%→42–43%, dead-last 25%→30%) and **lowers** runaway
+  (29%→~20%), with no archetype-balance cost. Groups who want a stronger catch-up
+  game should set `feedbackTarget:'rung'`; the default stays `score` only to
+  preserve the shipped feel. (Candidate for a future default change — flagged,
+  not taken here.)
+- **360° Review (`give-one`)** remains a table-feel choice, not a balance lever,
+  but under this engine it is slightly swingier with `score` targeting (balSD
+  9.7pp, Workaholic 36.4%) and the tightest of all with `rung` targeting (6.6pp).
+  The same ±`feedbackNetCap` bound governs both feedback modes; what changed is
+  only *who* the bounded negative now lands on.
+- The **Pareto choice** now favors the catch-up option: `score` preserves the
+  shipped texture at ~8.6pp; `rung` improves both balance and comeback. Ship
+  `score` as the default; expose `rung` as an optional group-preference toggle.
+  `give-one` stays a texture choice (secret, simultaneous, everyone-throws-one),
+  not a balance lever.
 
 Design guidance drawn from published work on catch-up / leader-bashing (Sirlin
 on skill-preserving "perpetual comeback"; the runaway-leader literature; the

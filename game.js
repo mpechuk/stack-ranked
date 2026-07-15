@@ -203,6 +203,9 @@
   const BURNOUT_CRISIS_RESET = 6;
   const LONG_GAME_ROUNDS = 24;
   const SAFETY_CAP = 60; // hard stop so a pathological game can't loop forever
+  const AI_BACKLOG_CAP = 3; // AI won't voluntarily hold more than this many Tasks
+                            // (see pickTaskToClaim) — keeps bots from hoarding
+                            // unfinished work the Tasks-on-hand penalty would tax.
 
   /* Rule toggles + tuning knobs for the two variant rules (Feedback deck and
    * Collaborative Projects). Defaults ON. Every numeric here is a balance dial
@@ -593,7 +596,7 @@
   }
   // Where a rational player sends a constructive-feedback card. 'score' targets
   // whoever is about to top THIS Review (provisional Review Score = CC gained
-  // this Quarter + PC − burnout tax), which naturally lands on the political
+  // this Quarter + PC − tasks on hand), which naturally lands on the political
   // front-runner; 'rung' targets the ladder/Career-Capital leader.
   function feedbackNegTarget(state, giverId) {
     if (state.rules.feedbackTarget === 'rung') return threatLeader(state, giverId);
@@ -608,7 +611,7 @@
         // player (Political Capital + CC gained this Quarter) are in range.
         sc = p.careerCapital + kPc * p.politicalCapital + (p.careerCapital - p.quarterMarker);
       } else { // 'score' — whoever tops THIS Review
-        sc = (p.careerCapital - p.quarterMarker) + p.politicalCapital - Math.floor(p.burnout / 4);
+        sc = (p.careerCapital - p.quarterMarker) + p.politicalCapital - p.backlog.length;
       }
       if (sc > bestScore) { bestScore = sc; best = p; }
     });
@@ -1285,14 +1288,29 @@
 
   // `mandatory` is false only when the player already has at least one
   // backlog entry — in that case the request offers a "skip" choice
-  // alongside the board options. AI always claims (never voluntarily
-  // skips), preserving the archetype behavior/balance already measured and
-  // documented for the unconditional-claim design (spec Section 9.8) —
-  // skipping is a human-facing capability, not an AI strategy change.
+  // alongside the board options. A mandatory pickup (empty backlog) always
+  // proceeds; the backlog can never be left at zero.
+  //
+  // AI: don't hoard unfinished work. The Review Score subtracts Tasks on hand,
+  // so a Project a bot can't afford just lingers in the backlog and drags its
+  // score. A bot therefore claims another Project voluntarily only when it
+  // isn't already behind — i.e. it can currently afford to complete everything
+  // it already holds — and never past a small backstop cap. This keeps a bot's
+  // backlog in the 0–2 band the Tasks-on-hand penalty was tuned for, instead of
+  // letting low-Productivity archetypes accumulate a pile they never clear.
   async function pickTaskToClaim(state, hooks, player, mandatory) {
     const heuristic = bestClaimIndex(state);
     if (heuristic < 0) return -1; // nothing available anywhere (all slots empty)
-    if (player.kind !== "human" || !hooks || !hooks.decide) return heuristic;
+    if (player.kind !== "human") {
+      if (!mandatory) {
+        const behind = player.backlog.some(function (it) {
+          return player.productivity < effectiveBacklogItemCost(player, it);
+        });
+        if (behind || player.backlog.length >= AI_BACKLOG_CAP) return -1;
+      }
+      return heuristic;
+    }
+    if (!hooks || !hooks.decide) return heuristic;
     const answer = await hooks.decide({
       playerId: player.id, action: "claimTask",
       prompt: mandatory
@@ -1846,14 +1864,14 @@
     const score = {};
     players.forEach(function (p) {
       const ccGained = p.careerCapital - p.quarterMarker;
-      score[p.id] = ccGained + p.politicalCapital + (fb[p.id] || 0) - Math.floor(p.burnout / 4);
+      score[p.id] = ccGained + p.politicalCapital + (fb[p.id] || 0) - p.backlog.length;
     });
 
     const summary = {
       reviewNumber: state.reviewCount, round: state.roundNumber,
       rows: players.map(function (p) {
         return { id: p.id, name: p.name, score: score[p.id], ccGained: p.careerCapital - p.quarterMarker,
-          pc: p.politicalCapital, feedback: (fb[p.id] || 0), burnout: p.burnout, rungBefore: p.rung, rungAfter: p.rung };
+          pc: p.politicalCapital, feedback: (fb[p.id] || 0), burnout: p.burnout, tasksOnHand: p.backlog.length, rungBefore: p.rung, rungAfter: p.rung };
       }),
       newCeoId: null, promotedIds: [], demotedIds: [], pipIds: [], eoqIds: []
     };
