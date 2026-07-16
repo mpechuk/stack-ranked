@@ -1324,7 +1324,7 @@
           '<td class="num">' + r.ccGained + "</td>" +
           '<td class="num">' + r.pc + "</td>" +
           '<td class="num">' + fbCell + "</td>" +
-          '<td class="num">' + r.burnout + "</td>" +
+          '<td class="num">' + r.tasksOnHand + "</td>" +
           "<td>" + esc(C.RUNG_NAMES[r.rungBefore]) + arrow + "</td>" +
           "<td>" + outcomeBadge(summary, r.id) + "</td></tr>";
       }).join("");
@@ -1332,8 +1332,8 @@
       showModalHTML(
         '<h2>📋 Quarterly Performance Review</h2>' +
         '<div class="msub">Review #' + summary.reviewNumber + " · end of Round " + summary.round +
-          "  ·  Score = CC gained this Quarter + Political Capital" + (hasFb ? " + Feedback" : "") + " − ⌊Burnout/4⌋</div>" +
-        '<table class="rev"><thead><tr><th>Employee</th><th>Score</th><th>ΔCC</th><th>Pol.Cap</th><th>📝</th><th>🔥</th><th>Rung</th><th>Outcome</th></tr></thead>' +
+          "  ·  Score = CC gained this Quarter + Political Capital" + (hasFb ? " + Feedback" : "") + " − Tasks on hand</div>" +
+        '<table class="rev"><thead><tr><th>Employee</th><th>Score</th><th>ΔCC</th><th>Pol.Cap</th><th>📝</th><th>📋</th><th>Rung</th><th>Outcome</th></tr></thead>' +
         "<tbody>" + body + "</tbody></table>" +
         '<div class="opts" style="margin-top:16px"><button class="primary" id="revContinue">Continue ▸</button></div>');
       var done = false;
