@@ -142,7 +142,7 @@ Performance Review and decides the CEO Board Vote, so hoarding it is a
 legitimate strategy.
 
 **Burnout (0–10).** Your risk track. Rises from Overtime, some Skill cards,
-some Projects, and Office Chaos. At 10, you suffer a Burnout Crisis: reset to
+**every Project** (each one costs Burnout when you complete it), and Office Chaos. At 10, you suffer a Burnout Crisis: reset to
 6, lose 2 Political Capital, and skip your next Sprint entirely.
 
 ### The Two Permanent Trackers
@@ -260,7 +260,8 @@ Each Action Point buys one of the following:
   [Your Backlog](#your-backlog)) and pay its Productivity cost. This is the
   only way to actually pay for and finish a task — Stand-Up only ever adds
   to your Backlog, never pays for anything in it. Gain the Career Capital
-  reward (and any other listed effects) immediately, then that entry is
+  reward (and any other listed effects — every Project also costs you some
+  Burnout when it ships) immediately, then that entry is
   gone. You choose which entry to Work — cheapest, most valuable, whatever
   — and if you have enough Action Points and Productivity, you can Work
   more than one entry in the same Sprint. Unavailable only if your Backlog
@@ -612,34 +613,34 @@ tableau until the game ends.
 
 | Name | Cost (P) | Reward | Flavor |
 |---|---|---|---|
-| Update the README (Nobody Reads It Anyway) | 2 | 3 Career Capital. | Now technically documented. |
-| Fix the Bug in Production (On a Friday) | 3 | 4 Career Capital; +1 Burnout. | It's fine. Everything is fine. |
-| Onboard the New Hire | 3 | 3 Career Capital; +1 Political Capital. | They seem nice. Give it two Quarters. |
-| Clean Up the Shared Drive | 2 | 3 Career Capital. | Found 40 folders named 'final_FINAL_v2.' |
-| Respond to the Simple Support Ticket | 2 | 2 Career Capital; +1 Political Capital. | It was a browser cache issue. It's always a browser cache issue. |
-| Write the Sprint Retro Notes | 4 | 5 Career Capital. | Action items: none of these will happen. |
+| Update the README (Nobody Reads It Anyway) | 2 | 3 Career Capital; +1 Burnout. | Now technically documented. |
+| Fix the Bug in Production (On a Friday) | 3 | 4 Career Capital; +2 Burnout. | It's fine. Everything is fine. |
+| Onboard the New Hire | 3 | 3 Career Capital; +1 Political Capital; +1 Burnout. | They seem nice. Give it two Quarters. |
+| Clean Up the Shared Drive | 2 | 3 Career Capital; +1 Burnout. | Found 40 folders named 'final_FINAL_v2.' |
+| Respond to the Simple Support Ticket | 2 | 2 Career Capital; +1 Political Capital; +1 Burnout. | It was a browser cache issue. It's always a browser cache issue. |
+| Write the Sprint Retro Notes | 4 | 5 Career Capital; +1 Burnout. | Action items: none of these will happen. |
 
 ### Project Cards — Mid (Cost 5–6, shuffled in from Quarter 3)
 
 | Name | Cost (P) | Reward | Flavor |
 |---|---|---|---|
-| Migrate the Legacy Codebase | 6 | 8 Career Capital; +1 Burnout. | Nobody who wrote the original code still works here. |
-| Launch the Feature Nobody Asked For | 5 | 7 Career Capital. | It tested well with exactly one user: the VP's nephew. |
-| Respond to the RFP (Due Tomorrow, Started Today) | 5 | 6 Career Capital; +1 Political Capital. | Yes, we can absolutely do all of this by Q2. |
-| Survive the Compliance Audit | 6 | 7 Career Capital; 1 Compliance Badge. | Everyone suddenly remembers where the fire extinguishers are. |
-| Rebuild the CI/CD Pipeline (Third Time's the Charm) | 6 | 8 Career Capital; +1 Burnout. | This one's permanent. Definitely. For real this time. |
-| Run the All-Hands Presentation | 5 | 6 Career Capital; +1 Political Capital. | Slides are just screenshots of Slack messages, but with a logo now. |
+| Migrate the Legacy Codebase | 6 | 8 Career Capital; +2 Burnout. | Nobody who wrote the original code still works here. |
+| Launch the Feature Nobody Asked For | 5 | 7 Career Capital; +1 Burnout. | It tested well with exactly one user: the VP's nephew. |
+| Respond to the RFP (Due Tomorrow, Started Today) | 5 | 6 Career Capital; +1 Political Capital; +1 Burnout. | Yes, we can absolutely do all of this by Q2. |
+| Survive the Compliance Audit | 6 | 7 Career Capital; 1 Compliance Badge; +1 Burnout. | Everyone suddenly remembers where the fire extinguishers are. |
+| Rebuild the CI/CD Pipeline (Third Time's the Charm) | 6 | 8 Career Capital; +2 Burnout. | This one's permanent. Definitely. For real this time. |
+| Run the All-Hands Presentation | 5 | 6 Career Capital; +1 Political Capital; +1 Burnout. | Slides are just screenshots of Slack messages, but with a logo now. |
 
 ### Project Cards — Late (Cost 7–9, shuffled in from Quarter 5)
 
 | Name | Cost (P) | Reward | Flavor |
 |---|---|---|---|
-| Ship the Major Redesign Before the Conference | 8 | 11 Career Capital; +1 Burnout. | The demo gods are watching. They are not merciful. |
-| Turn Around the Failing Division | 9 | 13 Career Capital. | Everyone competent already quietly left. You didn't get the memo in time. |
-| Land the Whale Client | 8 | 11 Career Capital; +2 Political Capital. | They want it fully custom, half price, by Friday. |
-| Lead the Company-Wide Reorganization | 9 | 13 Career Capital; +1 Burnout. | Nobody's title changed, but everyone's manager did. Twice. |
-| Present to the Board (12 Minutes to Justify a Department) | 7 | 10 Career Capital; +2 Political Capital. | They looked at their phones for eleven of them. |
-| Negotiate the Vendor Contract (40 Pages of Terms) | 7 | 10 Career Capital. | Nobody read past page 3. That's where the bad clause is. |
+| Ship the Major Redesign Before the Conference | 8 | 11 Career Capital; +2 Burnout. | The demo gods are watching. They are not merciful. |
+| Turn Around the Failing Division | 9 | 13 Career Capital; +1 Burnout. | Everyone competent already quietly left. You didn't get the memo in time. |
+| Land the Whale Client | 8 | 11 Career Capital; +2 Political Capital; +1 Burnout. | They want it fully custom, half price, by Friday. |
+| Lead the Company-Wide Reorganization | 9 | 13 Career Capital; +2 Burnout. | Nobody's title changed, but everyone's manager did. Twice. |
+| Present to the Board (12 Minutes to Justify a Department) | 7 | 10 Career Capital; +2 Political Capital; +1 Burnout. | They looked at their phones for eleven of them. |
+| Negotiate the Vendor Contract (40 Pages of Terms) | 7 | 10 Career Capital; +1 Burnout. | Nobody read past page 3. That's where the bad clause is. |
 
 ### Project Cards — Evergreen Pool (Cost 1–8; every design carries a Burnout cost)
 
@@ -652,19 +653,19 @@ Evergreen Project, and it's always exempt from Scope Creep.
 
 | Name | Cost (P) | Reward | Flavor |
 |---|---|---|---|
-| Reply to the Jira Comment From Six Months Ago | 1 | 1 Career Capital; +1 Burnout. | The person who filed it left the company in Q2. The ticket did not. |
-| Answer a "Quick Question" on Slack | 2 | 3 Career Capital; +1 Burnout. | That was forty-five minutes ago. There are now six people in the thread. |
-| Delete the Commented-Out Code From 2019 | 2 | 2 Career Capital; +1 Burnout. | It's not documentation. It was never documentation. |
-| Un-hardcode the Hardcoded Value | 3 | 3 Career Capital; +1 Burnout. | Replaced "prod-server-3" with a config flag that defaults to "prod-server-3." |
-| Rotate the API Keys You Forgot About | 3 | 4 Career Capital; +2 Burnout. | Rotated three keys. Broke a fourth integration nobody remembered existed. |
-| Reduce Technical Debt | 4 | 5 Career Capital; +1 Burnout. | Perpetually 80% done. It has always been 80% done. It will always be 80% done. |
-| Bump the Node Version (Nothing Breaks. Probably.) | 4 | 4 Career Capital; +1 Burnout. | 247 transitive dependencies quietly disagree. |
-| Consolidate the Three Config Files Into One (Now Four) | 4 | 4 Career Capital; +2 Burnout. | Progress, technically. |
-| Untangle the Legacy Spaghetti (One More Time) | 5 | 6 Career Capital; +1 Burnout. | Found a comment that says "DO NOT REMOVE, NOT SURE WHY." Removed it anyway. |
-| Archive the Zombie Microservice | 5 | 7 Career Capital; +2 Burnout. | Nobody knows what calls it. Everybody's afraid to find out. |
-| Migrate Off the Framework You Migrated To Last Year | 6 | 7 Career Capital; +1 Burnout. | The last migration's postmortem recommended this framework. |
-| Squash 40 Commits Into "misc fixes" | 6 | 8 Career Capital; +2 Burnout. | git blame now blames everyone equally. |
-| Finally Read the Incident Postmortem Action Items | 8 | 10 Career Capital; +2 Burnout. | Item 1: "Add more monitoring." Filed fourteen months ago. Still open. |
+| Reply to the Jira Comment From Six Months Ago | 1 | 1 Career Capital; +2 Burnout. | The person who filed it left the company in Q2. The ticket did not. |
+| Answer a "Quick Question" on Slack | 2 | 3 Career Capital; +2 Burnout. | That was forty-five minutes ago. There are now six people in the thread. |
+| Delete the Commented-Out Code From 2019 | 2 | 2 Career Capital; +2 Burnout. | It's not documentation. It was never documentation. |
+| Un-hardcode the Hardcoded Value | 3 | 3 Career Capital; +2 Burnout. | Replaced "prod-server-3" with a config flag that defaults to "prod-server-3." |
+| Rotate the API Keys You Forgot About | 3 | 4 Career Capital; +3 Burnout. | Rotated three keys. Broke a fourth integration nobody remembered existed. |
+| Reduce Technical Debt | 4 | 5 Career Capital; +2 Burnout. | Perpetually 80% done. It has always been 80% done. It will always be 80% done. |
+| Bump the Node Version (Nothing Breaks. Probably.) | 4 | 4 Career Capital; +2 Burnout. | 247 transitive dependencies quietly disagree. |
+| Consolidate the Three Config Files Into One (Now Four) | 4 | 4 Career Capital; +3 Burnout. | Progress, technically. |
+| Untangle the Legacy Spaghetti (One More Time) | 5 | 6 Career Capital; +2 Burnout. | Found a comment that says "DO NOT REMOVE, NOT SURE WHY." Removed it anyway. |
+| Archive the Zombie Microservice | 5 | 7 Career Capital; +3 Burnout. | Nobody knows what calls it. Everybody's afraid to find out. |
+| Migrate Off the Framework You Migrated To Last Year | 6 | 7 Career Capital; +2 Burnout. | The last migration's postmortem recommended this framework. |
+| Squash 40 Commits Into "misc fixes" | 6 | 8 Career Capital; +3 Burnout. | git blame now blames everyone equally. |
+| Finally Read the Incident Postmortem Action Items | 8 | 10 Career Capital; +3 Burnout. | Item 1: "Add more monitoring." Filed fourteen months ago. Still open. |
 
 ### Office Chaos Cards (30)
 
@@ -884,6 +885,25 @@ little *more* forgiving: the halftime leader wins less often (~29% vs 37%) and a
 dead-last player comes back more often (~24% vs 15%). Burnout still bites in the
 two places it always did — a Burnout Crisis at 10, and the end-of-game Final
 Score in the Long Game.
+
+### v5 — Every Project Costs Burnout
+
+v4 left one thing lopsided: with Burnout no longer scored at the Review, the
+Workaholic — who runs Overtime and ships the most Projects — became the single
+strongest strategy (~34% of wins), and the more cautious styles trailed. The
+fix leans into the theme instead of adding another scoring term: **every
+Project now inflicts Burnout when you complete it** (the amount is printed on
+each card — roughly +1 across the board, more for the nastiest tech-debt cards).
+
+Shipping work at volume is now genuinely tiring. Across the 3,000-game
+card-faithful sweep the field flattens hard: no archetype wins more than ~24%
+or less than ~16% (balSD drops from 8.6 to 2.6 percentage points), and the
+run-hot Workaholic and Grinder come back to the pack while the steadier styles
+rise. It isn't a new tax on your scorecard — it's the Burnout Crisis (and the
+Self-Care you now have to spend Action Points on to avoid it) doing the work:
+Burnout Crises roughly double, to about five per game, and players take
+Self-Care far more often. Equal-skill comeback and runaway rates are unchanged.
+Burnout, once close to ignorable, is now a resource you actively manage all game.
 
 ### Other Numbers Worth Knowing
 
