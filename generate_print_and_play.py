@@ -51,13 +51,16 @@ PAGE_W, PAGE_H = letter
 CARD_W, CARD_H = 2.5 * inch, 3.5 * inch
 COLS, ROWS = 3, 3
 PER_SHEET = COLS * ROWS
-GRID_W, GRID_H = COLS * CARD_W, ROWS * CARD_H
+GAP = 0.1 * inch  # gutter between adjacent cards, for easier cutting
+GRID_W = COLS * CARD_W + (COLS - 1) * GAP
+GRID_H = ROWS * CARD_H + (ROWS - 1) * GAP
 MARGIN_X = (PAGE_W - GRID_W) / 2
 MARGIN_Y = (PAGE_H - GRID_H) / 2
 
 PAD_X = 10
 PAD_TOP = 12
 IMAGE_MAX_H = 68
+EMBED_DPI = 300  # downscale card art to this DPI of its drawn size before embedding
 
 # label, accent (border/heading), bg (fill)
 PALETTE = {
@@ -263,15 +266,44 @@ def build_deck(data):
     return decks
 
 
+_img_cache = {}
+
+
+def prepare_image(img_path, content_w):
+    """Return (ImageReader, draw_w, draw_h) for img_path scaled to fit the card.
+    The embedded bitmap is downscaled to EMBED_DPI of its drawn size so the PDF
+    stays small instead of carrying the full-resolution source art. Cached per
+    path (each image is decoded/resized once)."""
+    key = str(img_path)
+    if key in _img_cache:
+        return _img_cache[key]
+    im = Image.open(img_path) if Image is not None else None
+    iw, ih = im.size if im is not None else ImageReader(str(img_path)).getSize()
+    scale = min(content_w / iw, IMAGE_MAX_H / ih)
+    draw_w, draw_h = iw * scale, ih * scale
+    reader = ImageReader(str(img_path))
+    if im is not None:
+        try:
+            if im.mode == "P":
+                im = im.convert("RGBA")
+            target_w = max(1, round(draw_w / 72.0 * EMBED_DPI))
+            target_h = max(1, round(draw_h / 72.0 * EMBED_DPI))
+            if iw > target_w or ih > target_h:
+                im.thumbnail((target_w, target_h), Image.LANCZOS)
+                reader = ImageReader(im)
+        except OSError:
+            pass
+    result = (reader, draw_w, draw_h)
+    _img_cache[key] = result
+    return result
+
+
 def draw_card_image(c, x0, cursor, content_w, image_rel_path):
     img_path = ROOT / image_rel_path
     if not img_path.is_file():
         print(f"Warning: card image not found, skipping: {image_rel_path}")
         return 0
-    reader = ImageReader(str(img_path))
-    iw, ih = reader.getSize()
-    scale = min(content_w / iw, IMAGE_MAX_H / ih)
-    draw_w, draw_h = iw * scale, ih * scale
+    reader, draw_w, draw_h = prepare_image(img_path, content_w)
     img_x = x0 + PAD_X + (content_w - draw_w) / 2
     c.drawImage(reader, img_x, cursor - draw_h, draw_w, draw_h, mask="auto")
     return draw_h
@@ -363,26 +395,35 @@ def draw_card(c, x_left, y_top, card, deck):
     c.drawCentredString(x0 + CARD_W / 2, y0 + 5, "SYNERGY CORP")
 
 
-def draw_sheet_footer(c, label, sheet_num, total_sheets):
+def draw_sheet_footer(c, labels, sheet_num, total_sheets):
+    label = "  ·  ".join(labels)
     c.setFillColor(HexColor("#777777"))
     c.setFont("Helvetica", 7.5)
     c.drawCentredString(
-        PAGE_W / 2, MARGIN_Y - 11,
+        PAGE_W / 2, max(4, MARGIN_Y - 11),
         f"STACK RANKED — {label}  (sheet {sheet_num} of {total_sheets})",
     )
 
 
-def draw_category_sheets(c, deck):
-    cards = deck["cards"]
-    total_sheets = max(1, math.ceil(len(cards) / PER_SHEET))
+def draw_all_sheets(c, decks):
+    """Lay every deck's cards out in one continuous 9-up flow, so a new
+    category picks up in the leftover slots of the previous sheet instead of
+    starting a fresh page."""
+    slots = [(card, deck) for deck in decks for card in deck["cards"]]
+    total_sheets = max(1, math.ceil(len(slots) / PER_SHEET))
     for sheet_idx in range(total_sheets):
-        chunk = cards[sheet_idx * PER_SHEET:(sheet_idx + 1) * PER_SHEET]
-        for i, card in enumerate(chunk):
+        chunk = slots[sheet_idx * PER_SHEET:(sheet_idx + 1) * PER_SHEET]
+        seen = set()
+        labels = []
+        for i, (card, deck) in enumerate(chunk):
             row, col = divmod(i, COLS)
-            x_left = MARGIN_X + col * CARD_W
-            y_top = PAGE_H - MARGIN_Y - row * CARD_H
+            x_left = MARGIN_X + col * (CARD_W + GAP)
+            y_top = PAGE_H - MARGIN_Y - row * (CARD_H + GAP)
             draw_card(c, x_left, y_top, card, deck)
-        draw_sheet_footer(c, deck["label"], sheet_idx + 1, total_sheets)
+            if deck["label"] not in seen:
+                seen.add(deck["label"])
+                labels.append(deck["label"])
+        draw_sheet_footer(c, labels, sheet_idx + 1, total_sheets)
         c.showPage()
 
 
@@ -431,9 +472,10 @@ def draw_cover_page(c, decks):
     )
     section(
         "What's on each sheet",
-        "Every sheet is labeled at the bottom with its category and a "
-        "“sheet X of Y” counter. Categories never share a sheet, so you can "
-        "print and cut one category at a time. Cards that need multiple "
+        "Cards flow nine per sheet with no wasted paper, so a sheet may hold "
+        "the tail of one category and the start of the next. Every sheet is "
+        "labeled at the bottom with the categories it contains and a "
+        "“sheet X of Y” counter. Cards that need multiple "
         "physical copies (Tier 1 Skill/Tool cards and Early Project cards) "
         "are already duplicated here — print every sheet once and you'll "
         "have the complete deck. Key resources (Career Capital, Political "
@@ -464,12 +506,11 @@ def main():
     c.setTitle("Stack Ranked — Print-and-Play")
 
     draw_cover_page(c, decks)
-    for deck in decks:
-        draw_category_sheets(c, deck)
+    draw_all_sheets(c, decks)
 
     c.save()
     total_cards = sum(len(d["cards"]) for d in decks)
-    total_pages = 1 + sum(max(1, math.ceil(len(d["cards"]) / PER_SHEET)) for d in decks)
+    total_pages = 1 + max(1, math.ceil(total_cards / PER_SHEET))
     print(f"Wrote {OUTPUT_PDF} ({total_pages} pages, {total_cards} physical cards)")
 
 
