@@ -759,7 +759,7 @@ Field meanings:
     {"name": "The Peter Principle", "effect": "Your Action Points are always 2, no matter your rung \u2014 promoted well past their competence. Hiring Skill cards costs 1 less Productivity (overcompensates by throwing tools at the problem).", "flavor": "Promoted three times. Still can't find the deploy script."},
     {"name": "The Always-On Boss", "effect": "Overtime grants +1 extra Burnout, on top of its normal effect (always expects a same-night reply). Self-Care costs 2 Action Points instead of 1 (there's no such thing as fully logging off).", "flavor": "Texts you at 11 PM. Reacts with a \ud83d\udc4d to your out-of-office reply."},
     {"name": "The Nepotism Hire", "effect": "+2 Political Capital/round (knows people); Hiring Skill cards costs 1 more Productivity (couldn't approve a headcount request to save their life).", "flavor": "Turns out the CEO is their uncle. Nobody has said this out loud."},
-    {"name": "The Consultant-Turned-Manager", "effect": "Your Projects cost 1 less Productivity (loves a framework for everything); \u22121 Political Capital/round (nobody trusts the person who charges by the hour).", "flavor": "Drew a 2x2 matrix. Nobody asked for the 2x2 matrix."}
+    {"name": "The Consultant Turned Manager", "effect": "Your Projects cost 1 less Productivity (loves a framework for everything); \u22121 Political Capital/round (nobody trusts the person who charges by the hour).", "flavor": "Drew a 2x2 matrix. Nobody asked for the 2x2 matrix."}
   ]
 }
 ```

@@ -741,7 +741,7 @@ first Action Point next round, and gain 1 Compliance Badge.
 | The Peter Principle | Your Action Points are always 2, no matter your rung — promoted well past their competence. Hiring Skill cards costs 1 less Productivity (overcompensates by throwing tools at the problem). | Promoted three times. Still can't find the deploy script. |
 | The Always-On Boss | Overtime grants +1 extra Burnout, on top of its normal effect (always expects a same-night reply). Self-Care costs 2 Action Points instead of 1 (there's no such thing as fully logging off). | Texts you at 11 PM. Reacts with a 👍 to your out-of-office reply. |
 | The Nepotism Hire | +2 Political Capital/round (knows people); Hiring Skill cards costs 1 more Productivity (couldn't approve a headcount request to save their life). | Turns out the CEO is their uncle. Nobody has said this out loud. |
-| The Consultant-Turned-Manager | Your Projects cost 1 less Productivity (loves a framework for everything); −1 Political Capital/round (nobody trusts the person who charges by the hour). | Drew a 2x2 matrix. Nobody asked for the 2x2 matrix. |
+| The Consultant Turned Manager | Your Projects cost 1 less Productivity (loves a framework for everything); −1 Political Capital/round (nobody trusts the person who charges by the hour). | Drew a 2x2 matrix. Nobody asked for the 2x2 matrix. |
 
 ### Feedback Cards (18, variant rule)
 

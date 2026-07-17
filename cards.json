@@ -85,7 +85,8 @@
         "cost": 3,
         "type": "Permanent",
         "effect": "+2 Political Capital/round.",
-        "flavor": "Knows everyone's dog's name. Cannot recall a single deadline."
+        "flavor": "Knows everyone's dog's name. Cannot recall a single deadline.",
+        "image": "cards-images/master-of-small-talk.png"
       }
     ],
     "tier2": [
@@ -94,7 +95,8 @@
         "cost": 4,
         "type": "Permanent",
         "effect": "+2 Political Capital/round; −1 Productivity/round.",
-        "flavor": "Facilitates a 45-minute meeting to schedule a 15-minute meeting."
+        "flavor": "Facilitates a 45-minute meeting to schedule a 15-minute meeting.",
+        "image": "cards-images/scrum-master.png"
       },
       {
         "name": "Full-Stack, Full-Burnout",
@@ -646,67 +648,80 @@
     {
       "name": "The Micromanager",
       "effect": "Your first Action each round must be Work a Project if you can afford one; otherwise it is wasted.",
-      "flavor": "Wants a status update on the status update."
+      "flavor": "Wants a status update on the status update.",
+      "image": "cards-images/the-micromanager.png"
     },
     {
       "name": "The Absentee Boss",
       "effect": "Gain 1 free Action Point each round. You may not take the Network action — your boss is never around to introduce you to anyone.",
-      "flavor": "Hasn't reviewed a time-off request since the reorg. Or approved one. Or seen one."
+      "flavor": "Hasn't reviewed a time-off request since the reorg. Or approved one. Or seen one.",
+      "image": "cards-images/the-absentee-boss.png"
     },
     {
       "name": "The Credit-Stealing Boss",
       "effect": "Whenever you complete a Project, lose 1 Career Capital but gain 1 Political Capital (sympathetic coworkers notice).",
-      "flavor": "Presented your work at the all-hands. Used the word ‘we’ a lot. Meant ‘I.’"
+      "flavor": "Presented your work at the all-hands. Used the word ‘we’ a lot. Meant ‘I.’",
+      "image": "cards-images/the-credit-stealing-boss.png"
     },
     {
       "name": "The Chaotic Pivot-Happy Visionary",
       "effect": "At the start of each Quarter, flip a coin: heads, gain 2 Productivity; tails, discard 1 Skill card.",
-      "flavor": "The strategy changed twice during this sentence."
+      "flavor": "The strategy changed twice during this sentence.",
+      "image": "cards-images/the-chaotic-pivot-happy-visionary.png"
     },
     {
       "name": "The Yes-Man Exec",
       "effect": "Hiring Skill cards costs 1 less Productivity (minimum 1). Mandatory Training costs you 2 lost Action Points next round instead of 1.",
-      "flavor": "Agreed with the last three people who talked to him. In the same meeting."
+      "flavor": "Agreed with the last three people who talked to him. In the same meeting.",
+      "image": "cards-images/the-yes-man-exec.png"
     },
     {
       "name": "The Actually Supportive Manager",
       "effect": "Gain 1 Political Capital every Income Phase. No drawback.",
-      "flavor": "Asked how you're doing and waited for the actual answer. Suspicious, but in a good way."
+      "flavor": "Asked how you're doing and waited for the actual answer. Suspicious, but in a good way.",
+      "image": "cards-images/the-actually-supportive-manager.png"
     },
     {
       "name": "The Results-at-Any-Cost Boss",
       "effect": "Overtime grants +1 extra Productivity, but also +1 extra Burnout, on top of its normal effect.",
-      "flavor": "Doesn't care how you hit the number. Cares extremely if you don't."
+      "flavor": "Doesn't care how you hit the number. Cares extremely if you don't.",
+      "image": "cards-images/the-results-at-any-cost-boss.png"
     },
     {
       "name": "The Buzzword Machine",
       "effect": "Network grants +1 extra Political Capital. Your Projects cost 1 more Productivity — nobody can define the deliverable.",
-      "flavor": "Wants to double-click on synergies before we boil the ocean."
+      "flavor": "Wants to double-click on synergies before we boil the ocean.",
+      "image": "cards-images/the-buzzword-machine.png"
     },
     {
       "name": "The Founder Who Refuses to Delegate",
       "effect": "Gain 1 free Action Point each round. Self-Care costs 2 Action Points instead of 1.",
-      "flavor": "“We're moving fast” has justified everything since 2019."
+      "flavor": "“We're moving fast” has justified everything since 2019.",
+      "image": "cards-images/the-founder-who-refuses-to-delegate.png"
     },
     {
       "name": "The Tenure-Not-Talent Manager",
       "effect": "Compliance Badges count double toward promotion requirements. Hiring Skill cards costs 1 more Productivity.",
-      "flavor": "Been here 14 years. Still can't use the new expense software."
+      "flavor": "Been here 14 years. Still can't use the new expense software.",
+      "image": "cards-images/the-tenure-not-talent-manager.png"
     },
     {
       "name": "The Seagull Manager",
       "effect": "At the start of each Quarter, flip a coin: heads, every other player gains 1 Burnout — you swooped in and stirred things up; tails, you gain 1 Political Capital — you flew off before anyone noticed.",
-      "flavor": "Flies in, makes a lot of noise, craps on the roadmap, and is gone before the retro."
+      "flavor": "Flies in, makes a lot of noise, craps on the roadmap, and is gone before the retro.",
+      "image": "cards-images/the-seagull-manager.png"
     },
     {
       "name": "The Mushroom Manager",
       "effect": "+2 Productivity/round (fed on nothing, somehow still growing); −1 Political Capital/round (kept in the dark — nobody tells you anything).",
-      "flavor": "Kept in the dark and fed manure. Thriving, weirdly."
+      "flavor": "Kept in the dark and fed manure. Thriving, weirdly.",
+      "image": "cards-images/the-mushroom-manager.png"
     },
     {
       "name": "The Peter Principle",
       "effect": "Your Action Points are always 2, no matter your rung — promoted well past their competence. Hiring Skill cards costs 1 less Productivity (overcompensates by throwing tools at the problem).",
-      "flavor": "Promoted three times. Still can't find the deploy script."
+      "flavor": "Promoted three times. Still can't find the deploy script.",
+      "image": "cards-images/the-peter-principle.png"
     },
     {
       "name": "The Always-On Boss",
@@ -721,7 +736,7 @@
       "image": "cards-images/the-nepotism-hire.png"
     },
     {
-      "name": "The Consultant-Turned-Manager",
+      "name": "The Consultant Turned Manager",
       "effect": "Your Projects cost 1 less Productivity (loves a framework for everything); −1 Political Capital/round (nobody trusts the person who charges by the hour).",
       "flavor": "Drew a 2x2 matrix. Nobody asked for the 2x2 matrix.",
       "image": "cards-images/the-consultant-turned-manager.png"
@@ -734,7 +749,7 @@
       "value": 2,
       "effect": "+2 Political points during the Review to whoever holds this card.",
       "flavor": "Hit every goal and then invented three more to hit. Nobody asked, but here we are.",
-      "image": "cards-images/feedback/exceeds-expectations.png"
+      "image": "cards-images/exceeds-expectations.png"
     },
     {
       "name": "Goes Above and Beyond",
@@ -742,7 +757,7 @@
       "value": 2,
       "effect": "+2 Political points during the Review to whoever holds this card.",
       "flavor": "Answered a Slack at 2 a.m. once. It comes up in every review now.",
-      "image": "cards-images/feedback/goes-above-and-beyond.png"
+      "image": "cards-images/goes-above-and-beyond.png"
     },
     {
       "name": "A True Team Player",
@@ -750,7 +765,7 @@
       "value": 2,
       "effect": "+2 Political points during the Review to whoever holds this card.",
       "flavor": "Brought donuts to the retro. The retro was about layoffs, but still.",
-      "image": "cards-images/feedback/a-true-team-player.png"
+      "image": "cards-images/a-true-team-player.png"
     },
     {
       "name": "Highly Visible Impact",
@@ -758,7 +773,7 @@
       "value": 2,
       "effect": "+2 Political points during the Review to whoever holds this card.",
       "flavor": "The dashboard is green. Nobody checks what it measures, but it's green.",
-      "image": "cards-images/feedback/highly-visible-impact.png"
+      "image": "cards-images/highly-visible-impact.png"
     },
     {
       "name": "Strong Executive Presence",
@@ -766,7 +781,7 @@
       "value": 2,
       "effect": "+2 Political points during the Review to whoever holds this card.",
       "flavor": "Says 'let me push back on that' with total confidence and no follow-up.",
-      "image": "cards-images/feedback/strong-executive-presence.png"
+      "image": "cards-images/strong-executive-presence.png"
     },
     {
       "name": "Consistently Delivers",
@@ -774,7 +789,7 @@
       "value": 2,
       "effect": "+2 Political points during the Review to whoever holds this card.",
       "flavor": "Delivers consistently, if not necessarily what was asked for.",
-      "image": "cards-images/feedback/consistently-delivers.png"
+      "image": "cards-images/consistently-delivers.png"
     },
     {
       "name": "Great Culture Add",
@@ -782,7 +797,7 @@
       "value": 2,
       "effect": "+2 Political points during the Review to whoever holds this card.",
       "flavor": "Laughs at the CEO's jokes at exactly the right volume.",
-      "image": "cards-images/feedback/great-culture-add.png"
+      "image": "cards-images/great-culture-add.png"
     },
     {
       "name": "Promotion-Ready",
@@ -790,7 +805,7 @@
       "value": 2,
       "effect": "+2 Political points during the Review to whoever holds this card.",
       "flavor": "Has been promotion-ready for six quarters. The ladder is just crowded.",
-      "image": "cards-images/feedback/promotion-ready.png"
+      "image": "cards-images/promotion-ready.png"
     },
     {
       "name": "The Team Depends on Them",
@@ -798,7 +813,7 @@
       "value": 2,
       "effect": "+2 Political points during the Review to whoever holds this card.",
       "flavor": "Load-bearing employee. HR has flagged this as a risk, admiringly.",
-      "image": "cards-images/feedback/the-team-depends-on-them.png"
+      "image": "cards-images/the-team-depends-on-them.png"
     },
     {
       "name": "Needs to Improve Communication",
@@ -806,7 +821,7 @@
       "value": -2,
       "effect": "-2 Political points during the Review to whoever holds this card.",
       "flavor": "Sends a 400-word Slack that could have been 'ok.' Or vice versa.",
-      "image": "cards-images/feedback/needs-to-improve-communication.png"
+      "image": "cards-images/needs-to-improve-communication.png"
     },
     {
       "name": "Struggles with Ambiguity",
@@ -814,7 +829,7 @@
       "value": -2,
       "effect": "-2 Political points during the Review to whoever holds this card.",
       "flavor": "Asked for 'requirements.' In this economy.",
-      "image": "cards-images/feedback/struggles-with-ambiguity.png"
+      "image": "cards-images/struggles-with-ambiguity.png"
     },
     {
       "name": "Not a Culture Fit",
@@ -822,7 +837,7 @@
       "value": -2,
       "effect": "-2 Political points during the Review to whoever holds this card.",
       "flavor": "Logs off at 5. Suspicious. Un-American, even.",
-      "image": "cards-images/feedback/not-a-culture-fit.png"
+      "image": "cards-images/not-a-culture-fit.png"
     },
     {
       "name": "Lacks Executive Presence",
@@ -830,7 +845,7 @@
       "value": -2,
       "effect": "-2 Political points during the Review to whoever holds this card.",
       "flavor": "Said 'I don't know' in a meeting. Out loud. On purpose.",
-      "image": "cards-images/feedback/lacks-executive-presence.png"
+      "image": "cards-images/lacks-executive-presence.png"
     },
     {
       "name": "Room for Growth",
@@ -838,7 +853,7 @@
       "value": -2,
       "effect": "-2 Political points during the Review to whoever holds this card.",
       "flavor": "Endless, breathtaking room. Vistas of it. So much room.",
-      "image": "cards-images/feedback/room-for-growth.png"
+      "image": "cards-images/room-for-growth.png"
     },
     {
       "name": "Doesn't Take Feedback Well",
@@ -846,7 +861,7 @@
       "value": -2,
       "effect": "-2 Political points during the Review to whoever holds this card.",
       "flavor": "Took the feedback fine. Just didn't agree, which is worse.",
-      "image": "cards-images/feedback/doesn-t-take-feedback-well.png"
+      "image": "cards-images/doesn-t-take-feedback-well.png"
     },
     {
       "name": "Siloed and Territorial",
@@ -854,7 +869,7 @@
       "value": -2,
       "effect": "-2 Political points during the Review to whoever holds this card.",
       "flavor": "Owns the one system nobody else understands. Weirdly protective of the job security.",
-      "image": "cards-images/feedback/siloed-and-territorial.png"
+      "image": "cards-images/siloed-and-territorial.png"
     },
     {
       "name": "Missed Key Deliverables",
@@ -862,7 +877,7 @@
       "value": -2,
       "effect": "-2 Political points during the Review to whoever holds this card.",
       "flavor": "The deliverable was 'vibes.' The vibes were, per the review, off.",
-      "image": "cards-images/feedback/missed-key-deliverables.png"
+      "image": "cards-images/missed-key-deliverables.png"
     },
     {
       "name": "Let's Circle Back on This",
@@ -870,7 +885,7 @@
       "value": -2,
       "effect": "-2 Political points during the Review to whoever holds this card.",
       "flavor": "We will not be circling back. We both know that.",
-      "image": "cards-images/feedback/let-s-circle-back-on-this.png"
+      "image": "cards-images/let-s-circle-back-on-this.png"
     }
   ]
 }
