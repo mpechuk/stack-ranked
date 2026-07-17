@@ -45,6 +45,8 @@ const BAD_ID = 'the-micromanager';
 const FIELD_IDS = ['the-actually-supportive-manager', 'the-mushroom-manager', 'the-consultant-turned-manager'];
 const FORCED_IDS = [BAD_ID].concat(FIELD_IDS);
 const NSEATS = 6;
+// Base seed shared by both arms (same seeds => the only difference is the mechanic).
+const BASE_SEED = 20260714;
 const BAD_SEATS = [0, 1, 2];
 const GOOD_SEATS = [3, 4, 5];
 const isBad = function (seat) { return BAD_SEATS.indexOf(seat) >= 0; };
@@ -135,7 +137,7 @@ async function runArm(noTransfer, G, variant, baseSeed) {
 async function main() {
   const G = parseInt(process.argv[2] || '1000', 10);
   const variant = process.argv[3] || 'race-to-ceo';
-  const BASE = 20260714;
+  const BASE = BASE_SEED;
 
   console.log('STACK RANKED — Request-a-Transfer catch-up test');
   console.log('variant=' + variant + '  games/arm=' + G + '  seeded, reproducible');
@@ -163,22 +165,37 @@ async function main() {
   row('field-cohort avg final rung', B.goodAvgRung.toFixed(2));
 
   console.log('\n=========== CATCH-UP VERDICT ===========');
-  const lift = B.badCohortWinShare - A.badCohortWinShare;
-  const rungLift = B.badAvgRung - A.badAvgRung;
+  // The causal proof is the A→B lift on the SAME cohort: being able to switch
+  // must materially raise both the bad cohort's win share and its final rung.
+  const v = verdict(A, B);
+  const lift = v.lift, rungLift = v.rungLift, causal = v.causal, parity = v.parity;
   row('bad-cohort win-share lift (B − A)', (lift >= 0 ? '+' : '') + (100 * lift).toFixed(1) + 'pp   (' +
     pct(A.badCohortWinShare, 1) + ' → ' + pct(B.badCohortWinShare, 1) + ')');
   row('bad-cohort rung lift (B − A)', (rungLift >= 0 ? '+' : '') + rungLift.toFixed(2) + '   (' +
     A.badAvgRung.toFixed(2) + ' → ' + B.badAvgRung.toFixed(2) + ')');
   row('switchers vs field (per-seat win)', B.badSwitchWinRate != null ? pct(B.badSwitchWinRate, 1) + ' vs ' + pct(B.goodSeatWinRate, 1) : '—');
-  // The causal proof is the A→B lift on the SAME cohort: being able to switch
-  // must materially raise both the bad cohort's win share and its final rung.
-  const relInc = A.badCohortWinShare > 0 ? B.badCohortWinShare / A.badCohortWinShare : Infinity;
-  const causal = lift > 0.05 && relInc >= 1.4 && rungLift > 0.3;
-  const parity = B.badSwitchWinRate != null && B.goodSeatWinRate > 0 && (B.badSwitchWinRate / B.goodSeatWinRate) >= 0.6;
   console.log('\n  ' + (causal
     ? '✅ PASS — switching materially lets the bad cohort catch up' +
       (parity ? ' (switchers approach the field\'s per-seat rate).' : ' (they close much of the gap to the field).')
     : '⚠️  REVIEW — catch-up weaker than expected; inspect the numbers above.'));
 }
 
-main().catch(function (e) { console.error(e); process.exit(1); });
+// Compute the causal verdict from two arms — the single source of truth shared by
+// the CLI printout and the test-suite assertion.
+function verdict(A, B) {
+  const lift = B.badCohortWinShare - A.badCohortWinShare;
+  const rungLift = B.badAvgRung - A.badAvgRung;
+  const relInc = A.badCohortWinShare > 0 ? B.badCohortWinShare / A.badCohortWinShare : Infinity;
+  const causal = lift > 0.05 && relInc >= 1.4 && rungLift > 0.3;
+  const parity = B.badSwitchWinRate != null && B.goodSeatWinRate > 0 && (B.badSwitchWinRate / B.goodSeatWinRate) >= 0.6;
+  return { lift: lift, rungLift: rungLift, relInc: relInc, causal: causal, parity: parity };
+}
+
+if (require.main === module) {
+  main().catch(function (e) { console.error(e); process.exit(1); });
+}
+
+module.exports = {
+  SR: SR, seed: seed, runArm: runArm, verdict: verdict, BASE_SEED: BASE_SEED,
+  BAD_ID: BAD_ID, FIELD_IDS: FIELD_IDS
+};
