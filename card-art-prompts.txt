@@ -1027,7 +1027,7 @@ Scene: A relaxed boss figure lounges casually while an ornate family-tree portra
 Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with a brass-gold accent. Format: landscape banner crop (~5:2), no text/logos/watermarks.
 
 ------------------------------------------------------------
-[119] MANAGEMENT · "The Consultant-Turned-Manager"
+[119] MANAGEMENT · "The Consultant Turned Manager"
 Effect: Your Projects cost 1 less Productivity (loves a framework for everything); −1 Political Capital/round (nobody trusts the person who charges by the hour).
 Flavor: "Drew a 2x2 matrix. Nobody asked for the 2x2 matrix."
 PROMPT:
