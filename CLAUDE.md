@@ -84,15 +84,22 @@ Review Score must count **CC gained this Quarter** (not banked P/PC alone). Prom
 
 ## 5. Balance testing
 
+**Test suite (assertions, fast — run this on every logic/card change):**
 ```
-node stack_ranked_montecarlo.js [gamesPerCell=1500] [variant=race-to-ceo]
+npm test        # node --test over test/*.test.js — ~2.5s, zero deps (Node's built-in runner)
 ```
-Seeded (reproducible). For each ruleset it runs **DISTINCT** games (5 different archetypes → strategy balance) and **MIRROR** games (all-Balanced → any lead is pure luck → comeback metrics), then a player-count/variant sanity sweep. Metrics: win-rate spread (`balSD`), comeback (bottom-half / dead-last-at-halftime wins), runaway (halftime leader wins), % CEO endings. **Recommended defaults are the most balanced config measured** (balSD ~8–9pp with Request-a-Transfer on, still far tighter than the base game and with *lower* runaway); `feedbackTarget:'rung'` trades balance for stronger comebacks. Full writeup: spec §13.3.
+`test/` folds the balance harnesses into pass/fail checks so you don't eyeball tables:
+`balance.test.js` drives the exported `runCell` from the Monte-Carlo harness at N=400 (seeded → exactly reproducible) and asserts the design invariants for the **recommended** and **baseline** rulesets — 100% CEO endings, `balSD < 5.5` (well-balanced), Burnout a live constraint (`crises/game > 3.5`, since **every Project carries Burnout**), and comeback-friendly (`comeback > 25%`, `runaway < 40%`); `manager-switch.test.js` asserts the Request-a-Transfer causal verdict (`verdict()`); `engine-smoke.test.js` runs a headless AI game + resource invariants and confirms `game.js`/`net.js` load as Node modules. **New balance-affecting change → run `npm test`; if a threshold legitimately moves, update it there.** Thresholds are ranges with margin — they catch a real regression (e.g. reverting per-Project burnout spikes balSD back toward ~8.6 and drops crises to ~2.4, failing the checks) without breaking on benign tweaks.
 
+**Full human-facing sweeps (deep dives, big N, printed tables):**
 ```
-node stack_ranked_manager_switch_test.js [gamesPerArm=1000] [variant=race-to-ceo]
+npm run sim:balance  -- [gamesPerCell=1500] [variant=race-to-ceo]   # = node stack_ranked_montecarlo.js
 ```
-Focused catch-up test for Request-a-Transfer: 6 identical (Balanced) seats split into a cohort forced onto The Micromanager vs a clean-boss field; runs Arm A (`state._noTransfer=true`) vs Arm B (transfers on) on the **same seeds**. Proves the causal lift — being able to switch ~triples the bad cohort's win share (~8%→~25%) and nearly doubles its final rung.
+Seeded. For each ruleset it runs **DISTINCT** games (5 different archetypes → strategy balance) and **MIRROR** games (all-Balanced → any lead is pure luck → comeback metrics), then a player-count/variant sanity sweep. Metrics: win-rate spread (`balSD`), comeback (bottom-half / dead-last-at-halftime wins), runaway (halftime leader wins), % CEO endings, and burnout load (crises / self-care / overtime per game). **Recommended defaults are among the most balanced configs measured** (balSD ~2.6pp since every Project now carries Burnout — far tighter than the pre-burnout ~8.6pp, with comeback/runaway held); `feedbackTarget:'rung'` now *loosens* balance (over-lifts the Politician) — see spec §13.3. Both scripts export their compute functions and only run their CLI under `require.main === module`, so the test suite reuses them.
+```
+npm run sim:transfer -- [gamesPerArm=1000] [variant=race-to-ceo]    # = node stack_ranked_manager_switch_test.js
+```
+Focused catch-up test for Request-a-Transfer: 6 identical (Balanced) seats split into a cohort forced onto The Micromanager vs a clean-boss field; runs Arm A (`state._noTransfer=true`) vs Arm B (transfers on) on the **same seeds**. Proves the causal lift — being able to switch ~triples the bad cohort's win share (~10%→~39%) and nearly doubles its final rung. Its `verdict()` is the single source of truth shared by the CLI and the test.
 
 The Python sim (`stack_ranked_balance_simulator.py`) is the older coarse tool — do NOT use it for the variant rules (it abstracts cards).
 
@@ -139,7 +146,7 @@ Keep the game, the written/printable rules, and the visuals in lockstep. After a
 
 7. **Changed a `hooks.decide` action, an action button, or the Review columns** → the **online guest** must mirror it (§8). The host serializes each `decide` request over the wire and the guest re-renders it with the *same* modal functions; a new `decide` action needs a matching branch in `guestHandleDecide`, and a new Sprint action verb needs a branch in `applyTurnAction` (shared by local clicks and the host's remote-turn driver). Net play adds **no** rules — don't touch spec/rulebook/PDFs for it.
 
-8. **Verify before finishing:** `node --check game.js net.js`, `node stack_ranked_montecarlo.js 300` (no crash, sane balance), and a headless AI game. `index.html`'s inline script isn't browser-tested by default — syntax-check it and confirm every `SR.*`/`SRNet.*` it calls exists. Online play is verifiable headlessly up to the broker (CDP smoke: page loads PeerJS, Open Room mints a code + QR, no exceptions) plus Node unit tests (`serializeState`/`reviveState`, `isValid`, `deriveClientId`, `applyTurnAction`); the actual peer-to-peer **DataConnection can't complete in the sandbox** (UDP/mDNS) → the data path is a **manual two-device** check.
+8. **Verify before finishing:** `npm test` (the assertion suite — covers `node --check` via module-load, headless AI game, balance invariants, and the transfer causal check) plus `node --check net.js`. For a deeper balance read on a scoring/card change, also run `npm run sim:balance -- 300` (no crash, sane balance). `index.html`'s inline script isn't browser-tested by default — syntax-check it and confirm every `SR.*`/`SRNet.*` it calls exists. Online play is verifiable headlessly up to the broker (CDP smoke: page loads PeerJS, Open Room mints a code + QR, no exceptions) plus Node unit tests (`serializeState`/`reviveState`, `isValid`, `deriveClientId`, `applyTurnAction`); the actual peer-to-peer **DataConnection can't complete in the sandbox** (UDP/mDNS) → the data path is a **manual two-device** check.
 
 ---
 
@@ -158,3 +165,19 @@ Keep the game, the written/printable rules, and the visuals in lockstep. After a
 - **Deps/offline:** online mode needs the PeerJS CDN + public broker (+ optional TURN) → **not offline/serverless**; local pass-and-play stays fully offline. If PeerJS fails to load, `netUnavailableMsg()` says so and local play still works.
 - **Maintenance:** a new `hooks.decide` action → add a `guestHandleDecide` branch; a new Sprint verb → add to `applyTurnAction` (shared local + remote). A new host→client message type → add to `MSG`, send it, and handle it in `guestDispatch` (and bump `PROTO` if the shape changes incompatibly).
 - **Deploy gotcha:** the Pages workflows (`.github/workflows/deploy-pages.yml`, `pr-preview.yml`) copy a **hardcoded list** (`cp index.html game.js net.js _site/`); a new *local* runtime file must be added to both `cp` lines or it 404s. PeerJS is a CDN URL, not a repo file, so it needs no `cp`.
+
+---
+
+## 9. Git / PR workflow — watch open PRs, clean up after merge
+
+**Branch, don't commit to `main`.** New work goes on a feature branch (`git checkout -b <name>`); open a PR with `gh pr create`. Commit/push only when the user asks (see the commit-message / PR-body footer conventions in the environment prompt).
+
+**Watch open PRs.** When PRs are outstanding, keep an eye on their merge state: `gh pr list --state open` and `gh pr view <n> --json state,mergedAt,mergeStateStatus`. Once one shows merged, run the post-merge cleanup below **for that PR's branch**.
+
+**Post-merge cleanup procedure** (run once a PR is merged):
+1. `git checkout main`
+2. `git pull --prune origin main` — fast-forwards `main` to the merge commit and prunes stale remote-tracking refs.
+3. `git branch -d <merged-branch>` — deletes the local branch (safe `-d`; refuses if not merged).
+4. **Remote branch:** GitHub may leave `origin/<merged-branch>` behind. Deleting it (`git push origin --delete <branch>`) is a **destructive remote op the auto-mode classifier blocks unless the user explicitly asked to delete the *remote* branch** — so only do it on explicit instruction; otherwise leave it and mention it.
+
+Never delete a branch that isn't merged, and never force-delete (`-D`) without the user's say-so.

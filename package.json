@@ -1,0 +1,14 @@
+{
+  "name": "stack-ranked",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Stack Ranked — dependency-free browser game (corporate career-ladder engine builder). Pure-JS rules engine, runnable headlessly in Node.",
+  "scripts": {
+    "test": "node --test \"test/**/*.test.js\"",
+    "sim:balance": "node stack_ranked_montecarlo.js",
+    "sim:transfer": "node stack_ranked_manager_switch_test.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
