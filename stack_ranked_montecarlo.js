@@ -253,4 +253,20 @@ async function main() {
   }
 }
 
-main().catch(function (e) { console.error(e); process.exit(1); });
+// Canonical base seeds used by the CLI cells (re-exported so the test suite runs
+// the exact same reproducible cells as a headless `node stack_ranked_montecarlo.js`).
+const SEEDS = { distinct: 12345, mirror: 99999, sanity: 424242 };
+
+// Run the CLI table only when invoked directly; when required as a module
+// (the test suite), expose the computation surface for assertions instead.
+if (require.main === module) {
+  main().catch(function (e) { console.error(e); process.exit(1); });
+}
+
+module.exports = {
+  SR: SR, ARCHES: ARCHES, RULESETS: RULESETS, SEEDS: SEEDS,
+  seed: seed, playOne: playOne, runCell: runCell, balanceStats: balanceStats,
+  // convenience factories matching the CLI cells
+  distinctFactory: function () { return ARCHES.slice(); },
+  mirrorFactory: function () { return ['balanced', 'balanced', 'balanced', 'balanced', 'balanced']; }
+};
