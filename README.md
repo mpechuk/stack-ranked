@@ -28,6 +28,41 @@ Pages (see below). No build step, no server, no dependencies.
 | `generate_player_mat.py` | Regenerates `docs/Stack_Ranked_PlayerMat.pdf`, six copies of a landscape Player Desk mat (Career/Political Capital, Productivity, Burnout, Compliance Badges, a Management Style slot, and Tableau/Backlog zones) — optional header/background art, see `player-mat-art-prompts.txt` (`pip install reportlab pillow`, then `python3 generate_player_mat.py`). |
 | `generate_career_ladder.py` | Regenerates `docs/Stack_Ranked_CareerLadder.pdf`, the shared Career Ladder board (7 ascending rungs, Intern through CEO, with pawn slots) straight from `leaderboard.md` — reuses the Player Desk mat's background art, plus its own optional header banner, see `career-ladder-art-prompts.txt` (`pip install reportlab pillow`, then `python3 generate_career_ladder.py`). |
 
+> The `generate_*.py` scripts write their PDFs into `docs/` locally, but those
+> PDFs are **not tracked in the repo** (`docs/*.pdf` is git-ignored). The
+> published copies live on **GitHub Releases** — see
+> **[Printable PDFs](#printable-pdfs)** below.
+
+## Printable PDFs
+
+The print-and-play components are large binary build artifacts, so they're
+published as **GitHub Release assets** rather than committed to the repo. The
+links below always point at the **latest** release, so they stay current:
+
+| Component | Download (latest) |
+|---|---|
+| Rulebook | [`Stack_Ranked_Rulebook.pdf`](https://github.com/mpechuk/stack-ranked/releases/latest/download/Stack_Ranked_Rulebook.pdf) |
+| Print & Play cards | [`Stack_Ranked_PrintAndPlay.pdf`](https://github.com/mpechuk/stack-ranked/releases/latest/download/Stack_Ranked_PrintAndPlay.pdf) |
+| Player Mat | [`Stack_Ranked_PlayerMat.pdf`](https://github.com/mpechuk/stack-ranked/releases/latest/download/Stack_Ranked_PlayerMat.pdf) |
+| Career Ladder board | [`Stack_Ranked_CareerLadder.pdf`](https://github.com/mpechuk/stack-ranked/releases/latest/download/Stack_Ranked_CareerLadder.pdf) |
+
+Browse every build on the
+**[releases page](https://github.com/mpechuk/stack-ranked/releases)**.
+
+These are refreshed **automatically**: whenever a PR that changes a PDF source
+(`cards.json`, `leaderboard.md`, `docs/STACK_RANKED_RULEBOOK.md`, the card/table
+art, or a `generate_*.py` script) merges to `main`, the
+[`Publish printable PDFs`](.github/workflows/publish-pdfs.yml) workflow
+regenerates all four and cuts a new release marked *Latest*. To publish by hand,
+regenerate locally and run `scripts/publish_pdf_release.sh` (see its header).
+
+> **Image assets use Git LFS.** The card / table / cover PNGs under
+> `cards-images/`, `table-images/`, and `docs/` are stored with
+> [Git LFS](https://git-lfs.com). Install `git lfs` **before** cloning (or run
+> `git lfs pull` afterward) so you get the real images instead of pointer
+> files. The playable site (`index.html` + `game.js` + `net.js`) doesn't need
+> them — they're only used by the PDF generators and the card-art tooling.
+
 ## Features
 
 - **2–6 players**, any mix of **Human** (hot-seat) and **AI**. Watch an all-AI
