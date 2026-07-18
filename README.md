@@ -30,24 +30,31 @@ Pages (see below). No build step, no server, no dependencies.
 
 > The `generate_*.py` scripts write their PDFs into `docs/` locally, but those
 > PDFs are **not tracked in the repo** (`docs/*.pdf` is git-ignored). The
-> published copies are attached to the **[Printable PDFs](#printable-pdfs)**
-> GitHub Release — regenerate locally, then re-upload to the release.
+> published copies live on **GitHub Releases** — see
+> **[Printable PDFs](#printable-pdfs)** below.
 
 ## Printable PDFs
 
 The print-and-play components are large binary build artifacts, so they're
-published as **GitHub Release assets** rather than committed to the repo.
-Download the latest set from the **[`pdf-assets` release](https://github.com/mpechuk/stack-ranked/releases/tag/pdf-assets)**:
+published as **GitHub Release assets** rather than committed to the repo. The
+links below always point at the **latest** release, so they stay current:
 
-| Component | Download |
+| Component | Download (latest) |
 |---|---|
-| Rulebook | [`Stack_Ranked_Rulebook.pdf`](https://github.com/mpechuk/stack-ranked/releases/download/pdf-assets/Stack_Ranked_Rulebook.pdf) |
-| Print & Play cards | [`Stack_Ranked_PrintAndPlay.pdf`](https://github.com/mpechuk/stack-ranked/releases/download/pdf-assets/Stack_Ranked_PrintAndPlay.pdf) |
-| Player Mat | [`Stack_Ranked_PlayerMat.pdf`](https://github.com/mpechuk/stack-ranked/releases/download/pdf-assets/Stack_Ranked_PlayerMat.pdf) |
-| Career Ladder board | [`Stack_Ranked_CareerLadder.pdf`](https://github.com/mpechuk/stack-ranked/releases/download/pdf-assets/Stack_Ranked_CareerLadder.pdf) |
+| Rulebook | [`Stack_Ranked_Rulebook.pdf`](https://github.com/mpechuk/stack-ranked/releases/latest/download/Stack_Ranked_Rulebook.pdf) |
+| Print & Play cards | [`Stack_Ranked_PrintAndPlay.pdf`](https://github.com/mpechuk/stack-ranked/releases/latest/download/Stack_Ranked_PrintAndPlay.pdf) |
+| Player Mat | [`Stack_Ranked_PlayerMat.pdf`](https://github.com/mpechuk/stack-ranked/releases/latest/download/Stack_Ranked_PlayerMat.pdf) |
+| Career Ladder board | [`Stack_Ranked_CareerLadder.pdf`](https://github.com/mpechuk/stack-ranked/releases/latest/download/Stack_Ranked_CareerLadder.pdf) |
 
-To refresh them: run the matching `generate_*.py` script, then upload the new
-PDF to the `pdf-assets` release (replacing the old asset).
+Browse every build on the
+**[releases page](https://github.com/mpechuk/stack-ranked/releases)**.
+
+These are refreshed **automatically**: whenever a PR that changes a PDF source
+(`cards.json`, `leaderboard.md`, `docs/STACK_RANKED_RULEBOOK.md`, the card/table
+art, or a `generate_*.py` script) merges to `main`, the
+[`Publish printable PDFs`](.github/workflows/publish-pdfs.yml) workflow
+regenerates all four and cuts a new release marked *Latest*. To publish by hand,
+regenerate locally and run `scripts/publish_pdf_release.sh` (see its header).
 
 > **Image assets use Git LFS.** The card / table / cover PNGs under
 > `cards-images/`, `table-images/`, and `docs/` are stored with
