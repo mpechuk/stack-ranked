@@ -109,11 +109,11 @@ The Python sim (`stack_ranked_balance_simulator.py`) is the older coarse tool �
 
 Deps: `pip install reportlab pillow markdown beautifulsoup4`. **Python 3.9** here — no backslashes inside f-string expressions (hoist emoji chars to a variable). Generators print a warning and skip missing art.
 
-> **The generated PDFs are NOT tracked in git** — `docs/*.pdf` is git-ignored and the PDFs are **published as GitHub Release assets** under the **`pdf-assets`** tag (release "Printable PDFs"). Generators still write into `docs/` locally; after regenerating, **upload the new PDF to the `pdf-assets` release** (replace the existing asset) — that's the "regenerate the PDF" step everywhere below. Release create/edit is blocked from some agent sessions (org egress policy); when it is, do the local regen and hand the file off for upload.
+> **The generated PDFs are NOT tracked in git** — `docs/*.pdf` is git-ignored and the PDFs are **published as GitHub Release assets**. **CI publishes them automatically:** `.github/workflows/publish-pdfs.yml` runs on every push to `main` that touches a PDF *source* (path-filtered — see below), regenerates all four, and cuts a fresh **`pdf-<run_number>`** release marked **Latest**; the README download links use `/releases/latest/download/…` so they always resolve to that newest build. **Gotcha:** the workflow's `paths:` filter is a hardcoded list — a new generator *input* (e.g. a new source `.md`/data file or art dir) must be added there or a change to it won't trigger a rebuild. To publish by hand (or when CI is unavailable — release create/edit is blocked from some agent sessions by org egress policy), regenerate locally and run **`scripts/publish_pdf_release.sh`** (defaults to the stable **`pdf-assets`** tag; pass a tag + `--latest` to mimic CI). The manual `pdf-assets` release is never pruned (prune only matches `pdf-<number>`).
 >
 > **The image assets are stored in Git LFS** — `*.png` (see `.gitattributes`: `cards-images/`, `table-images/`, `docs/Cover*.png`). Working with them needs `git lfs` installed; a checkout without it yields pointer files (fine for the deploy/CI paths, which don't touch the PNGs, but the generators and `add_card_image.py` need the real bytes → `git lfs pull`). LFS objects push through the normal `git push`.
 
-| Command | Reads | Writes (git-ignored; upload to `pdf-assets` release) |
+| Command | Reads | Writes (git-ignored; auto-published by CI, or via the publish script) |
 |---|---|---|
 | `python3 generate_rulebook_pdf.py` | `docs/STACK_RANKED_RULEBOOK.md` | `docs/Stack_Ranked_Rulebook.pdf` |
 | `python3 generate_print_and_play.py` | `cards.json` | `docs/Stack_Ranked_PrintAndPlay.pdf` |
