@@ -1,1 +1,6 @@
 .DS_Store
+
+# Generated PDFs are published as GitHub Release assets (tag: pdf-assets),
+# not tracked in the repo. Regenerate them locally with the generate_*.py
+# scripts and upload to the release. See README "Printable PDFs".
+docs/*.pdf

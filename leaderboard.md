@@ -1,8 +1,9 @@
 # Stack Ranked — Career Ladder
 
 Data source for `generate_career_ladder.py`, which turns this into
-`docs/Stack_Ranked_CareerLadder.pdf` — the shared board every player's pawn
-moves across, from Intern to CEO (see the rulebook's
+`docs/Stack_Ranked_CareerLadder.pdf` (git-ignored locally; published as a
+GitHub Release asset under the `pdf-assets` tag) — the shared board every
+player's pawn moves across, from Intern to CEO (see the rulebook's
 [Career Ladder](docs/STACK_RANKED_RULEBOOK.md#the-career-ladder) section).
 Edit the table below to change what's printed on the board; rows are drawn
 left-to-right in the order they appear here, Intern first.
