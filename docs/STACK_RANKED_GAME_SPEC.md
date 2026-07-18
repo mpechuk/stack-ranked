@@ -969,6 +969,8 @@ architecture work:
   setup narrative, and the Designer's Notes balance-testing writeup.
 - `Stack_Ranked_PrintAndPlay.pdf` — physical card sheets (not needed for the
   digital build, but a useful visual cross-check of card layout/grouping).
+  Published as a GitHub Release asset (tag `pdf-assets`), not tracked in the
+  repo; regenerate with `generate_print_and_play.py`.
 - `cards.json` — the same card data embedded in Section 8, as a standalone file
   if you'd rather load it directly than extract the fenced block above.
 - `stack_ranked_balance_simulator.py` / `results.json` / `balance_chart.png` —

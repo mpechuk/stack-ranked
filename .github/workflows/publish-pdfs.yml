@@ -1,0 +1,86 @@
+name: Publish printable PDFs
+
+# Regenerates the print-and-play PDFs and publishes them as a fresh GitHub
+# Release whenever a PDF *source* lands on main — i.e. a merged PR that touched
+# the card data, the rulebook, the ladder data, the mat/ladder art, or one of
+# the generator scripts. Each run creates a new `pdf-<run_number>` release and
+# marks it "Latest", so the README's /releases/latest/download/ links always
+# resolve to the newest build with no edit needed. Older auto-builds are pruned.
+#
+# The heavy lifting (generate → verify → create release → upload assets) is
+# shared with the manual scripts/publish_pdf_release.sh.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - cards.json
+      - leaderboard.md
+      - docs/STACK_RANKED_RULEBOOK.md
+      - cards-images/**
+      - table-images/**
+      - generate_rulebook_pdf.py
+      - generate_print_and_play.py
+      - generate_player_mat.py
+      - generate_career_ladder.py
+      - scripts/publish_pdf_release.sh
+      - .github/workflows/publish-pdfs.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish-pdfs
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+      KEEP_RELEASES: 10 # prune auto-builds older than the newest this many
+    steps:
+      - name: Checkout (with LFS art)
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install PDF dependencies
+        run: pip install reportlab pillow markdown beautifulsoup4
+
+      - name: Generate PDFs
+        run: |
+          python3 generate_rulebook_pdf.py
+          python3 generate_print_and_play.py
+          python3 generate_player_mat.py
+          python3 generate_career_ladder.py
+
+      - name: Publish release
+        env:
+          RELEASE_TITLE: "Printable PDFs — build ${{ github.run_number }}"
+          RELEASE_NOTES: |
+            Auto-generated print-and-play PDFs for Stack Ranked.
+            Built from ${{ github.sha }} by the publish-pdfs workflow.
+        run: scripts/publish_pdf_release.sh "pdf-${{ github.run_number }}" --latest
+
+      - name: Prune old auto-builds
+        run: |
+          # Keep only the newest $KEEP_RELEASES releases tagged pdf-<number>.
+          # The manual `pdf-assets` release never matches ^pdf-[0-9]+$, so it's
+          # never touched. Best-effort — a failed delete won't fail the build.
+          gh release list --repo "$REPO" --limit 200 \
+            --json tagName --jq '.[].tagName' \
+            | grep -E '^pdf-[0-9]+$' \
+            | sort -t- -k2 -n -r \
+            | tail -n +$((KEEP_RELEASES + 1)) \
+            | while read -r tag; do
+                echo "Deleting old release $tag ..."
+                gh release delete "$tag" --repo "$REPO" --cleanup-tag --yes || true
+              done
