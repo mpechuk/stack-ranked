@@ -5,10 +5,10 @@ Attach artwork to a card by its deck number, then rebuild the print-and-play
 PDF. Automates the manual flow: copy the image into cards-images/, set the
 card's "image" field in cards.json, and regenerate the PDF.
 
-    python3 add_card_image.py <card_number> <path/to/image.png>
-    python3 add_card_image.py 116 "~/Downloads/peter.png"
-    python3 add_card_image.py 116 img.png --dry-run     # preview, write nothing
-    python3 add_card_image.py 116 img.png --no-regen    # skip the PDF rebuild
+    python3 add_card_image.py <path/to/image.png> <card_number>
+    python3 add_card_image.py "~/Downloads/peter.png" 116
+    python3 add_card_image.py img.png 116 --dry-run     # preview, write nothing
+    python3 add_card_image.py img.png 116 --no-regen    # skip the PDF rebuild
 
 The card number is the card's 1-based position in canonical deck order — the
 same order game.js registers cards and the print-and-play prints them:
@@ -111,8 +111,8 @@ def print_listing(seq):
 
 def main():
     ap = argparse.ArgumentParser(description="Attach art to a card by deck number and rebuild the PDF.")
-    ap.add_argument("number", nargs="?", type=int, help="1-based card number in deck order (see --list)")
     ap.add_argument("image", nargs="?", help="path to the source image")
+    ap.add_argument("number", nargs="?", type=int, help="1-based card number in deck order (see --list)")
     ap.add_argument("--list", action="store_true", help="print the numbered deck and exit")
     ap.add_argument("--dry-run", action="store_true", help="show what would change; write nothing")
     ap.add_argument("--no-regen", action="store_true", help="skip regenerating the print-and-play PDF")
