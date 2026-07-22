@@ -192,7 +192,7 @@ and it just keeps growing.
    Compliance Badges, and an empty Backlog.
 2. Shuffle the Management Style deck. Each player draws 1 card and keeps it
    face-up — everyone should be able to see everyone's boss.
-3. Shuffle the Tier 1 Skill/Tool cards and reveal 5 to form the Job Board.
+3. Shuffle the Tier 1 Skill/Tool cards and reveal 5 to form the Workplace Training board.
 4. Shuffle the Early Project cards and reveal 4 to form the Kanban Board,
    alongside a card drawn from the 13-card evergreen pool (headlined by
    Reduce Technical Debt) as a permanent 5th slot.
@@ -254,7 +254,7 @@ Action Point budget depends on your current rung:
 Each Action Point buys one of the following:
 
 - **Hire** — pay a Skill/Tool card's Productivity cost to take it from the
-  Job Board. One-Shot cards resolve immediately and are discarded; Permanent
+  Workplace Training board. One-Shot cards resolve immediately and are discarded; Permanent
   cards join your tableau.
 - **Work a Project** — choose any one entry in your Backlog (see
   [Your Backlog](#your-backlog)) and pay its Productivity cost. This is the
@@ -290,7 +290,7 @@ Draw the top card of the Office Chaos deck and resolve it exactly as written.
 
 ### 6.4 — Postmortem
 
-Refill the Job Board and Kanban Board back up to their full size, and pass
+Refill the Workplace Training board and Kanban Board back up to their full size, and pass
 the First Player token clockwise. Every 2nd Quarterly Review (after rounds 6,
 12, 18, and so on), before the next round's Stand-Up Meeting, every player
 simultaneously draws and resolves a Mandatory Training card.
@@ -448,7 +448,7 @@ rival, the promotion race gets noticeably more personal (and more petty).
 ### 6 Players
 
 Use 2 promotion slots and 2 PIP slots per Review (already reflected in the
-Career Ladder table). Additionally, reveal a second row of 5 Job Board cards
+Career Ladder table). Additionally, reveal a second row of 5 Workplace Training board cards
 (10 total) so the market doesn't dry up with more players competing for the
 same Skill cards.
 
@@ -958,7 +958,7 @@ Mandatory Training.
 
 | Action | Cost | Effect |
 |---|---|---|
-| Hire | Card's Productivity cost | Take a Job Board card: One-Shot resolves now; Permanent joins tableau |
+| Hire | Card's Productivity cost | Take a Workplace Training board card: One-Shot resolves now; Permanent joins tableau |
 | Work a Project | Chosen Backlog entry's Productivity cost | Gain its Career Capital reward + listed effects; that entry leaves your Backlog |
 | Network | Free | +2 Political Capital, +1 Career Capital |
 | Self-Care | Free | −2 Burnout |

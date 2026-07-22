@@ -102,7 +102,7 @@ regenerate locally and run `scripts/publish_pdf_release.sh` (see its header).
    at least one, no cap either way (free — a claim, not a completion; you
    can't pay for it until your Sprint).
 3. On your **Sprint**, spend Action Points on:
-   - **Hire** a Skill/Tool from the Job Board (pay Productivity).
+   - **Hire** a Skill/Tool from the Workplace Training board (pay Productivity).
    - **Work a Project** (pay Productivity for any one entry in your Backlog,
      your choice → gain Career Capital).
    - **Network** (free: +2 Political Capital, +1 Career Capital).

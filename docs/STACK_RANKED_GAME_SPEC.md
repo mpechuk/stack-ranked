@@ -62,7 +62,7 @@ Companion files in this project (not required to read first, but useful):
    Burnout 0, Career Capital 0, Compliance Badges 0, Quarter Marker 0, no PIP
    token, empty tableau.
 2. Shuffle the Management Style deck; each player draws 1, face-up (public).
-3. Shuffle Tier 1 Skill/Tool cards; reveal 5 face-up to form the **Job Board**
+3. Shuffle Tier 1 Skill/Tool cards; reveal 5 face-up to form the **Workplace Training board**
    (10 for 6-player games — see 7.4).
 4. Shuffle Early Project cards; reveal 4, plus one card drawn from the
    13-card **Evergreen pool** (headlined by **Reduce Technical Debt**) as a
@@ -98,7 +98,7 @@ odds and reshuffle-when-depleted behavior):
 
 > **Tier-unlock implementation note:** "Quarter 3" = once the Quarter-3 Review
 > has happened (i.e., starting round 7 onward, since reviews land on rounds 3,
-> 6, 9…). Practically: when refilling the Job Board or Kanban Board (Postmortem
+> 6, 9…). Practically: when refilling the Workplace Training board or Kanban Board (Postmortem
 > phase, 5.4), if the current round number is ≥ 7, Tier 2 Skill and Mid Project
 > cards are eligible to be drawn into empty slots; if ≥ 13, Tier 3 Skill and
 > Late Project cards are also eligible. Simplest implementation: maintain a
@@ -273,7 +273,7 @@ the same Stand-Up phase.
 Each player, in turn order starting from the First Player, spends their full
 Action Point budget before the next player begins. (This is a meaningful
 implementation choice: it means board contention — e.g. two players wanting the
-same Job Board card — is resolved strictly by turn order, not simultaneously.)
+same Workplace Training board card — is resolved strictly by turn order, not simultaneously.)
 
 **5.2.1 — AP budget by rung**
 ```
@@ -286,8 +286,8 @@ If a player has `skipActionRounds > 0`: they skip this entire phase this round
 Income/Lunch/Postmortem.)
 
 **5.2.2 — Actions** (player chooses one per AP; may repeat)
-- **Hire**: pay a Job Board card's `cost` (Productivity) → remove it from the
-  Job Board. If `type == "One-Shot"`: resolve its `effect` immediately, then
+- **Hire**: pay a Workplace Training board card's `cost` (Productivity) → remove it from the
+  Workplace Training board. If `type == "One-Shot"`: resolve its `effect` immediately, then
   discard it. If `type == "Permanent"`: add it to the player's `tableau`
   (its ongoing effect now applies every future Income Phase / trigger).
 - **Work a Project**: choose **any one entry** in the player's own backlog
@@ -389,8 +389,8 @@ text as the literal spec; nothing beyond what's written there needs to be
 inferred.
 
 ### 5.4 — Postmortem
-1. Refill the Job Board and Kanban Board back to full size (5 slots each,
-   10 Job Board slots at 6 players — see 7.4), drawing from the appropriate
+1. Refill the Workplace Training board and Kanban Board back to full size (5 slots each,
+   10 Workplace Training board slots at 6 players — see 7.4), drawing from the appropriate
    tier-gated pool (see Section 3's tier-unlock note). Reset the Scope Creep
    counter to 0 for any newly-filled Project slot.
 2. Increment Scope Creep counters (5.2.4) for slots that were *not* refilled
@@ -579,7 +579,7 @@ See table in Section 6.1.
   players).
 - **3–5 players:** standard rules as written throughout this document.
 - **6 players:** 2 promotion slots and 2 PIP slots per Review (already
-  reflected in `promotionSlots`). Additionally, the Job Board reveals **10**
+  reflected in `promotionSlots`). Additionally, the Workplace Training board reveals **10**
   cards instead of 5 (still respecting tier-unlock timing).
 
 ### 7.5 — Advanced Variant: "The Long Game"
