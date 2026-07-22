@@ -27,6 +27,8 @@ Pages (see below). No build step, no server, no dependencies.
 | `generate_rulebook_pdf.py` | Regenerates `docs/Stack_Ranked_Rulebook.pdf` straight from `docs/STACK_RANKED_RULEBOOK.md`, with a clickable table of contents and PDF bookmarks (`pip install reportlab markdown beautifulsoup4`, then `python3 generate_rulebook_pdf.py`). |
 | `generate_player_mat.py` | Regenerates `docs/Stack_Ranked_PlayerMat.pdf`, six copies of a landscape Player Desk mat (Career/Political Capital, Productivity, Burnout, Compliance Badges, a Management Style slot, and Tableau/Backlog zones) — optional header/background art, see `player-mat-art-prompts.txt` (`pip install reportlab pillow`, then `python3 generate_player_mat.py`). |
 | `generate_career_ladder.py` | Regenerates `docs/Stack_Ranked_CareerLadder.pdf`, the shared Career Ladder board (7 ascending rungs, Intern through CEO, with pawn slots) straight from `leaderboard.md` — reuses the Player Desk mat's background art, plus its own optional header banner, see `career-ladder-art-prompts.txt` (`pip install reportlab pillow`, then `python3 generate_career_ladder.py`). |
+| `generate_badges.py` | Regenerates `docs/Stack_Ranked_Badges.pdf`, a sheet of punch-out Compliance Badge tokens — one seal design per Mandatory Training, six copies each (72 tokens) — straight from `badges.json`, with optional per-badge emblem art, see `badge-art-prompts.txt` (`pip install reportlab pillow`, then `python3 generate_badges.py`). |
+| `badges.json` | Raw Compliance Badge data (one badge per Mandatory Training: name, monogram, motto, source training, grant count, accent color) — source for `generate_badges.py`. |
 
 > The `generate_*.py` scripts write their PDFs into `docs/` locally, but those
 > PDFs are **not tracked in the repo** (`docs/*.pdf` is git-ignored). The
@@ -45,15 +47,16 @@ links below always point at the **latest** release, so they stay current:
 | Print & Play cards | [`Stack_Ranked_PrintAndPlay.pdf`](https://github.com/mpechuk/stack-ranked/releases/latest/download/Stack_Ranked_PrintAndPlay.pdf) |
 | Player Mat | [`Stack_Ranked_PlayerMat.pdf`](https://github.com/mpechuk/stack-ranked/releases/latest/download/Stack_Ranked_PlayerMat.pdf) |
 | Career Ladder board | [`Stack_Ranked_CareerLadder.pdf`](https://github.com/mpechuk/stack-ranked/releases/latest/download/Stack_Ranked_CareerLadder.pdf) |
+| Compliance Badge tokens | [`Stack_Ranked_Badges.pdf`](https://github.com/mpechuk/stack-ranked/releases/latest/download/Stack_Ranked_Badges.pdf) |
 
 Browse every build on the
 **[releases page](https://github.com/mpechuk/stack-ranked/releases)**.
 
 These are refreshed **automatically**: whenever a PR that changes a PDF source
-(`cards.json`, `leaderboard.md`, `docs/STACK_RANKED_RULEBOOK.md`, the card/table
-art, or a `generate_*.py` script) merges to `main`, the
+(`cards.json`, `leaderboard.md`, `badges.json`, `docs/STACK_RANKED_RULEBOOK.md`,
+the card/table/badge art, or a `generate_*.py` script) merges to `main`, the
 [`Publish printable PDFs`](.github/workflows/publish-pdfs.yml) workflow
-regenerates all four and cuts a new release marked *Latest*. To publish by hand,
+regenerates all five and cuts a new release marked *Latest*. To publish by hand,
 regenerate locally and run `scripts/publish_pdf_release.sh` (see its header).
 
 > **Image assets use Git LFS.** The card / table / cover PNGs under

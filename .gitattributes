@@ -1,3 +1,11 @@
 *.png filter=lfs diff=lfs merge=lfs -text
 *.jpg filter=lfs diff=lfs merge=lfs -text
 *.jpeg filter=lfs diff=lfs merge=lfs -text
+
+# Compliance Badge emblem art (dropped in by add_badge_image.py / generate_badges.py).
+# Redundant with the global *.png/*.jpg/*.jpeg rules above, but kept explicit so
+# the badge-images/ art directory is documented as Git LFS alongside
+# cards-images/ and table-images/.
+badge-images/*.png filter=lfs diff=lfs merge=lfs -text
+badge-images/*.jpg filter=lfs diff=lfs merge=lfs -text
+badge-images/*.jpeg filter=lfs diff=lfs merge=lfs -text
