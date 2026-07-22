@@ -16,13 +16,16 @@ on:
     paths:
       - cards.json
       - leaderboard.md
+      - badges.json
       - docs/STACK_RANKED_RULEBOOK.md
       - cards-images/**
       - table-images/**
+      - badge-images/**
       - generate_rulebook_pdf.py
       - generate_print_and_play.py
       - generate_player_mat.py
       - generate_career_ladder.py
+      - generate_badges.py
       - scripts/publish_pdf_release.sh
       - .github/workflows/publish-pdfs.yml
   workflow_dispatch:
@@ -61,6 +64,7 @@ jobs:
           python3 generate_print_and_play.py
           python3 generate_player_mat.py
           python3 generate_career_ladder.py
+          python3 generate_badges.py
 
       - name: Publish release
         env:

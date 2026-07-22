@@ -10,6 +10,7 @@
 #   python3 generate_print_and_play.py
 #   python3 generate_player_mat.py
 #   python3 generate_career_ladder.py
+#   python3 generate_badges.py
 #
 # ...then run this script to create/refresh a release and (over)write the
 # assets. Requires the GitHub CLI (`gh auth login`) with contents:write on the
@@ -48,6 +49,7 @@ PDFS=(
   "Stack_Ranked_PrintAndPlay.pdf"
   "Stack_Ranked_PlayerMat.pdf"
   "Stack_Ranked_CareerLadder.pdf"
+  "Stack_Ranked_Badges.pdf"
 )
 
 # Verify every PDF exists before touching the release.

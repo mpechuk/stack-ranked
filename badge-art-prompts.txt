@@ -1,0 +1,115 @@
+STACK RANKED — COMPLIANCE BADGE ART GENERATION PROMPTS
+=======================================================
+Generated from badges.json. One image-generation prompt per Compliance Badge —
+i.e. one per Mandatory Training card (see the `trainings` array in cards.json).
+Each Mandatory Training awards its badge when resolved; this file's art fills
+the `image` field of the matching entry in badges.json and is dropped into the
+center of each punch-out token by generate_badges.py (docs/Stack_Ranked_Badges.pdf,
+6 tokens per badge type). Every prompt is preceded by a REFERENCE line
+(badge name, source training, and grant count from badges.json) so you can match
+generated art back to the right badge.
+
+Unlike the wide banner art in card-art-prompts.txt, these are CENTERED CIRCULAR
+EMBLEMS — think enamel lapel pin / embroidered corporate-compliance patch / wax
+seal — because they sit inside a round token, not across the top of a card.
+
+MASTER STYLE (baked into every prompt below, so each block is self-contained
+and can be pasted into an image model on its own):
+  Retro corporate-propaganda merit-badge emblem, matching the box cover
+  illustration — a single centered circular seal (enamel pin / embroidered
+  patch / wax seal), bold black ink outlines, halftone screentone shading, worn
+  paper-grain texture, a subtle radiating sunburst inside the ring, one
+  satirical heroic icon at the dead center, framed by a clean beaded/rope inner
+  ring. Base palette of burnt orange, cream, and navy, lifted with the badge's
+  accent color (see each block). No text, no lettering, no numerals, no logos,
+  no watermarks — the badge's name and label are printed separately by the token
+  layout; this is the icon-emblem only.
+
+FORMAT: square 1:1 crop, the round emblem centered and filling ~80% of the
+frame, on a plain flat background (no scene, no environment) so it drops cleanly
+into a circular token. See IMAGE inner-disk placement in generate_badges.py.
+
+Each entry below has a REFERENCE line (from badges.json) and a PROMPT you can
+paste as-is into an image-generation model.
+
+
+================================================================
+COMPLIANCE BADGES (one per Mandatory Training)
+================================================================
+
+------------------------------------------------------------
+[B01] BADGE · "Anti-Harassment Certified" — from "Anti-Harassment Training (The Annual Awkward One)" · grants 1
+PROMPT:
+Central icon: a heraldic shield bearing a crossed-out grabby-hand silhouette, a weary paused training-video reel glowing faintly behind it.
+Style: retro corporate-propaganda merit-badge emblem (matching the box cover) — a single centered circular seal, bold black ink outlines, halftone screentone shading, worn paper grain, subtle radiating sunburst inside the ring, one satirical heroic icon dead center, beaded inner ring. Palette: burnt orange, cream, and navy base with a muted violet accent. Format: square 1:1, centered round emblem filling ~80% of the frame on a plain flat background, no text/lettering/numerals/logos/watermarks.
+
+------------------------------------------------------------
+[B02] BADGE · "Cybersecurity Aware" — from "Cybersecurity Awareness: You Clicked the Phishing Link" · grants 1
+PROMPT:
+Central icon: a heavy padlock clamped over a fish-hooked email envelope, a tiny ominous countdown timer ticking in the corner.
+Style: retro corporate-propaganda merit-badge emblem (matching the box cover) — a single centered circular seal, bold black ink outlines, halftone screentone shading, worn paper grain, subtle radiating sunburst inside the ring, one satirical heroic icon dead center, beaded inner ring. Palette: burnt orange, cream, and navy base with a steel teal-blue accent. Format: square 1:1, centered round emblem filling ~80% of the frame on a plain flat background, no text/lettering/numerals/logos/watermarks.
+
+------------------------------------------------------------
+[B03] BADGE · "Data Privacy Certified" — from "Data Privacy Training (Promises Retention By Lunch)" · grants 1
+PROMPT:
+Central icon: a padlocked filing-cabinet drawer puffing out a small cloud of scrambled acronym confetti, a hopeful little lunch clock beside it.
+Style: retro corporate-propaganda merit-badge emblem (matching the box cover) — a single centered circular seal, bold black ink outlines, halftone screentone shading, worn paper grain, subtle radiating sunburst inside the ring, one satirical heroic icon dead center, beaded inner ring. Palette: burnt orange, cream, and navy base with a forest-green accent. Format: square 1:1, centered round emblem filling ~80% of the frame on a plain flat background, no text/lettering/numerals/logos/watermarks.
+
+------------------------------------------------------------
+[B04] BADGE · "DEI Refreshed" — from "DEI Refresher Course" · grants 1
+PROMPT:
+Central icon: a rainbow ribbon looping around a single presentation slide, only the tiny date-corner freshly changed while everything else stays frozen.
+Style: retro corporate-propaganda merit-badge emblem (matching the box cover) — a single centered circular seal, bold black ink outlines, halftone screentone shading, worn paper grain, subtle radiating sunburst inside the ring, one satirical heroic icon dead center, beaded inner ring. Palette: burnt orange, cream, and navy base with a warm amber-orange accent. Format: square 1:1, centered round emblem filling ~80% of the frame on a plain flat background, no text/lettering/numerals/logos/watermarks.
+
+------------------------------------------------------------
+[B05] BADGE · "Fire Safety Certified" — from "Fire Safety Procedures (Nobody Remembers)" · grants 1
+PROMPT:
+Central icon: a gleaming fire extinguisher crossed with a yellowed, outdated folded evacuation map whose arrows point confidently at a wall.
+Style: retro corporate-propaganda merit-badge emblem (matching the box cover) — a single centered circular seal, bold black ink outlines, halftone screentone shading, worn paper grain, subtle radiating sunburst inside the ring, one satirical heroic icon dead center, beaded inner ring. Palette: burnt orange, cream, and navy base with an alarm-red accent. Format: square 1:1, centered round emblem filling ~80% of the frame on a plain flat background, no text/lettering/numerals/logos/watermarks.
+
+------------------------------------------------------------
+[B06] BADGE · "Team Retreat Survivor" — from "The Team Retreat (Trust Falls Included)" · grants 1
+PROMPT:
+Central icon: two clasped trust-fall hands with one hand just barely missing the catch, framed by a knotted rope halo.
+Style: retro corporate-propaganda merit-badge emblem (matching the box cover) — a single centered circular seal, bold black ink outlines, halftone screentone shading, worn paper grain, subtle radiating sunburst inside the ring, one satirical heroic icon dead center, beaded inner ring. Palette: burnt orange, cream, and navy base with a corporate-green accent. Format: square 1:1, centered round emblem filling ~80% of the frame on a plain flat background, no text/lettering/numerals/logos/watermarks.
+
+------------------------------------------------------------
+[B07] BADGE · "InfoSec Awareness" — from "Information Security Awareness Month" · grants 1
+PROMPT:
+Central icon: a guardian shield with a central keyhole, a second identical shield overlapping just behind it to suggest awkward, unplanned redundancy.
+Style: retro corporate-propaganda merit-badge emblem (matching the box cover) — a single centered circular seal, bold black ink outlines, halftone screentone shading, worn paper grain, subtle radiating sunburst inside the ring, one satirical heroic icon dead center, beaded inner ring. Palette: burnt orange, cream, and navy base with a slate-blue accent. Format: square 1:1, centered round emblem filling ~80% of the frame on a plain flat background, no text/lettering/numerals/logos/watermarks.
+
+------------------------------------------------------------
+[B08] BADGE · "New Manager Certified" — from "New Manager Training (“Good Luck” Sendoff)" · grants 2
+PROMPT:
+Central icon: a manager's necktie tied into a proud rosette, flanked by TWO small star medallions (this training grants two badges), a tiny "farewell" pennant fluttering above.
+Style: retro corporate-propaganda merit-badge emblem (matching the box cover) — a single centered circular seal, bold black ink outlines, halftone screentone shading, worn paper grain, subtle radiating sunburst inside the ring, one satirical heroic icon dead center, beaded inner ring. Palette: burnt orange, cream, and navy base with a brass-gold accent. Format: square 1:1, centered round emblem filling ~80% of the frame on a plain flat background, no text/lettering/numerals/logos/watermarks.
+
+------------------------------------------------------------
+[B09] BADGE · "Bias Workshop Graduate" — from "Bias Workshop (Everyone Assumes It's About Someone Else)" · grants 1
+PROMPT:
+Central icon: an ornate hand-mirror reflecting a pointing finger straight back at itself, the reflection subtly oblivious.
+Style: retro corporate-propaganda merit-badge emblem (matching the box cover) — a single centered circular seal, bold black ink outlines, halftone screentone shading, worn paper grain, subtle radiating sunburst inside the ring, one satirical heroic icon dead center, beaded inner ring. Palette: burnt orange, cream, and navy base with a plum-purple accent. Format: square 1:1, centered round emblem filling ~80% of the frame on a plain flat background, no text/lettering/numerals/logos/watermarks.
+
+------------------------------------------------------------
+[B10] BADGE · "Phishing Test Cleared" — from "Phishing Simulation Test (People Actually Failed)" · grants 1
+PROMPT:
+Central icon: a fishing hook piercing a clicking mouse-cursor, a caught email envelope dangling from the line.
+Style: retro corporate-propaganda merit-badge emblem (matching the box cover) — a single centered circular seal, bold black ink outlines, halftone screentone shading, worn paper grain, subtle radiating sunburst inside the ring, one satirical heroic icon dead center, beaded inner ring. Palette: burnt orange, cream, and navy base with a bronze accent. Format: square 1:1, centered round emblem filling ~80% of the frame on a plain flat background, no text/lettering/numerals/logos/watermarks.
+
+------------------------------------------------------------
+[B11] BADGE · "Ethics Certified" — from "Ethics Training (Sponsored By the Thing That Caused It)" · grants 1
+PROMPT:
+Central icon: balanced scales of justice, a discreetly blurred folded newspaper tucked out of sight under one pan.
+Style: retro corporate-propaganda merit-badge emblem (matching the box cover) — a single centered circular seal, bold black ink outlines, halftone screentone shading, worn paper grain, subtle radiating sunburst inside the ring, one satirical heroic icon dead center, beaded inner ring. Palette: burnt orange, cream, and navy base with an indigo accent. Format: square 1:1, centered round emblem filling ~80% of the frame on a plain flat background, no text/lettering/numerals/logos/watermarks.
+
+------------------------------------------------------------
+[B12] BADGE · "Unconscious Bias II" — from "Unconscious Bias Training, Redux" · grants 1
+PROMPT:
+Central icon: a film-reel "sequel" laurel wreath wrapped around a looping repeat-arrow, a small hourglass with extra sand freshly added.
+Style: retro corporate-propaganda merit-badge emblem (matching the box cover) — a single centered circular seal, bold black ink outlines, halftone screentone shading, worn paper grain, subtle radiating sunburst inside the ring, one satirical heroic icon dead center, beaded inner ring. Palette: burnt orange, cream, and navy base with a berry-magenta accent. Format: square 1:1, centered round emblem filling ~80% of the frame on a plain flat background, no text/lettering/numerals/logos/watermarks.
+
+
+================================================================
+END — 12 badges, 12 prompts.
+================================================================
