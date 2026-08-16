@@ -1,4 +1,4 @@
-STACK RANKED — CAREER LADDER BOARD ART GENERATION PROMPT
+SYNERGY CORP — CAREER LADDER BOARD ART GENERATION PROMPT
 ==========================================================
 One image-generation prompt for the optional decorative header banner on the
 Career Ladder board (see generate_career_ladder.py). The board's full-bleed
@@ -17,7 +17,7 @@ cards, player mat, and this board — reads as one product):
   shading, worn paper-grain texture, dramatic radiating sunburst linework,
   satirical heroic composition, screen-print poster look. Base palette of
   burnt orange, cream, and navy. No text, no logos, no watermarks — this is
-  illustration only, the board's own labels/rungs are added separately by
+  illustration only, the board's own labels/levels are added separately by
   the PDF generator on top.
 
 Render at high resolution (300 DPI at print size) so the PDF stays crisp:
@@ -27,7 +27,7 @@ Render at high resolution (300 DPI at print size) so the PDF stays crisp:
 ================================================================
 HEADER BANNER — table-images/career_ladder.jpeg
 ================================================================
-REFERENCE: Sits to the right of the navy "STACK RANKED / CAREER LADDER
+REFERENCE: Sits to the right of the navy "SYNERGY CORP / CAREER LADDER
 BOARD" title plate, across the top of the board. Unlike the player mat's
 header (a continuation of the box cover's climbing scene), this banner should
 read as the view *from the summit* — the payoff the whole ladder is racing

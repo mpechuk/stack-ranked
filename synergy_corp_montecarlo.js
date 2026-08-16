@@ -1,7 +1,7 @@
 /* =============================================================================
- * STACK RANKED — Monte-Carlo balance harness (card-faithful)
+ * SYNERGY CORP — Monte-Carlo balance harness (card-faithful)
  * -----------------------------------------------------------------------------
- * Unlike stack_ranked_balance_simulator.py (a coarse *economic* model that
+ * Unlike synergy_corp_balance_simulator.py (a coarse *economic* model that
  * abstracts cards), this harness drives the REAL engine in game.js — every
  * card, the exact Review algorithm, Scope Creep, Burnout, Management Styles,
  * and the two variant rules under test:
@@ -18,7 +18,7 @@
  *
  * Math.random is replaced by a seeded PRNG so every run is reproducible.
  *
- * Run:  node stack_ranked_montecarlo.js [gamesPerCell]
+ * Run:  node synergy_corp_montecarlo.js [gamesPerCell]
  * ========================================================================== */
 'use strict';
 const path = require('path');
@@ -34,7 +34,7 @@ function mulberry32() {
 function seed(s) { _rngState = s >>> 0; }
 Math.random = mulberry32;
 
-const SR = require(path.join(__dirname, 'game.js'));
+const SC = require(path.join(__dirname, 'game.js'));
 
 const ARCHES = ['grinder', 'politician', 'balanced', 'workaholic', 'cautious'];
 
@@ -43,7 +43,7 @@ async function playOne(archetypes, rules, variant) {
   const players = archetypes.map(function (a, i) {
     return { name: a[0].toUpperCase() + i, kind: 'ai', archetype: a };
   });
-  const state = SR.newGame({ variant: variant, players: players, rules: rules });
+  const state = SC.newGame({ variant: variant, players: players, rules: rules });
 
   // midpoint snapshot: ranks as of Review #2 (round 6)
   let midRankBySeat = null; // seat -> rank (1 = ahead)
@@ -60,7 +60,7 @@ async function playOne(archetypes, rules, variant) {
     onReview: function (summary) {
       if (summary.reviewNumber === 2 && !midRankBySeat) {
         const ranked = state.players.slice().sort(function (a, b) {
-          if (b.rung !== a.rung) return b.rung - a.rung;
+          if (b.level !== a.level) return b.level - a.level;
           if (b.careerCapital !== a.careerCapital) return b.careerCapital - a.careerCapital;
           return b.politicalCapital - a.politicalCapital;
         });
@@ -70,7 +70,7 @@ async function playOne(archetypes, rules, variant) {
     }
   };
 
-  await SR.play(state, hooks);
+  await SC.play(state, hooks);
 
   const n = state.players.length;
   const endedViaCeo = !!state.winnerId;
@@ -93,7 +93,7 @@ async function playOne(archetypes, rules, variant) {
     winnerMidRank: winnerMidRank,          // 1..n (n = dead last at halftime)
     midLeaderWon: midLeaderWon,            // bool
     n: n,
-    finalRungByArch: state.players.reduce(function (m, p) { (m[p.archetype] = m[p.archetype] || []).push(p.rung); return m; }, {}),
+    finalLevelByArch: state.players.reduce(function (m, p) { (m[p.archetype] = m[p.archetype] || []).push(p.level); return m; }, {}),
     crises: crises, selfcare: selfcare, overtime: overtime,
     endBurnAvg: state.players.reduce(function (s, p) { return s + p.burnout; }, 0) / n
   };
@@ -107,7 +107,7 @@ async function runCell(archetypesFactory, rules, variant, nGames, baseSeed) {
   let rounds = 0, ceoEndings = 0;
   let midKnown = 0, winnerWasBottomHalf = 0, winnerWasLast = 0, midLeaderWon = 0;
   let crisesSum = 0, selfcareSum = 0, overtimeSum = 0, burnSum = 0;
-  const rungSum = {}; const rungCnt = {}; ARCHES.forEach(function (a) { rungSum[a] = 0; rungCnt[a] = 0; });
+  const levelSum = {}; const levelCnt = {}; ARCHES.forEach(function (a) { levelSum[a] = 0; levelCnt[a] = 0; });
 
   for (let g = 0; g < nGames; g++) {
     seed(baseSeed + g * 2654435761);
@@ -125,8 +125,8 @@ async function runCell(archetypesFactory, rules, variant, nGames, baseSeed) {
       if (r.winnerMidRank === r.n) winnerWasLast++;
       if (r.midLeaderWon) midLeaderWon++;
     }
-    Object.keys(r.finalRungByArch).forEach(function (a) {
-      r.finalRungByArch[a].forEach(function (rg) { rungSum[a] += rg; rungCnt[a] += 1; });
+    Object.keys(r.finalLevelByArch).forEach(function (a) {
+      r.finalLevelByArch[a].forEach(function (rg) { levelSum[a] += rg; levelCnt[a] += 1; });
     });
   }
 
@@ -140,7 +140,7 @@ async function runCell(archetypesFactory, rules, variant, nGames, baseSeed) {
     pctWinnerBottomHalf: midKnown ? 100 * winnerWasBottomHalf / midKnown : 0,
     pctWinnerLast: midKnown ? 100 * winnerWasLast / midKnown : 0,
     pctMidLeaderWon: midKnown ? 100 * midLeaderWon / midKnown : 0,
-    avgRungByArch: ARCHES.reduce(function (m, a) { m[a] = rungCnt[a] ? rungSum[a] / rungCnt[a] : 0; return m; }, {}),
+    avgLevelByArch: ARCHES.reduce(function (m, a) { m[a] = levelCnt[a] ? levelSum[a] / levelCnt[a] : 0; return m; }, {}),
     crisesPerGame: crisesSum / nGames, selfcarePerGame: selfcareSum / nGames,
     overtimePerGame: overtimeSum / nGames, endBurnAvg: burnSum / nGames
   };
@@ -162,7 +162,7 @@ function printCell(title, res) {
     const w = res.winsByArch[a] || 0;
     const wp = 100 * w / res.nGames;
     const bar = '#'.repeat(Math.round(wp / 2));
-    console.log('  ' + a.padEnd(11) + ' ' + wp.toFixed(1).padStart(5) + '%  ' + bar.padEnd(26) + ' avg rung ' + res.avgRungByArch[a].toFixed(2));
+    console.log('  ' + a.padEnd(11) + ' ' + wp.toFixed(1).padStart(5) + '%  ' + bar.padEnd(26) + ' avg level ' + res.avgLevelByArch[a].toFixed(2));
   });
   console.log('  balance: sd=' + bs.sdPct + 'pp  spread(max-min)=' + bs.spreadPct + 'pp  [' + bs.minPct + '%..' + bs.maxPct + '%]');
   console.log('  pacing:  avg ' + res.avgRounds.toFixed(1) + ' rounds, ' + res.pctCeo.toFixed(1) + '% end via CEO');
@@ -186,19 +186,19 @@ const RULESETS = {
   // uncapped feedback swing, negatives dumped on the ladder leader, owner PC
   // uncapped, owner needn't contribute. (The CC-follows-Productivity fix is in;
   // that was a bug, not a balance dial.)
-  literalNaive: { feedback: true, collaboration: true, feedbackNetCap: 999, feedbackTarget: 'rung',
+  literalNaive: { feedback: true, collaboration: true, feedbackNetCap: 999, feedbackTarget: 'level',
                   collabOwnerPcCap: 999, collabOwnerMustContribute: false },
   // tuned recommendation = the engine's DEFAULT_RULES (classic feedback, score
   // targeting, ±4 cap, owner PC capped at 3 and must-contribute).
   recommended:  {},
-  // optional "aggressive rubber-band" toggle: recommended + rung targeting.
-  rungToggle:   { feedbackTarget: 'rung' },
+  // optional "aggressive rubber-band" toggle: recommended + level targeting.
+  levelToggle:   { feedbackTarget: 'level' },
   // NEW "360° Review" feedback mode: everyone gets one Positive + one
   // Constructive, gives one away (face-down/simultaneous) and discards the
   // other. Same ±4 cap. Compared here against `recommended` (current default).
   giveOne:      { feedbackMode: 'give-one' },
-  // give-one + rung targeting (the strongest bounded leader-bash on offer).
-  giveOneRung:  { feedbackMode: 'give-one', feedbackTarget: 'rung' }
+  // give-one + level targeting (the strongest bounded leader-bash on offer).
+  giveOneLevel:  { feedbackMode: 'give-one', feedbackTarget: 'level' }
 };
 
 async function main() {
@@ -207,10 +207,10 @@ async function main() {
   const distinct = function () { return ARCHES.slice(); };            // 5 distinct archetypes
   const mirror = function () { return ['balanced','balanced','balanced','balanced','balanced']; };
 
-  console.log('STACK RANKED — Monte-Carlo balance harness');
+  console.log('SYNERGY CORP — Monte-Carlo balance harness');
   console.log('variant=' + VARIANT + '  games/cell=' + N + '  (seeded, reproducible)');
 
-  const order = ['baseline', 'literalNaive', 'recommended', 'rungToggle', 'giveOne', 'giveOneRung'];
+  const order = ['baseline', 'literalNaive', 'recommended', 'levelToggle', 'giveOne', 'giveOneLevel'];
   const summary = {};
   for (const key of order) {
     const rules = RULESETS[key];
@@ -254,7 +254,7 @@ async function main() {
 }
 
 // Canonical base seeds used by the CLI cells (re-exported so the test suite runs
-// the exact same reproducible cells as a headless `node stack_ranked_montecarlo.js`).
+// the exact same reproducible cells as a headless `node synergy_corp_montecarlo.js`).
 const SEEDS = { distinct: 12345, mirror: 99999, sanity: 424242 };
 
 // Run the CLI table only when invoked directly; when required as a module
@@ -264,7 +264,7 @@ if (require.main === module) {
 }
 
 module.exports = {
-  SR: SR, ARCHES: ARCHES, RULESETS: RULESETS, SEEDS: SEEDS,
+  SC: SC, ARCHES: ARCHES, RULESETS: RULESETS, SEEDS: SEEDS,
   seed: seed, playOne: playOne, runCell: runCell, balanceStats: balanceStats,
   // convenience factories matching the CLI cells
   distinctFactory: function () { return ARCHES.slice(); },

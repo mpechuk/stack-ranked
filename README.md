@@ -1,8 +1,8 @@
-# STACK RANKED
+# SYNERGY CORP
 
 ### A Game of Corporate Ascension
 
-A fully playable, single-page browser simulator of **Stack Ranked** — the
+A fully playable, single-page browser simulator of **Synergy Corp** — the
 engine-building, corporate-ladder satire game. Race up the org chart from Intern
 to CEO by banking Career Capital, hoarding Political Capital, surviving Office
 Chaos, and gaming the Quarterly Performance Review — all without burning out.
@@ -18,16 +18,16 @@ Pages (see below). No build step, no server, no dependencies.
 |---|---|
 | `index.html` | The whole game UI — setup screen, live dashboard, review & game-over modals. Self-contained (inline CSS/JS). |
 | `game.js` | The rules engine and AI. Zero DOM dependencies, so it can be unit-tested headlessly. |
-| `docs/STACK_RANKED_GAME_SPEC.md` | The implementation spec this build follows to the letter. |
+| `docs/SYNERGY_CORP_GAME_SPEC.md` | The implementation spec this build follows to the letter. |
 | `cards.json` | Raw card data (also embedded in `game.js`). |
-| `leaderboard.md` | Raw Career Ladder rung data (rungs, Action Points, Career Capital thresholds, Badges required) — source for `generate_career_ladder.py`. |
-| `stack_ranked_balance_simulator.py` | The original coarse *economic* Monte-Carlo balance tool (reference only). |
-| `stack_ranked_montecarlo.js` | Card-faithful Monte-Carlo harness — drives the real `game.js` engine (every card, the exact Review, the AI) over thousands of seeded games to measure archetype balance and comeback viability. Used to tune the two **variant rules** (Feedback deck, Collaborative Projects). Run: `node stack_ranked_montecarlo.js [gamesPerCell]`. |
-| `generate_print_and_play.py` | Regenerates `docs/Stack_Ranked_PrintAndPlay.pdf` straight from `cards.json` (`pip install reportlab pillow`, then `python3 generate_print_and_play.py`). |
-| `generate_rulebook_pdf.py` | Regenerates `docs/Stack_Ranked_Rulebook.pdf` straight from `docs/STACK_RANKED_RULEBOOK.md`, with a clickable table of contents and PDF bookmarks (`pip install reportlab markdown beautifulsoup4`, then `python3 generate_rulebook_pdf.py`). |
-| `generate_player_mat.py` | Regenerates `docs/Stack_Ranked_PlayerMat.pdf`, six copies of a landscape Player Desk mat (Career/Political Capital, Productivity, Burnout, Compliance Badges, a Management Style slot, and Tableau/Backlog zones) — optional header/background art, see `player-mat-art-prompts.txt` (`pip install reportlab pillow`, then `python3 generate_player_mat.py`). |
-| `generate_career_ladder.py` | Regenerates `docs/Stack_Ranked_CareerLadder.pdf`, the shared Career Ladder board (7 ascending rungs, Intern through CEO, with pawn slots) straight from `leaderboard.md` — reuses the Player Desk mat's background art, plus its own optional header banner, see `career-ladder-art-prompts.txt` (`pip install reportlab pillow`, then `python3 generate_career_ladder.py`). |
-| `generate_badges.py` | Regenerates `docs/Stack_Ranked_Badges.pdf`, a sheet of punch-out Compliance Badge tokens — one seal design per Mandatory Training, six copies each (72 tokens) — straight from `badges.json`, with optional per-badge emblem art, see `badge-art-prompts.txt` (`pip install reportlab pillow`, then `python3 generate_badges.py`). |
+| `leaderboard.md` | Raw Career Ladder level data (levels, Action Points, Career Capital thresholds, Badges required) — source for `generate_career_ladder.py`. |
+| `synergy_corp_balance_simulator.py` | The original coarse *economic* Monte-Carlo balance tool (reference only). |
+| `synergy_corp_montecarlo.js` | Card-faithful Monte-Carlo harness — drives the real `game.js` engine (every card, the exact Review, the AI) over thousands of seeded games to measure archetype balance and comeback viability. Used to tune the two **variant rules** (Feedback deck, Collaborative Projects). Run: `node synergy_corp_montecarlo.js [gamesPerCell]`. |
+| `generate_print_and_play.py` | Regenerates `docs/Synergy_Corp_PrintAndPlay.pdf` straight from `cards.json` (`pip install reportlab pillow`, then `python3 generate_print_and_play.py`). |
+| `generate_rulebook_pdf.py` | Regenerates `docs/Synergy_Corp_Rulebook.pdf` straight from `docs/SYNERGY_CORP_RULEBOOK.md`, with a clickable table of contents and PDF bookmarks (`pip install reportlab markdown beautifulsoup4`, then `python3 generate_rulebook_pdf.py`). |
+| `generate_player_mat.py` | Regenerates `docs/Synergy_Corp_PlayerMat.pdf`, six copies of a landscape Player Desk mat (Career/Political Capital, Productivity, Burnout, Compliance Badges, a Management Style slot, and Tableau/Backlog zones) — optional header/background art, see `player-mat-art-prompts.txt` (`pip install reportlab pillow`, then `python3 generate_player_mat.py`). |
+| `generate_career_ladder.py` | Regenerates `docs/Synergy_Corp_CareerLadder.pdf`, the shared Career Ladder board (7 ascending levels, Intern through CEO, with pawn slots) straight from `leaderboard.md` — reuses the Player Desk mat's background art, plus its own optional header banner, see `career-ladder-art-prompts.txt` (`pip install reportlab pillow`, then `python3 generate_career_ladder.py`). |
+| `generate_badges.py` | Regenerates `docs/Synergy_Corp_Badges.pdf`, a sheet of punch-out Compliance Badge tokens — one seal design per Mandatory Training, six copies each (72 tokens) — straight from `badges.json`, with optional per-badge emblem art, see `badge-art-prompts.txt` (`pip install reportlab pillow`, then `python3 generate_badges.py`). |
 | `badges.json` | Raw Compliance Badge data (one badge per Mandatory Training: name, monogram, motto, source training, grant count, accent color) — source for `generate_badges.py`. |
 
 > The `generate_*.py` scripts write their PDFs into `docs/` locally, but those
@@ -43,17 +43,17 @@ links below always point at the **latest** release, so they stay current:
 
 | Component | Download (latest) |
 |---|---|
-| Rulebook | [`Stack_Ranked_Rulebook.pdf`](https://github.com/mpechuk/stack-ranked/releases/latest/download/Stack_Ranked_Rulebook.pdf) |
-| Print & Play cards | [`Stack_Ranked_PrintAndPlay.pdf`](https://github.com/mpechuk/stack-ranked/releases/latest/download/Stack_Ranked_PrintAndPlay.pdf) |
-| Player Mat | [`Stack_Ranked_PlayerMat.pdf`](https://github.com/mpechuk/stack-ranked/releases/latest/download/Stack_Ranked_PlayerMat.pdf) |
-| Career Ladder board | [`Stack_Ranked_CareerLadder.pdf`](https://github.com/mpechuk/stack-ranked/releases/latest/download/Stack_Ranked_CareerLadder.pdf) |
-| Compliance Badge tokens | [`Stack_Ranked_Badges.pdf`](https://github.com/mpechuk/stack-ranked/releases/latest/download/Stack_Ranked_Badges.pdf) |
+| Rulebook | [`Synergy_Corp_Rulebook.pdf`](https://github.com/mpechuk/stack-ranked/releases/latest/download/Synergy_Corp_Rulebook.pdf) |
+| Print & Play cards | [`Synergy_Corp_PrintAndPlay.pdf`](https://github.com/mpechuk/stack-ranked/releases/latest/download/Synergy_Corp_PrintAndPlay.pdf) |
+| Player Mat | [`Synergy_Corp_PlayerMat.pdf`](https://github.com/mpechuk/stack-ranked/releases/latest/download/Synergy_Corp_PlayerMat.pdf) |
+| Career Ladder board | [`Synergy_Corp_CareerLadder.pdf`](https://github.com/mpechuk/stack-ranked/releases/latest/download/Synergy_Corp_CareerLadder.pdf) |
+| Compliance Badge tokens | [`Synergy_Corp_Badges.pdf`](https://github.com/mpechuk/stack-ranked/releases/latest/download/Synergy_Corp_Badges.pdf) |
 
 Browse every build on the
 **[releases page](https://github.com/mpechuk/stack-ranked/releases)**.
 
 These are refreshed **automatically**: whenever a PR that changes a PDF source
-(`cards.json`, `leaderboard.md`, `badges.json`, `docs/STACK_RANKED_RULEBOOK.md`,
+(`cards.json`, `leaderboard.md`, `badges.json`, `docs/SYNERGY_CORP_RULEBOOK.md`,
 the card/table/badge art, or a `generate_*.py` script) merges to `main`, the
 [`Publish printable PDFs`](.github/workflows/publish-pdfs.yml) workflow
 regenerates all five and cuts a new release marked *Latest*. To publish by hand,
@@ -81,7 +81,7 @@ regenerate locally and run `scripts/publish_pdf_release.sh` (see its header).
   Management Styles, each with its exact effect.
 - **Faithful rules:** the full round loop (Stand-Up → Sprint → Lunch →
   Postmortem), the exact 5-step Quarterly Review (eligibility-first promotion, the
-  independent CEO Board Vote, one-rung-per-Review promotions, PIP/demotion, and the
+  independent CEO Board Vote, one-level-per-Review promotions, PIP/demotion, and the
   Quarter-Marker-moves-last ordering), Burnout Crisis as an interrupt, Scope
   Creep, tier unlocks, and every documented edge case from the spec's postmortem.
 - **Perfect information**, as the rules intend — every stat, board, tableau, and
@@ -92,7 +92,7 @@ regenerate locally and run `scripts/publish_pdf_release.sh` (see its header).
     points that Review (net capped at ±4). A bounded rubber-band.
   - **Collaborative Projects** — pool Productivity into one Project; the Career
     Capital splits by contribution and the owner banks Political Capital in
-    lieu of a CC share. See `docs/STACK_RANKED_GAME_SPEC.md` §13 for the tuned
+    lieu of a CC share. See `docs/SYNERGY_CORP_GAME_SPEC.md` §13 for the tuned
     settings and the balance study behind them.
 - Adjustable speed (Slow → Instant) for the AI turns.
 
@@ -105,7 +105,7 @@ regenerate locally and run `scripts/publish_pdf_release.sh` (see its header).
    at least one, no cap either way (free — a claim, not a completion; you
    can't pay for it until your Sprint).
 3. On your **Sprint**, spend Action Points on:
-   - **Hire** a Skill/Tool from the Workplace Training board (pay Productivity).
+   - **Pick up** a Skill/Tool from the Workplace Training board (pay Productivity).
    - **Work a Project** (pay Productivity for any one entry in your Backlog,
      your choice → gain Career Capital).
    - **Network** (free: +2 Political Capital, +1 Career Capital).
@@ -133,5 +133,5 @@ whether opened from `file://`, a local static server, or GitHub Pages.
 
 ---
 
-*Built from `docs/STACK_RANKED_GAME_SPEC.md`. Card text and flavor are part of
+*Built from `docs/SYNERGY_CORP_GAME_SPEC.md`. Card text and flavor are part of
 the product and shown verbatim in-game.*

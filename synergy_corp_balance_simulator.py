@@ -1,5 +1,5 @@
 """
-STACK RANKED — Balance Simulation
+SYNERGY CORP — Balance Simulation
 ==================================
 Monte Carlo simulation used to tune the game's economy across three
 iterations:
@@ -28,9 +28,9 @@ from dataclasses import dataclass, field
 
 random.seed(42)  # reproducible for repeated tuning runs
 
-RUNG_NAMES = ["Intern", "Software Engineer", "Team Lead", "Manager",
+LEVEL_NAMES = ["Intern", "Software Engineer", "Team Lead", "Manager",
               "Director", "VP", "CEO"]
-CEO_RUNG = 6
+CEO_LEVEL = 6
 ROUNDS_PER_QUARTER = 3
 MAX_ROUNDS = 90
 BURNOUT_MAX = 10
@@ -48,10 +48,10 @@ PC_THRESH = {1: 6, 2: 12, 3: 20, 4: 30, 5: 42, 6: 56}
 BADGE_REQ = {4: 2, 5: 4}  # Director needs 2, VP needs 4
 
 
-def ap_for_rung(rung):
-    if rung <= 1:
+def ap_for_level(level):
+    if level <= 1:
         return 2
-    if rung <= 3:
+    if level <= 3:
         return 3
     return 4
 
@@ -75,7 +75,7 @@ class Config:
 class Player:
     def __init__(self, strategy):
         self.strategy = strategy
-        self.rung = 0
+        self.level = 0
         self.banked_p = 0.0
         self.banked_pc = 0.0
         self.burnout = 0
@@ -206,13 +206,13 @@ def pick_actions(p, ap, rng):
     return actions, use_overtime
 
 
-def meets_requirement(p, target_rung, cfg):
-    if target_rung in BADGE_REQ and p.badges < BADGE_REQ[target_rung]:
+def meets_requirement(p, target_level, cfg):
+    if target_level in BADGE_REQ and p.badges < BADGE_REQ[target_level]:
         return False
     if cfg.unified_cc:
-        return p.cc >= CC_THRESH[target_rung]
-    return (p.lifetime_pp >= PP_THRESH[target_rung] and
-            p.lifetime_netpc >= PC_THRESH[target_rung])
+        return p.cc >= CC_THRESH[target_level]
+    return (p.lifetime_pp >= PP_THRESH[target_level] and
+            p.lifetime_netpc >= PC_THRESH[target_level])
 
 
 def run_review(players, review_num, cfg, rng, stats):
@@ -229,7 +229,7 @@ def run_review(players, review_num, cfg, rng, stats):
     slots = promo_slots(len(players))
 
     # --- CEO Board Vote (independent of general review ranking) ---
-    vp_candidates = [p for p in players if p.rung == 5 and
+    vp_candidates = [p for p in players if p.level == 5 and
                      meets_requirement(p, 6, cfg)]
     winner = None
     if vp_candidates:
@@ -238,9 +238,9 @@ def run_review(players, review_num, cfg, rng, stats):
                             if pl.first_vp_round is not None), default=None)
         if winner.first_vp_round != first_to_vp:
             stats["upsets"] += 1
-        winner.rung = 6
+        winner.level = 6
 
-    # --- Standard promotions (rungs 1-5) ---
+    # --- Standard promotions (levels 1-5) ---
     promoted_idx = set()
     used_slots = 0
     if cfg.eligibility_first:
@@ -251,21 +251,21 @@ def run_review(players, review_num, cfg, rng, stats):
         # LOWEST score (because it spends its Productivity down on Projects
         # right before the review) could never reach the front of the
         # queue even while sitting on a mountain of Career Capital.
-        eligible = [i for i in order_desc if players[i].rung < 5 and
+        eligible = [i for i in order_desc if players[i].level < 5 and
                     players[i] is not winner and
-                    meets_requirement(players[i], players[i].rung + 1, cfg)]
+                    meets_requirement(players[i], players[i].level + 1, cfg)]
         for i in eligible[:slots]:
             p = players[i]
-            target = p.rung + 1
-            p.rung = target
-            if p.rung == 5 and p.first_vp_round is None:
+            target = p.level + 1
+            p.level = target
+            if p.level == 5 and p.first_vp_round is None:
                 p.first_vp_round = review_num
             second = scores[order_desc[1]] if len(order_desc) > 1 else 0
-            target2 = min(p.rung + 1, 5)
+            target2 = min(p.level + 1, 5)
             if (second > 0 and scores[i] >= 2 * second and
-                    target2 > p.rung and meets_requirement(p, target2, cfg)):
-                p.rung = target2
-                if p.rung == 5 and p.first_vp_round is None:
+                    target2 > p.level and meets_requirement(p, target2, cfg)):
+                p.level = target2
+                if p.level == 5 and p.first_vp_round is None:
                     p.first_vp_round = review_num
             promoted_idx.add(i)
             used_slots += 1
@@ -274,13 +274,13 @@ def run_review(players, review_num, cfg, rng, stats):
             if used_slots >= slots:
                 break
             p = players[i]
-            if p.rung >= 5 or p is winner:
+            if p.level >= 5 or p is winner:
                 continue
-            target = p.rung + 1
+            target = p.level + 1
             if meets_requirement(p, target, cfg):
-                # exactly one rung per Review — never skip a level
-                p.rung = target
-                if p.rung == 5 and p.first_vp_round is None:
+                # exactly one level per Review — never skip a level
+                p.level = target
+                if p.level == 5 and p.first_vp_round is None:
                     p.first_vp_round = review_num
                 promoted_idx.add(i)
                 used_slots += 1
@@ -297,10 +297,10 @@ def run_review(players, review_num, cfg, rng, stats):
         if p is winner:
             continue
         if p.pip:
-            if p.rung == 0:
+            if p.level == 0:
                 p.skip_rounds = max(p.skip_rounds, ROUNDS_PER_QUARTER)
             else:
-                p.rung -= 1
+                p.level -= 1
             p.pip = False
         else:
             p.pip = True
@@ -326,14 +326,14 @@ def simulate_game(strategies, cfg, rng):
     round_num = 0
     while round_num < MAX_ROUNDS and not ceo_crowned:
         round_num += 1
-        max_rung = max(p.rung for p in players)
+        max_level = max(p.level for p in players)
         for p in players:
             if p.skip_rounds > 0:
                 p.skip_rounds -= 1
                 continue
             p.banked_p += BASE_P_INCOME + p.engine_p_rate
             p.banked_pc += BASE_PC_INCOME + p.engine_pc_rate
-            if cfg.underdog_bonus and (max_rung - p.rung) >= 2:
+            if cfg.underdog_bonus and (max_level - p.level) >= 2:
                 p.banked_pc += 1
             # small office-chaos noise
             if rng.random() < 0.15:
@@ -341,7 +341,7 @@ def simulate_game(strategies, cfg, rng):
             if rng.random() < 0.15:
                 p.banked_pc += 1
 
-            ap = ap_for_rung(p.rung)
+            ap = ap_for_level(p.level)
             actions, use_ot = pick_actions(p, ap, rng)
             if use_ot:
                 p.apply_burnout(cfg.overtime_burnout, cfg)
@@ -356,20 +356,20 @@ def simulate_game(strategies, cfg, rng):
 
     crises = sum(p.crisis_count for p in players)
     if ceo_crowned:
-        winner = next(p for p in players if p.rung == CEO_RUNG)
+        winner = next(p for p in players if p.level == CEO_LEVEL)
         ended_via_ceo = True
     else:
-        winner = max(players, key=lambda p: (p.rung, p.cc + p.lifetime_pp +
+        winner = max(players, key=lambda p: (p.level, p.cc + p.lifetime_pp +
                                               p.lifetime_netpc, -p.burnout))
         ended_via_ceo = False
-    final_rungs = {p.strategy: p.rung for p in players}
+    final_levels = {p.strategy: p.level for p in players}
     return {
         "winner_strategy": winner.strategy,
         "rounds": round_num,
         "ended_via_ceo": ended_via_ceo,
         "crises": crises,
         "upsets": stats["upsets"],
-        "final_rungs": final_rungs,
+        "final_levels": final_levels,
     }
 
 
@@ -383,7 +383,7 @@ def run_version(version, n_games=20000, strategies=None):
     ceo_endings = 0
     crises_list = []
     upsets = 0
-    rung_sum = {s: 0 for s in strategies}
+    level_sum = {s: 0 for s in strategies}
     reached_vp = {s: 0 for s in strategies}
     for _ in range(n_games):
         result = simulate_game(strategies, cfg, rng)
@@ -392,12 +392,12 @@ def run_version(version, n_games=20000, strategies=None):
         ceo_endings += 1 if result["ended_via_ceo"] else 0
         crises_list.append(result["crises"])
         upsets += result["upsets"]
-        for s, rung in result["final_rungs"].items():
-            rung_sum[s] += rung
-            if rung >= 5:
+        for s, level in result["final_levels"].items():
+            level_sum[s] += level
+            if level >= 5:
                 reached_vp[s] += 1
     win_pct = {s: 100 * wins[s] / n_games for s in strategies}
-    avg_final_rung = {s: rung_sum[s] / n_games for s in strategies}
+    avg_final_level = {s: level_sum[s] / n_games for s in strategies}
     pct_reached_vp = {s: 100 * reached_vp[s] / n_games for s in strategies}
     return {
         "version": version,
@@ -407,7 +407,7 @@ def run_version(version, n_games=20000, strategies=None):
         "pct_ceo_ending": 100 * ceo_endings / n_games,
         "avg_crises": statistics.mean(crises_list),
         "pct_upset": 100 * upsets / max(ceo_endings, 1),
-        "avg_final_rung": avg_final_rung,
+        "avg_final_level": avg_final_level,
         "pct_reached_vp": pct_reached_vp,
     }
 
@@ -416,7 +416,7 @@ def print_report(r):
     print(f"\n=== {r['version'].upper()}  ({r['n_games']:,} games, 5-player all-distinct-strategy) ===")
     for s, pct in sorted(r["win_pct"].items(), key=lambda kv: -kv[1]):
         bar = "#" * int(pct / 2)
-        print(f"  {s:<12} {pct:5.1f}%  {bar}   avg final rung={r['avg_final_rung'][s]:.2f} ({RUNG_NAMES[min(6,round(r['avg_final_rung'][s]))]})  reached VP+: {r['pct_reached_vp'][s]:.1f}%")
+        print(f"  {s:<12} {pct:5.1f}%  {bar}   avg final level={r['avg_final_level'][s]:.2f} ({LEVEL_NAMES[min(6,round(r['avg_final_level'][s]))]})  reached VP+: {r['pct_reached_vp'][s]:.1f}%")
     print(f"  Avg game length:      {r['avg_rounds']:.1f} rounds")
     print(f"  Games ending via CEO: {r['pct_ceo_ending']:.1f}%  (rest hit the 90-round cap)")
     print(f"  Avg Burnout crises:   {r['avg_crises']:.2f} per game")
@@ -449,7 +449,7 @@ if __name__ == "__main__":
         print(f"  {n} players: avg {avg_r:.1f} rounds, {pct:.1f}% end via CEO promotion")
 
     import json
-    with open("/home/claude/stackranked/results.json", "w") as f:
+    with open("/home/claude/synergycorp/results.json", "w") as f:
         json.dump({"iterations": results, "player_count_check": pc_stats}, f, indent=2)
     print("\nSaved results.json")
 
@@ -471,7 +471,7 @@ if __name__ == "__main__":
                color=colors[r["version"]])
 
     ax.set_ylabel("Win rate (%)")
-    ax.set_title("STACK RANKED — Strategy Win Rates Across Balance Iterations\n"
+    ax.set_title("SYNERGY CORP — Strategy Win Rates Across Balance Iterations\n"
                   "(20,000 games/iteration, 5-player all-distinct-strategy)")
     ax.set_xticks(x)
     ax.set_xticklabels(strategies)
@@ -480,5 +480,5 @@ if __name__ == "__main__":
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     fig.tight_layout()
-    fig.savefig("/home/claude/stackranked/balance_chart.png")
+    fig.savefig("/home/claude/synergycorp/balance_chart.png")
     print("Saved balance_chart.png")

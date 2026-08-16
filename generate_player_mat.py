@@ -1,7 +1,7 @@
 """
-STACK RANKED — Player Desk Mat PDF Generator
+SYNERGY CORP — Player Desk Mat PDF Generator
 ===============================================
-Builds docs/Stack_Ranked_PlayerMat.pdf: a landscape US Letter Desk mat with
+Builds docs/Synergy_Corp_PlayerMat.pdf: a landscape US Letter Desk mat with
 all the per-player tracks called for by the rulebook's Components list (6
 Player Desk mats) — Career Capital (with promotion-threshold markers),
 Political Capital, Productivity, Burnout (0-10), Compliance Badges (0-4), a
@@ -33,7 +33,7 @@ from reportlab.platypus import Paragraph
 from generate_print_and_play import RESOURCE_EMOJI, icon_tag, xml_escape
 
 ROOT = Path(__file__).resolve().parent
-OUTPUT_PDF = ROOT / "docs" / "Stack_Ranked_PlayerMat.pdf"
+OUTPUT_PDF = ROOT / "docs" / "Synergy_Corp_PlayerMat.pdf"
 
 # Decorative art — both optional; missing files render a plain placeholder.
 HEADER_IMAGE = ROOT / "table-images" / "player-mat-header.png"
@@ -244,10 +244,10 @@ def draw_quick_reference(c, x, top, w, h):
         ("Team Lead / Manager", "3 AP"),
         ("Director / VP / CEO", "4 AP"),
     ]
-    for rung, ap in ap_rows:
+    for level, ap in ap_rows:
         c.setFont("Helvetica", 6.8)
         c.setFillColor(INK)
-        c.drawString(inner_x, cursor - 7, rung)
+        c.drawString(inner_x, cursor - 7, level)
         c.setFont("Helvetica-Bold", 6.8)
         c.drawRightString(inner_x + inner_w, cursor - 7, ap)
         cursor -= 10
@@ -295,7 +295,7 @@ def draw_header(c):
 
     pad = 14
     ty = top - pad - 4
-    title = Paragraph("STACK RANKED", STYLE_TITLE)
+    title = Paragraph("SYNERGY CORP", STYLE_TITLE)
     tw, th = title.wrapOn(c, left_w - 2 * pad, 30)
     title.drawOn(c, left_x0 + pad, ty - th)
     ty -= th + 4
@@ -358,7 +358,7 @@ def draw_mat(c):
     prod_bottom = draw_tracked_resource(
         c, left_col_x0 + half_w + 10, cursor, half_w,
         RESOURCE_EMOJI["Productivity"], "PRODUCTIVITY",
-        "spend to Hire & Work Projects", count=24, cell_h=17, rows=1, label_step=5,
+        "spend to Pick up & Work Projects", count=24, cell_h=17, rows=1, label_step=5,
     )
     cursor = min(pc_bottom, prod_bottom) - 8
 
@@ -386,7 +386,7 @@ def draw_mat(c):
     backlog_w = left_col_w - tableau_w - gutter
 
     rounded_zone(c, left_col_x0, CONTENT_Y0, tableau_w, zone_h,
-                 "SKILL / TOOL TABLEAU", "hired Permanent cards live here")
+                 "SKILL / TOOL TABLEAU", "Permanent cards you've picked up live here")
     rounded_zone(c, left_col_x0 + tableau_w + gutter, CONTENT_Y0, backlog_w, zone_h,
                  "BACKLOG", "Projects claimed, not yet paid for — mark one “shared” to collaborate")
 
@@ -399,7 +399,7 @@ def main():
 
     OUTPUT_PDF.parent.mkdir(parents=True, exist_ok=True)
     c = canvas.Canvas(str(OUTPUT_PDF), pagesize=(PAGE_W, PAGE_H))
-    c.setTitle("Stack Ranked — Player Desk Mat")
+    c.setTitle("Synergy Corp — Player Desk Mat")
     for _ in range(COPIES):
         draw_mat(c)
         c.showPage()

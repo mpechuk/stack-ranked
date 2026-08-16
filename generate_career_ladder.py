@@ -1,14 +1,14 @@
 """
-STACK RANKED — Career Ladder Board PDF Generator
+SYNERGY CORP — Career Ladder Board PDF Generator
 ===================================================
-Builds docs/Stack_Ranked_CareerLadder.pdf: the shared "Career Ladder board
-(7 rungs, Intern through CEO)" called for by the rulebook's Components list —
-a single landscape US Letter page with one ascending platform per rung
+Builds docs/Synergy_Corp_CareerLadder.pdf: the shared "Career Ladder board
+(7 levels, Intern through CEO)" called for by the rulebook's Components list —
+a single landscape US Letter page with one ascending platform per level
 (title, Action Points, Career Capital threshold, Badges required, and a row
 of pawn slots players can place their wooden pawn tokens on), plus a Quick
 Reference strip.
 
-The rung data and Quick Reference notes are read from leaderboard.md, not
+The level data and Quick Reference notes are read from leaderboard.md, not
 hardcoded here — edit that file (and re-run this script) to change what's
 printed on the board.
 
@@ -39,7 +39,7 @@ from generate_player_mat import (
 
 ROOT = Path(__file__).resolve().parent
 LEADERBOARD_MD = ROOT / "leaderboard.md"
-OUTPUT_PDF = ROOT / "docs" / "Stack_Ranked_CareerLadder.pdf"
+OUTPUT_PDF = ROOT / "docs" / "Synergy_Corp_CareerLadder.pdf"
 
 HEADER_IMAGE = ROOT / "table-images" / "career_ladder.jpeg"
 
@@ -47,8 +47,8 @@ CONTENT_W = CONTENT_X1 - CONTENT_X0
 PAWN_SLOTS = 6  # matches the rulebook's 6 wooden pawns / max player count
 
 STYLE_TAGLINE = style("ladder_tagline", 9, 12, italic=True, color=CREAM)
-STYLE_RUNG_TITLE = style("rung_title", 8.5, 10, alignment=TA_CENTER, color=NAVY, bold=True)
-STYLE_RUNG_STAT = style("rung_stat", 7.5, 9.5, alignment=TA_CENTER, color=INK)
+STYLE_LEVEL_TITLE = style("level_title", 8.5, 10, alignment=TA_CENTER, color=NAVY, bold=True)
+STYLE_LEVEL_STAT = style("level_stat", 7.5, 9.5, alignment=TA_CENTER, color=INK)
 STYLE_FORMULA = style("stack_rank_formula", 15, 18, alignment=TA_CENTER, color=BURNT_ORANGE, bold=True)
 
 
@@ -66,12 +66,12 @@ def parse_leaderboard(path):
     if len(table_rows) < 3:
         raise ValueError(f"No markdown table found in {path}")
     header = [c.strip() for c in table_rows[0].strip("|").split("|")]
-    rungs = []
+    levels = []
     for line in table_rows[2:]:  # skip the header separator row
         cells = [c.strip() for c in line.strip("|").split("|")]
         row = dict(zip(header, cells))
-        rungs.append({
-            "rung": row.get("Rung", ""),
+        levels.append({
+            "level": row.get("Level", ""),
             "title": row.get("Title", ""),
             "ap": row.get("Action Points", ""),
             "cc": row.get("Career Capital to Promote In", ""),
@@ -92,7 +92,7 @@ def parse_leaderboard(path):
     notes = [n[2:].strip() for n in sections.get("quick reference", []) if n.startswith("- ")]
     formula = " ".join(sections.get("stack rank formula", []))
 
-    return {"rungs": rungs, "notes": notes, "formula": formula}
+    return {"levels": levels, "notes": notes, "formula": formula}
 
 
 # ---------------------------------------------------------------------------
@@ -133,7 +133,7 @@ def draw_header(c):
                           "(header banner — see career-ladder-art-prompts.txt)")
 
     pad = 14
-    title = Paragraph("STACK RANKED", STYLE_TITLE)
+    title = Paragraph("SYNERGY CORP", STYLE_TITLE)
     subtitle = Paragraph("CAREER LADDER BOARD", STYLE_SUBTITLE)
     tagline = Paragraph("Every player's pawn starts at Intern — move it up as you promote.",
                          STYLE_TAGLINE)
@@ -155,7 +155,7 @@ def draw_header(c):
     return top - header_h
 
 
-def draw_rung_platform(c, x, y_bottom, w, h, rung):
+def draw_level_platform(c, x, y_bottom, w, h, level):
     c.saveState()
     c.setFillColor(TRACK_BG)
     c.roundRect(x, y_bottom, w, h, 8, stroke=0, fill=1)
@@ -174,12 +174,12 @@ def draw_rung_platform(c, x, y_bottom, w, h, rung):
     c.circle(cx, badge_cy, badge_r, stroke=0, fill=1)
     c.setFillColor(colors.white)
     c.setFont("Helvetica-Bold", 14)
-    c.drawCentredString(cx, badge_cy - 5, rung["rung"])
+    c.drawCentredString(cx, badge_cy - 5, level["level"])
     c.restoreState()
 
     cursor = badge_cy - badge_r - 6
 
-    title_p = Paragraph(f"<b>{xml_escape(rung['title'].upper())}</b>", STYLE_RUNG_TITLE)
+    title_p = Paragraph(f"<b>{xml_escape(level['title'].upper())}</b>", STYLE_LEVEL_TITLE)
     tw, th = title_p.wrapOn(c, w - 12, 30)
     title_p.drawOn(c, x + 6, cursor - th)
     cursor -= th + 6
@@ -192,17 +192,17 @@ def draw_rung_platform(c, x, y_bottom, w, h, rung):
     cursor -= 10
 
     stat_lines = [
-        (RESOURCE_EMOJI["Action Point"], "AP", rung["ap"]),
-        (RESOURCE_EMOJI["Career Capital"], "TO\u00a0ENTER", rung["cc"]),
+        (RESOURCE_EMOJI["Action Point"], "AP", level["ap"]),
+        (RESOURCE_EMOJI["Career Capital"], "TO\u00a0ENTER", level["cc"]),
     ]
-    if rung["badges"] and rung["badges"] != "—":
-        stat_lines.append((RESOURCE_EMOJI["Compliance Badge"], "BADGES", rung["badges"]))
+    if level["badges"] and level["badges"] != "—":
+        stat_lines.append((RESOURCE_EMOJI["Compliance Badge"], "BADGES", level["badges"]))
 
     for emoji, label, value in stat_lines:
         line = Paragraph(
             f"{icon_tag(emoji, 9)}<b>{xml_escape(value)}</b> "
             f"<font size=6>{xml_escape(label)}</font>",
-            STYLE_RUNG_STAT,
+            STYLE_LEVEL_STAT,
         )
         lw, lh = line.wrapOn(c, w - 12, 24)
         line.drawOn(c, x + 6, cursor - lh)
@@ -222,8 +222,8 @@ def draw_rung_platform(c, x, y_bottom, w, h, rung):
     c.restoreState()
 
 
-def draw_ladder(c, rungs, x0, x1, y0, y1):
-    n = len(rungs)
+def draw_ladder(c, levels, x0, x1, y0, y1):
+    n = len(levels)
     gutter = 10
     col_w = (x1 - x0) / n
     platform_w = col_w - gutter
@@ -244,10 +244,10 @@ def draw_ladder(c, rungs, x0, x1, y0, y1):
     c.setDash()
     c.restoreState()
 
-    for i, rung in enumerate(rungs):
+    for i, level in enumerate(levels):
         col_x = x0 + i * col_w + gutter / 2
         y_bottom = y0 + i * step_rise
-        draw_rung_platform(c, col_x, y_bottom, platform_w, platform_h, rung)
+        draw_level_platform(c, col_x, y_bottom, platform_w, platform_h, level)
 
 
 def draw_quick_reference(c, x, y, w, h, formula, notes):
@@ -309,7 +309,7 @@ def draw_board(c, data):
 
     ladder_top = header_bottom - 14
     ladder_bottom = CONTENT_Y0 + notes_h + 16
-    draw_ladder(c, data["rungs"], CONTENT_X0, CONTENT_X1, ladder_bottom, ladder_top)
+    draw_ladder(c, data["levels"], CONTENT_X0, CONTENT_X1, ladder_bottom, ladder_top)
 
 
 def main():
@@ -322,11 +322,11 @@ def main():
 
     OUTPUT_PDF.parent.mkdir(parents=True, exist_ok=True)
     c = canvas.Canvas(str(OUTPUT_PDF), pagesize=(PAGE_W, PAGE_H))
-    c.setTitle("Stack Ranked — Career Ladder Board")
+    c.setTitle("Synergy Corp — Career Ladder Board")
     draw_board(c, data)
     c.showPage()
     c.save()
-    print(f"Wrote {OUTPUT_PDF} ({len(data['rungs'])} rungs)")
+    print(f"Wrote {OUTPUT_PDF} ({len(data['levels'])} levels)")
 
 
 if __name__ == "__main__":

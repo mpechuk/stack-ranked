@@ -19,17 +19,17 @@ function installSeed(v) {
   };
 }
 
-const SR = require('../game.js');
+const SC = require('../game.js');
 
 test('game.js and net.js load as Node modules', () => {
-  assert.ok(SR && typeof SR.newGame === 'function' && typeof SR.play === 'function');
-  const SRNet = require('../net.js');
-  assert.ok(SRNet && typeof SRNet.serializeState === 'function', 'net.js pure pieces should load in Node');
+  assert.ok(SC && typeof SC.newGame === 'function' && typeof SC.play === 'function');
+  const SCNet = require('../net.js');
+  assert.ok(SCNet && typeof SCNet.serializeState === 'function', 'net.js pure pieces should load in Node');
 });
 
 test('a headless AI game completes with sane final state', { timeout: 30000 }, async () => {
   installSeed(20260716);
-  const st = SR.newGame({
+  const st = SC.newGame({
     variant: 'race-to-ceo',
     players: [
       { name: 'A', kind: 'ai', archetype: 'grinder' },
@@ -38,7 +38,7 @@ test('a headless AI game completes with sane final state', { timeout: 30000 }, a
       { name: 'D', kind: 'ai', archetype: 'workaholic' }
     ]
   });
-  await SR.play(st, {}); // silent
+  await SC.play(st, {}); // silent
 
   const winnerId = st.winnerId || (st.standings && st.standings[0] && st.standings[0].id);
   assert.ok(winnerId, 'game produced no winner');
@@ -47,7 +47,7 @@ test('a headless AI game completes with sane final state', { timeout: 30000 }, a
   // Core resource invariants (spec §4 / §2 constants).
   st.players.forEach(p => {
     assert.ok(p.burnout >= 0 && p.burnout <= 10, `${p.name} burnout out of [0,10]: ${p.burnout}`);
-    assert.ok(p.rung >= 0 && p.rung <= 6, `${p.name} rung out of [0,6]: ${p.rung}`);
+    assert.ok(p.level >= 0 && p.level <= 6, `${p.name} level out of [0,6]: ${p.level}`);
     assert.ok(p.careerCapital >= 0, `${p.name} negative Career Capital: ${p.careerCapital}`);
     assert.ok(Array.isArray(p.backlog), `${p.name} backlog missing`);
   });
@@ -55,7 +55,7 @@ test('a headless AI game completes with sane final state', { timeout: 30000 }, a
 
 test('long-game variant also completes', { timeout: 30000 }, async () => {
   installSeed(1234567);
-  const st = SR.newGame({
+  const st = SC.newGame({
     variant: 'long-game',
     players: [
       { name: 'A', kind: 'ai', archetype: 'balanced' },
@@ -63,6 +63,6 @@ test('long-game variant also completes', { timeout: 30000 }, async () => {
       { name: 'C', kind: 'ai', archetype: 'workaholic' }
     ]
   });
-  await SR.play(st, {});
+  await SC.play(st, {});
   assert.ok(st.standings && st.standings.length === 3, 'long-game should produce final standings');
 });

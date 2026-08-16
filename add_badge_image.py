@@ -1,9 +1,9 @@
 """
-STACK RANKED — Add Compliance Badge Art
+SYNERGY CORP — Add Compliance Badge Art
 =======================================
 Attach emblem artwork to a Compliance Badge, then rebuild the badges PDF.
 Automates the manual flow: copy the image into badge-images/, set the badge's
-"image" field in badges.json, and regenerate docs/Stack_Ranked_Badges.pdf.
+"image" field in badges.json, and regenerate docs/Synergy_Corp_Badges.pdf.
 
     python3 add_badge_image.py <path/to/image.png> <badge>
     python3 add_badge_image.py "~/Downloads/seal.png" fire-safety   # by slug

@@ -1,6 +1,6 @@
 /* Balance regression tests — assert the Monte-Carlo harness's design invariants
  * instead of eyeballing its printed tables. Drives the REAL engine (game.js) via
- * the exported `runCell` from stack_ranked_montecarlo.js.
+ * the exported `runCell` from synergy_corp_montecarlo.js.
  *
  * The harness is seeded (mulberry32 over Math.random), so for a fixed
  * (ruleset, N, seed) every metric is exactly reproducible run-to-run. The
@@ -10,12 +10,12 @@
  * while still catching a genuine balance regression.
  *
  * Full human-facing sweep (all 6 rulesets + player-count sanity, big N):
- *   node stack_ranked_montecarlo.js 3000        (or: npm run sim:balance)
+ *   node synergy_corp_montecarlo.js 3000        (or: npm run sim:balance)
  */
 'use strict';
 const { test } = require('node:test');
 const assert = require('node:assert');
-const mc = require('../stack_ranked_montecarlo.js');
+const mc = require('../synergy_corp_montecarlo.js');
 
 const VARIANT = 'race-to-ceo';
 const N = 400; // ~0.4s/ruleset; stable & deterministic at this size

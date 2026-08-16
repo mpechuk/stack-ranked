@@ -1,5 +1,5 @@
 """
-STACK RANKED — Add Card Art
+SYNERGY CORP — Add Card Art
 ===========================
 Attach artwork to a card by its deck number, then rebuild the print-and-play
 PDF. Automates the manual flow: copy the image into cards-images/, set the
