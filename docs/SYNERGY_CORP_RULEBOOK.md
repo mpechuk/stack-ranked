@@ -1,8 +1,8 @@
-# STACK RANKED
+# SYNERGY CORP
 
 ### A Game of Corporate Ascension
 
-*Synergy Corp — Disrupting Disruption Since Whenever™*
+*Disrupting Disruption Since Whenever™*
 
 **2–6 Players · 60–90 Minutes · Ages 14+**
 
@@ -13,6 +13,7 @@ trainings, and quiet workplace despair.
 
 ## Table of Contents
 
+- [Terminology](#terminology)
 - [Quick Start](#quick-start)
 - [Welcome to Synergy Corp](#welcome-to-synergy-corp)
   - [Objective](#objective)
@@ -35,8 +36,105 @@ trainings, and quiet workplace despair.
 - [Winning the Game](#winning-the-game)
 - [Player Count Adjustments](#player-count-adjustments)
 - [Card Reference Appendix](#card-reference-appendix)
-- [Designer's Notes: Balancing Stack Ranked](#designers-notes-balancing-stack-ranked)
+- [Designer's Notes: Balancing Synergy Corp](#designers-notes-balancing-synergy-corp)
 - [Quick Reference Sheet](#quick-reference-sheet)
+
+---
+
+## Terminology
+
+Every term this rulebook uses, defined once before it shows up in the text.
+Skip straight to [Quick Start](#quick-start) if you'd rather learn by
+playing — this section is here for whenever a word stops you mid-sentence.
+
+**Resources**
+
+- **Productivity (P).** Your output, spent to Pick up and to Work a Project.
+  Resets to 0 at every Quarterly Review. *(full details:
+  [Key Concepts](#key-concepts))*
+- **Political Capital (PC).** Your visibility, gained mostly from Networking.
+  Compared at every Review and decides CEO Board Vote ties. Resets to 0 at
+  every Quarterly Review.
+- **Career Capital (CC).** Your permanent résumé score. Only ever goes up;
+  every promotion is gated by a CC threshold.
+- **Burnout.** Your persistent 0–10 risk track. Rises from Overtime, some
+  Skill cards, every completed Project, and some Office Chaos cards.
+- **Compliance Badges.** A persistent counter, mostly from Mandatory
+  Training. Director requires 2, VP requires 4.
+
+**Time & Structure**
+
+- **Round.** One full pass through all four phases — Stand-Up Meeting,
+  Sprint, Lunch, Postmortem — for every player at the table.
+- **Quarter.** Three Rounds. Ends with a Quarterly Performance Review.
+- **Quarter Marker.** A second cube marking your Career Capital as of your
+  last Review. The gap between it and your current CC is what you've grown
+  this Quarter — the heart of your Review Score.
+- **Level.** Your current position on the Career Ladder (Intern through
+  CEO). Sets your Action Point budget.
+
+**Boards & Zones**
+
+- **Kanban Board.** The shared row of revealed Project cards (plus a
+  permanent Evergreen 5th slot) that players claim into their Backlog at
+  Stand-Up.
+- **Workplace Training board.** The shared row of revealed Skill/Tool cards
+  available to pick up.
+- **Backlog.** Your personal, uncapped holding area for Projects you've
+  claimed but not yet paid for. Claiming is free; you only pay via
+  **Work a Project**, on your Sprint.
+- **Career Ladder.** The shared board of 7 levels every player's pawn climbs.
+
+**Sprint Actions** *(each costs 1 Action Point unless noted)*
+
+- **Action Points (AP).** Your per-Sprint budget — 2, 3, or 4, by Level.
+- **Pick up.** Pay a Skill/Tool card's Productivity cost to take it from the
+  Workplace Training board.
+- **Work a Project.** Pay the Productivity cost of one Backlog entry to
+  complete it and collect its Career Capital (and other listed effects,
+  including Burnout).
+- **Network.** Free. Gain 2 Political Capital and 1 Career Capital.
+- **Self-Care.** Free. Remove 2 Burnout.
+- **Request a Transfer.** Once per Quarter: gain 2 Burnout, discard your
+  Management Style card, draw 2 replacements, keep 1.
+- **Overtime.** Once per round, outside your normal AP: gain 1 extra Action
+  Point, gain 2 Burnout.
+- **Scope Creep.** Not an action you take — any Project left unclaimed on
+  the Kanban Board for 2 full Rounds gets +1 Productivity cost (reward
+  unchanged). The Evergreen slot is exempt.
+
+**Cards & Decks**
+
+- **Project** *(also called a Task once it's in your Backlog).* The work you
+  claim, then later pay off via Work a Project for Career Capital.
+- **Skill/Tool card.** Picked up from the Workplace Training board; builds a
+  passive tableau (Permanent) or fires once (One-Shot).
+- **Office Chaos.** A random event card, drawn and resolved every Lunch.
+- **Mandatory Training.** A card every player resolves every 2nd Review;
+  grants a Compliance Badge.
+- **Management Style.** Your boss — a passive, asymmetric power lasting
+  until your next promotion or demotion.
+- **Feedback card** *(variant)*. Positive (+2) or Constructive (−2); net
+  value, capped at ±4, folds into your Review Score.
+
+**Review Terms**
+
+- **Quarterly Performance Review (Review).** Runs every 3rd Round: scores,
+  CEO Board Vote, Promotions, PIP/Demotion, then Reset, in that order.
+- **Review Score.** CC gained since your Quarter Marker + Political Capital
+  on hand + Feedback held (variant) − Tasks on hand. Decides Promotions and
+  PIP/Demotion.
+- **CEO Board Vote.** Any VP with CC ≥ 78 is a candidate; Political Capital
+  breaks ties. Winning ends the game.
+- **Promotion.** Eligible players, ranked by Review Score, move up exactly
+  one Level — never more.
+- **PIP.** A warning token; a second one demotes you one Level.
+- **Employee of the Quarter.** Consolation token + 1 PC for eligible players
+  passed over this Review.
+- **Freelance Purgatory.** What happens when an Intern is demoted: skip the
+  entire next Quarter's Sprints, then return to Intern clean.
+- **Mentorship Bonus.** +1 Political Capital every Stand-Up for anyone 2+
+  Levels behind the leader.
 
 ---
 
@@ -50,7 +148,7 @@ this rulebook is detail.
    Project card from the Kanban Board into your Backlog — mandatory if it's
    empty, optional (you may skip) if you already have at least one; you're
    just claiming it, not paying for it yet.
-2. **Sprint**: spend your Action Points to Hire a Skill card, Work a Project
+2. **Sprint**: spend your Action Points to Pick up a Skill card, Work a Project
    (pay to finish any one entry in your Backlog — your choice which), Network,
    Self-Care, or Request a Transfer (swap your boss — once per Quarter). You may
    also take one Overtime action per round for a bonus Action Point.
@@ -91,7 +189,7 @@ climb.
 
 ## Components
 
-- 1 Career Ladder board (7 rungs, Intern through CEO)
+- 1 Career Ladder board (7 levels, Intern through CEO)
 - 6 Player Desk mats
 - 6 wooden pawns
 - 42 Skill/Tool cards (30 unique designs across 3 tiers)
@@ -132,7 +230,7 @@ multiple physical copies so the decks don't run dry:
 
 ### The Three Live Resources
 
-**Productivity (P).** Your output. Spend it to Hire Skill/Tool cards and to
+**Productivity (P).** Your output. Spend it to Pick up Skill/Tool cards and to
 Work Projects. Productivity does not carry Career Capital by itself — it's
 what you convert into Career Capital.
 
@@ -243,9 +341,9 @@ happens on your Sprint, via Work a Project.
 ### 6.2 — Sprint (Action Phase)
 
 In First Player order, each player spends Action Points one at a time. Your
-Action Point budget depends on your current rung:
+Action Point budget depends on your current level:
 
-| Rung | Action Points |
+| Level | Action Points |
 |---|---|
 | Intern / Software Engineer | 2 |
 | Team Lead / Manager | 3 |
@@ -253,7 +351,7 @@ Action Point budget depends on your current rung:
 
 Each Action Point buys one of the following:
 
-- **Hire** — pay a Skill/Tool card's Productivity cost to take it from the
+- **Pick up** — pay a Skill/Tool card's Productivity cost to take it from the
   Workplace Training board. One-Shot cards resolve immediately and are discarded; Permanent
   cards join your tableau.
 - **Work a Project** — choose any one entry in your Backlog (see
@@ -329,25 +427,25 @@ We left it in.)
 
 Determine promotion slots for your player count (see
 [Player Count Adjustments](#player-count-adjustments)). Among players who
-meet their next rung's Career Capital requirement (and Badge requirement, if
+meet their next level's Career Capital requirement (and Badge requirement, if
 any) — excluding anyone already crowned CEO this Review — the highest Review
-Score(s), up to the number of slots, are promoted one rung.
+Score(s), up to the number of slots, are promoted one level.
 
 Eligible players who aren't selected this time don't lose anything. Instead
 they become Employee of the Quarter: gain 1 Political Capital immediately and
 keep a token (worth bonus points in the Advanced Variant — see
 [Winning the Game](#winning-the-game)).
 
-A promotion always moves you up **exactly one rung** — you climb the ladder one
-level at a time and can never skip a level, no matter how dominant your Review
-Score is. (The only door to the top rung, CEO, is the Board Vote in Step 2, and
-it only opens for players already sitting at VP.)
+A promotion always moves you up **exactly one Level** — you never skip a
+Level, no matter how dominant your Review Score is. (The only door to the top
+Level, CEO, is the Board Vote in Step 2, and it only opens for players already
+sitting at VP.)
 
 ### Step 4 — PIP and Demotion
 
 Among players not promoted or crowned this Review, the lowest Review
 Score(s) — up to the PIP slot count — receive a PIP token. A player who
-already holds a PIP token instead loses it and is demoted one rung. A player
+already holds a PIP token instead loses it and is demoted one level. A player
 being demoted from Intern instead enters Freelance Purgatory: skip the entire
 next Quarter's Sprints (you still draw Office Chaos and Training), then
 return to Intern with a clean slate.
@@ -360,7 +458,7 @@ promoted or demoted draws a new Management Style card.
 
 ### Mentorship Bonus
 
-Any player whose rung is 2 or more behind the current leader gains +1
+Any player whose level is 2 or more behind the current leader gains +1
 Political Capital every Stand-Up Meeting, until they close the gap. Synergy
 Corp calls this a mentorship program. It is, mechanically, a rubber band.
 
@@ -368,7 +466,7 @@ Corp calls this a mentorship program. It is, mechanically, a rubber band.
 
 ## The Career Ladder
 
-| Rung | Action Points | Career Capital to Promote In | Badges Required |
+| Level | Action Points | Career Capital to Promote In | Badges Required |
 |---|---|---|---|
 | 0 — Intern | 2 | — | — |
 | 1 — Software Engineer | 2 | 8 | — |
@@ -426,7 +524,7 @@ For a more strategic, less race-focused experience, play a fixed 8 Quarters
 (24 rounds) instead of racing to CEO. At the end of Round 24, calculate a
 Final Score for each player:
 
-Final Score = (Rung × 10) + (Career Capital ÷ 2) + (Political Capital on
+Final Score = (Level × 10) + (Career Capital ÷ 2) + (Political Capital on
 hand) − Burnout + (5 × Employee-of-the-Quarter tokens).
 
 Highest Final Score wins — even if nobody ever reaches CEO. This variant
@@ -525,7 +623,7 @@ pitching in — while the owner banks the political goodwill.
 
 > **Designer's note.** These two rules were balance-tested over tens of
 > thousands of simulated games (see the card-faithful harness
-> `stack_ranked_montecarlo.js` and the writeup below). With the default
+> `synergy_corp_montecarlo.js` and the writeup below). With the default
 > settings they leave all five archetypes viable — in fact *tighter* than the
 > base game — while making it a little easier to come back from behind. The
 > naïve "owner gets CC **and** PC / dump every bad card on the leader" version
@@ -545,12 +643,12 @@ pitching in — while the owner banks the political goodwill.
 > dealt early (The Micromanager, The Credit-Stealing Boss, The Tenure-Not-Talent
 > Manager, …) used to be a near-life-sentence, because it slowed the very
 > promotions that were the only escape from it. In the catch-up harness
-> (`stack_ranked_manager_switch_test.js`), six identical (Balanced) seats were
+> (`synergy_corp_manager_switch_test.js`), six identical (Balanced) seats were
 > split into a cohort forced onto The Micromanager and a field of clean bosses.
 > With transfers **disabled** the bad cohort won only ~8–9% of games (fair share
-> is 50%) and barely climbed off the bottom rung; with transfers **on** — same
+> is 50%) and barely climbed off the bottom level; with transfers **on** — same
 > seeds, same bots — its win share roughly **tripled to ~25%** and its average
-> final rung nearly doubled. It doesn't fully erase the disadvantage of a rough
+> final level nearly doubled. It doesn't fully erase the disadvantage of a rough
 > start (a happy front-runner never bothers to switch), and in exchange for
 > reducing that luck it lets strategy show through a touch more (recommended
 > std-dev ticks from ~7.0 to ~8.7pp) while lowering the runaway-leader rate — a
@@ -730,17 +828,17 @@ first Action Point next round, and gain 1 Compliance Badge.
 | The Absentee Boss | Gain 1 free Action Point each round. You may not take the Network action — your boss is never around to introduce you to anyone. | Hasn't reviewed a time-off request since the reorg. Or approved one. Or seen one. |
 | The Credit-Stealing Boss | Whenever you complete a Project, lose 1 Career Capital but gain 1 Political Capital (sympathetic coworkers notice). | Presented your work at the all-hands. Used the word 'we' a lot. Meant 'I.' |
 | The Chaotic Pivot-Happy Visionary | At the start of each Quarter, flip a coin: heads, gain 2 Productivity; tails, discard 1 Skill card. | The strategy changed twice during this sentence. |
-| The Yes-Man Exec | Hiring Skill cards costs 1 less Productivity (minimum 1). Mandatory Training costs you 2 lost Action Points next round instead of 1. | Agreed with the last three people who talked to him. In the same meeting. |
+| The Yes-Man Exec | Picking up Skill cards costs 1 less Productivity (minimum 1). Mandatory Training costs you 2 lost Action Points next round instead of 1. | Agreed with the last three people who talked to him. In the same meeting. |
 | The Actually Supportive Manager | Gain 1 Political Capital every Income Phase. No drawback. | Asked how you're doing and waited for the actual answer. Suspicious, but in a good way. |
 | The Results-at-Any-Cost Boss | Overtime grants +1 extra Productivity, but also +1 extra Burnout, on top of its normal effect. | Doesn't care how you hit the number. Cares extremely if you don't. |
 | The Buzzword Machine | Network grants +1 extra Political Capital. Your Projects cost 1 more Productivity — nobody can define the deliverable. | Wants to double-click on synergies before we boil the ocean. |
 | The Founder Who Refuses to Delegate | Gain 1 free Action Point each round. Self-Care costs 2 Action Points instead of 1. | "We're moving fast" has justified everything since 2019. |
-| The Tenure-Not-Talent Manager | Compliance Badges count double toward promotion requirements. Hiring Skill cards costs 1 more Productivity. | Been here 14 years. Still can't use the new expense software. |
+| The Tenure-Not-Talent Manager | Compliance Badges count double toward promotion requirements. Picking up Skill cards costs 1 more Productivity. | Been here 14 years. Still can't use the new expense software. |
 | The Seagull Manager | At the start of each Quarter, flip a coin: heads, every other player gains 1 Burnout — you swooped in and stirred things up; tails, you gain 1 Political Capital — you flew off before anyone noticed. | Flies in, makes a lot of noise, craps on the roadmap, and is gone before the retro. |
 | The Mushroom Manager | +2 Productivity/round (fed on nothing, somehow still growing); −1 Political Capital/round (kept in the dark — nobody tells you anything). | Kept in the dark and fed manure. Thriving, weirdly. |
-| The Peter Principle | Your Action Points are always 2, no matter your rung — promoted well past their competence. Hiring Skill cards costs 1 less Productivity (overcompensates by throwing tools at the problem). | Promoted three times. Still can't find the deploy script. |
+| The Peter Principle | Your Action Points are always 2, no matter your level — promoted well past their competence. Picking up Skill cards costs 1 less Productivity (overcompensates by throwing tools at the problem). | Promoted three times. Still can't find the deploy script. |
 | The Always-On Boss | Overtime grants +1 extra Burnout, on top of its normal effect (always expects a same-night reply). Self-Care costs 2 Action Points instead of 1 (there's no such thing as fully logging off). | Texts you at 11 PM. Reacts with a 👍 to your out-of-office reply. |
-| The Nepotism Hire | +2 Political Capital/round (knows people); Hiring Skill cards costs 1 more Productivity (couldn't approve a headcount request to save their life). | Turns out the CEO is their uncle. Nobody has said this out loud. |
+| The Nepotism Hire | +2 Political Capital/round (knows people); Picking up Skill cards costs 1 more Productivity (couldn't approve a headcount request to save their life). | Turns out the CEO is their uncle. Nobody has said this out loud. |
 | The Consultant Turned Manager | Your Projects cost 1 less Productivity (loves a framework for everything); −1 Political Capital/round (nobody trusts the person who charges by the hour). | Drew a 2x2 matrix. Nobody asked for the 2x2 matrix. |
 
 ### Feedback Cards (18, variant rule)
@@ -779,7 +877,7 @@ capped at ±4). See **Variant Rules** above.
 
 ---
 
-## Designer's Notes: Balancing Stack Ranked
+## Designer's Notes: Balancing Synergy Corp
 
 This game was tuned the same way you'd tune any economy: build bots that play
 fixed, extreme strategies, run tens of thousands of games, look at what
@@ -851,7 +949,7 @@ Three changes went into the final pass:
 - Overtime's Burnout cost rose from 1 to 2, specifically to stop Workaholic
   from chaining Overtime every single round with no real downside.
 - A Mentorship Bonus (+1 Political Capital per round) now kicks in for
-  anyone 2+ rungs behind the leader, and Networking's Career Capital
+  anyone 2+ levels behind the leader, and Networking's Career Capital
   contribution was increased so a dedicated networker isn't hopelessly
   outpaced by project-driven Career Capital lump sums.
 
@@ -946,7 +1044,7 @@ written and see how it goes. That's what the simulation says it's like.
    a task from the Kanban Board into your Backlog (free — claim only, no
    paying yet). Mandatory if your Backlog is empty; optional (may skip) if
    you already have at least one entry. No cap either way.
-2. Sprint — spend Action Points (2 / 3 / 4 by rung); 1 free Overtime action
+2. Sprint — spend Action Points (2 / 3 / 4 by level); 1 free Overtime action
    available
 3. Lunch — draw & resolve 1 Office Chaos card
 4. Postmortem — refill boards, pass First Player token
@@ -958,7 +1056,7 @@ Mandatory Training.
 
 | Action | Cost | Effect |
 |---|---|---|
-| Hire | Card's Productivity cost | Take a Workplace Training board card: One-Shot resolves now; Permanent joins tableau |
+| Pick up | Card's Productivity cost | Take a Workplace Training board card: One-Shot resolves now; Permanent joins tableau |
 | Work a Project | Chosen Backlog entry's Productivity cost | Gain its Career Capital reward + listed effects; that entry leaves your Backlog |
 | Network | Free | +2 Political Capital, +1 Career Capital |
 | Self-Care | Free | −2 Burnout |
@@ -986,7 +1084,7 @@ Reset to 6. Lose 2 Political Capital. Skip your next Sprint.
 
 ### Career Ladder At a Glance
 
-| Rung | CC Needed | Badges |
+| Level | CC Needed | Badges |
 |---|---|---|
 | Intern → Software Engineer | 8 | — |
 | → Team Lead | 18 | — |
@@ -996,4 +1094,4 @@ Reset to 6. Lose 2 Political Capital. Skip your next Sprint.
 | → CEO | 78 + Board Vote | — |
 
 Promotion/PIP slots: 1 for 2–5 players, 2 for 6 players. Mentorship Bonus: +1
-PC/round if 2+ rungs behind the leader.
+PC/round if 2+ levels behind the leader.

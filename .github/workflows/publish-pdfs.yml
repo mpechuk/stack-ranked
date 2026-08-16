@@ -17,7 +17,7 @@ on:
       - cards.json
       - leaderboard.md
       - badges.json
-      - docs/STACK_RANKED_RULEBOOK.md
+      - docs/SYNERGY_CORP_RULEBOOK.md
       - cards-images/**
       - table-images/**
       - badge-images/**
@@ -70,7 +70,7 @@ jobs:
         env:
           RELEASE_TITLE: "Printable PDFs — build ${{ github.run_number }}"
           RELEASE_NOTES: |
-            Auto-generated print-and-play PDFs for Stack Ranked.
+            Auto-generated print-and-play PDFs for Synergy Corp.
             Built from ${{ github.sha }} by the publish-pdfs workflow.
         run: scripts/publish_pdf_release.sh "pdf-${{ github.run_number }}" --latest
 

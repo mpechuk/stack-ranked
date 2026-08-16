@@ -1,8 +1,8 @@
 """
-STACK RANKED — Rulebook PDF Generator
+SYNERGY CORP — Rulebook PDF Generator
 =======================================
-Converts docs/STACK_RANKED_RULEBOOK.md into a paginated, print-ready PDF:
-docs/Stack_Ranked_Rulebook.pdf. Headings become PDF bookmarks (visible in
+Converts docs/SYNERGY_CORP_RULEBOOK.md into a paginated, print-ready PDF:
+docs/Synergy_Corp_Rulebook.pdf. Headings become PDF bookmarks (visible in
 the reader's outline/sidebar), and every "[text](#anchor)" link in the
 Markdown — the Table of Contents and the inline cross-references scattered
 through the rules — becomes a clickable jump to that heading, using the
@@ -31,8 +31,8 @@ from reportlab.platypus import (
 )
 
 ROOT = Path(__file__).resolve().parent
-RULEBOOK_MD = ROOT / "docs" / "STACK_RANKED_RULEBOOK.md"
-OUTPUT_PDF = ROOT / "docs" / "Stack_Ranked_Rulebook.pdf"
+RULEBOOK_MD = ROOT / "docs" / "SYNERGY_CORP_RULEBOOK.md"
+OUTPUT_PDF = ROOT / "docs" / "Synergy_Corp_Rulebook.pdf"
 
 PAGE_W, PAGE_H = letter
 MARGIN = 0.75 * inch
@@ -328,7 +328,7 @@ def draw_furniture(canvas, doc, total_pages):
     canvas.saveState()
     canvas.setFont("Helvetica", 8)
     canvas.setFillColor(MUTED)
-    canvas.drawString(MARGIN, PAGE_H - 0.5 * inch, "STACK RANKED — RULEBOOK")
+    canvas.drawString(MARGIN, PAGE_H - 0.5 * inch, "SYNERGY CORP — RULEBOOK")
     canvas.drawCentredString(PAGE_W / 2, 0.5 * inch, f"Page {page_num} of {total_pages}")
     canvas.restoreState()
 
@@ -342,7 +342,7 @@ def make_doc():
     return SimpleDocTemplate(
         str(OUTPUT_PDF), pagesize=letter,
         leftMargin=MARGIN, rightMargin=MARGIN, topMargin=MARGIN, bottomMargin=MARGIN,
-        title="Stack Ranked — Rulebook", author="Synergy Corp",
+        title="Synergy Corp — Rulebook", author="Synergy Corp",
     )
 
 

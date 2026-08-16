@@ -1,12 +1,12 @@
 """
-STACK RANKED — Print-and-Play PDF Generator
+SYNERGY CORP — Print-and-Play PDF Generator
 =============================================
-Builds docs/Stack_Ranked_PrintAndPlay.pdf straight from cards.json: a cover
+Builds docs/Synergy_Corp_PrintAndPlay.pdf straight from cards.json: a cover
 page with assembly instructions plus poker-sized (2.5in x 3.5in) card sheets,
 9-up on US Letter paper, one category per sheet run. Physical copy counts
 (e.g. Tier 1 Skill/Tool and Early Project cards need 2 copies each to keep
 the decks from running dry) follow the Deck Composition table in
-docs/STACK_RANKED_RULEBOOK.md.
+docs/SYNERGY_CORP_RULEBOOK.md.
 
 Each card's effect/reward text is split into clauses (on sentence and
 semicolon boundaries, one per line) and any mention of a tracked resource
@@ -45,7 +45,7 @@ except ImportError:
 
 ROOT = Path(__file__).resolve().parent
 CARDS_JSON = ROOT / "cards.json"
-OUTPUT_PDF = ROOT / "docs" / "Stack_Ranked_PrintAndPlay.pdf"
+OUTPUT_PDF = ROOT / "docs" / "Synergy_Corp_PrintAndPlay.pdf"
 
 PAGE_W, PAGE_H = letter
 CARD_W, CARD_H = 2.5 * inch, 3.5 * inch
@@ -144,7 +144,7 @@ def emoji_png_path(char):
     if Image is not None and font_path:
         global _emoji_cache_dir
         if _emoji_cache_dir is None:
-            _emoji_cache_dir = tempfile.mkdtemp(prefix="stack_ranked_emoji_")
+            _emoji_cache_dir = tempfile.mkdtemp(prefix="synergy_corp_emoji_")
             atexit.register(shutil.rmtree, _emoji_cache_dir, ignore_errors=True)
         try:
             font = ImageFont.truetype(font_path, _EMOJI_RENDER_PX)
@@ -401,7 +401,7 @@ def draw_sheet_footer(c, labels, sheet_num, total_sheets):
     c.setFont("Helvetica", 7.5)
     c.drawCentredString(
         PAGE_W / 2, max(4, MARGIN_Y - 11),
-        f"STACK RANKED — {label}  (sheet {sheet_num} of {total_sheets})",
+        f"SYNERGY CORP — {label}  (sheet {sheet_num} of {total_sheets})",
     )
 
 
@@ -443,7 +443,7 @@ def draw_cover_page(c, decks):
 
     c.setFillColor(HexColor("#1a1a1a"))
     c.setFont("Helvetica-Bold", 24)
-    c.drawString(x, y, "STACK RANKED")
+    c.drawString(x, y, "SYNERGY CORP")
     y -= 22
     c.setFont("Helvetica-Bold", 13)
     c.setFillColor(HexColor("#555555"))
@@ -503,7 +503,7 @@ def main():
 
     OUTPUT_PDF.parent.mkdir(parents=True, exist_ok=True)
     c = canvas.Canvas(str(OUTPUT_PDF), pagesize=letter)
-    c.setTitle("Stack Ranked — Print-and-Play")
+    c.setTitle("Synergy Corp — Print-and-Play")
 
     draw_cover_page(c, decks)
     draw_all_sheets(c, decks)

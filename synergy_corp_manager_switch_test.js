@@ -1,5 +1,5 @@
 /* =============================================================================
- * STACK RANKED — "Request a Transfer" catch-up test (card-faithful, seeded)
+ * SYNERGY CORP — "Request a Transfer" catch-up test (card-faithful, seeded)
  * -----------------------------------------------------------------------------
  * Question: does the new Request-a-Transfer action let a player dealt a
  * PUNISHING early boss catch up to a player dealt a GOOD boss?
@@ -20,7 +20,7 @@
  * 50% share and well above Arm A; bad-cohort seats that switched win at roughly
  * the good cohort's per-seat rate, and far above bad-cohort seats that didn't.
  *
- * Run:  node stack_ranked_manager_switch_test.js [gamesPerArm=1000] [variant=race-to-ceo]
+ * Run:  node synergy_corp_manager_switch_test.js [gamesPerArm=1000] [variant=race-to-ceo]
  * ========================================================================== */
 'use strict';
 const path = require('path');
@@ -36,7 +36,7 @@ function mulberry32() {
 function seed(s) { _rngState = s >>> 0; }
 Math.random = mulberry32;
 
-const SR = require(path.join(__dirname, 'game.js'));
+const SC = require(path.join(__dirname, 'game.js'));
 
 const BAD_ID = 'the-micromanager';
 // Reference field: three DIFFERENT non-punishing bosses (managerValue >= 0 for a
@@ -56,13 +56,13 @@ const fieldIdForSeat = function (seat) { return FIELD_IDS[GOOD_SEATS.indexOf(sea
 async function playOne(noTransfer, variant) {
   const players = [];
   for (let i = 0; i < NSEATS; i++) players.push({ name: 'P' + i, kind: 'ai', archetype: 'balanced' });
-  const state = SR.newGame({ variant: variant, players: players });
+  const state = SC.newGame({ variant: variant, players: players });
   if (noTransfer) state._noTransfer = true;
 
   // Force starting bosses, then remove all forced ids from the draw pile so a
   // transfer can only land the switcher on some OTHER boss (and never on a
   // reference-field boss).
-  state.players.forEach(function (p) { p.managementStyle = SR.DEFS[isBad(p.seat) ? BAD_ID : fieldIdForSeat(p.seat)]; });
+  state.players.forEach(function (p) { p.managementStyle = SC.DEFS[isBad(p.seat) ? BAD_ID : fieldIdForSeat(p.seat)]; });
   state.managementDrawPile = state.managementDrawPile.filter(function (c) { return FORCED_IDS.indexOf(c.id) < 0; });
 
   // Count Request-a-Transfer uses per seat by watching the action log.
@@ -76,7 +76,7 @@ async function playOne(noTransfer, variant) {
     }
   };
 
-  await SR.play(state, hooks);
+  await SC.play(state, hooks);
 
   const winner = state.winnerId
     ? state.players.find(function (p) { return p.id === state.winnerId; })
@@ -85,7 +85,7 @@ async function playOne(noTransfer, variant) {
   return {
     winnerSeat: winner.seat,
     transfersBySeat: transfersBySeat,
-    rungBySeat: state.players.reduce(function (m, p) { m[p.seat] = p.rung; return m; }, {})
+    levelBySeat: state.players.reduce(function (m, p) { m[p.seat] = p.level; return m; }, {})
   };
 }
 
@@ -99,7 +99,7 @@ async function runArm(noTransfer, G, variant, baseSeed) {
   let badStaySeatGames = 0, badStayWins = 0;
   let goodSeatGames = 0, goodWinsSeat = 0;
   let badSeatsThatSwitched = 0, badSeatsTotal = 0;
-  let badRungSum = 0, goodRungSum = 0, rungSeatsBad = 0, rungSeatsGood = 0;
+  let badLevelSum = 0, goodLevelSum = 0, levelSeatsBad = 0, levelSeatsGood = 0;
 
   for (let g = 0; g < G; g++) {
     seed(baseSeed + g * 2654435761);
@@ -113,11 +113,11 @@ async function runArm(noTransfer, G, variant, baseSeed) {
       const won = r.winnerSeat === seat;
       if (switched) { badSwitchSeatGames++; if (won) badSwitchWins++; }
       else { badStaySeatGames++; if (won) badStayWins++; }
-      badRungSum += r.rungBySeat[seat]; rungSeatsBad++;
+      badLevelSum += r.levelBySeat[seat]; levelSeatsBad++;
     });
     GOOD_SEATS.forEach(function (seat) {
       goodSeatGames++; if (r.winnerSeat === seat) goodWinsSeat++;
-      goodRungSum += r.rungBySeat[seat]; rungSeatsGood++;
+      goodLevelSum += r.levelBySeat[seat]; levelSeatsGood++;
     });
   }
 
@@ -129,8 +129,8 @@ async function runArm(noTransfer, G, variant, baseSeed) {
     badSwitchWinRate: badSwitchSeatGames ? badSwitchWins / badSwitchSeatGames : null, // fair = 1/6
     badStayWinRate: badStaySeatGames ? badStayWins / badStaySeatGames : null,
     goodSeatWinRate: goodWinsSeat / goodSeatGames,
-    badAvgRung: badRungSum / rungSeatsBad,
-    goodAvgRung: goodRungSum / rungSeatsGood
+    badAvgLevel: badLevelSum / levelSeatsBad,
+    goodAvgLevel: goodLevelSum / levelSeatsGood
   };
 }
 
@@ -139,7 +139,7 @@ async function main() {
   const variant = process.argv[3] || 'race-to-ceo';
   const BASE = BASE_SEED;
 
-  console.log('STACK RANKED — Request-a-Transfer catch-up test');
+  console.log('SYNERGY CORP — Request-a-Transfer catch-up test');
   console.log('variant=' + variant + '  games/arm=' + G + '  seeded, reproducible');
   console.log('6 balanced seats · bad cohort (0-2)=The Micromanager · field (3-5)=' + FIELD_IDS.join(', '));
   console.log('fair share: cohort 50.0% · per-seat 16.7%\n');
@@ -151,8 +151,8 @@ async function main() {
   console.log('=========== ARM A — transfers DISABLED (bad cohort is stuck) ===========');
   row('bad-cohort win share', pct(A.badCohortWinShare, 1) + '   (fair 50.0%)');
   row('field-cohort win share', pct(A.goodCohortWinShare, 1));
-  row('bad-cohort avg final rung', A.badAvgRung.toFixed(2));
-  row('field-cohort avg final rung', A.goodAvgRung.toFixed(2));
+  row('bad-cohort avg final level', A.badAvgLevel.toFixed(2));
+  row('field-cohort avg final level', A.goodAvgLevel.toFixed(2));
 
   console.log('\n=========== ARM B — transfers ON (bad cohort can escape) ===========');
   row('% of bad-cohort seats that switched', pct(B.badSeatSwitchRate, 1));
@@ -161,18 +161,18 @@ async function main() {
   row('bad-cohort per-seat win (switched)', B.badSwitchWinRate == null ? '—' : pct(B.badSwitchWinRate, 1) + '   (fair 16.7%)');
   row('bad-cohort per-seat win (did NOT)', B.badStayWinRate == null ? '—' : pct(B.badStayWinRate, 1));
   row('field-cohort per-seat win', pct(B.goodSeatWinRate, 1) + '   (fair 16.7%)');
-  row('bad-cohort avg final rung', B.badAvgRung.toFixed(2));
-  row('field-cohort avg final rung', B.goodAvgRung.toFixed(2));
+  row('bad-cohort avg final level', B.badAvgLevel.toFixed(2));
+  row('field-cohort avg final level', B.goodAvgLevel.toFixed(2));
 
   console.log('\n=========== CATCH-UP VERDICT ===========');
   // The causal proof is the A→B lift on the SAME cohort: being able to switch
-  // must materially raise both the bad cohort's win share and its final rung.
+  // must materially raise both the bad cohort's win share and its final level.
   const v = verdict(A, B);
-  const lift = v.lift, rungLift = v.rungLift, causal = v.causal, parity = v.parity;
+  const lift = v.lift, levelLift = v.levelLift, causal = v.causal, parity = v.parity;
   row('bad-cohort win-share lift (B − A)', (lift >= 0 ? '+' : '') + (100 * lift).toFixed(1) + 'pp   (' +
     pct(A.badCohortWinShare, 1) + ' → ' + pct(B.badCohortWinShare, 1) + ')');
-  row('bad-cohort rung lift (B − A)', (rungLift >= 0 ? '+' : '') + rungLift.toFixed(2) + '   (' +
-    A.badAvgRung.toFixed(2) + ' → ' + B.badAvgRung.toFixed(2) + ')');
+  row('bad-cohort level lift (B − A)', (levelLift >= 0 ? '+' : '') + levelLift.toFixed(2) + '   (' +
+    A.badAvgLevel.toFixed(2) + ' → ' + B.badAvgLevel.toFixed(2) + ')');
   row('switchers vs field (per-seat win)', B.badSwitchWinRate != null ? pct(B.badSwitchWinRate, 1) + ' vs ' + pct(B.goodSeatWinRate, 1) : '—');
   console.log('\n  ' + (causal
     ? '✅ PASS — switching materially lets the bad cohort catch up' +
@@ -184,11 +184,11 @@ async function main() {
 // the CLI printout and the test-suite assertion.
 function verdict(A, B) {
   const lift = B.badCohortWinShare - A.badCohortWinShare;
-  const rungLift = B.badAvgRung - A.badAvgRung;
+  const levelLift = B.badAvgLevel - A.badAvgLevel;
   const relInc = A.badCohortWinShare > 0 ? B.badCohortWinShare / A.badCohortWinShare : Infinity;
-  const causal = lift > 0.05 && relInc >= 1.4 && rungLift > 0.3;
+  const causal = lift > 0.05 && relInc >= 1.4 && levelLift > 0.3;
   const parity = B.badSwitchWinRate != null && B.goodSeatWinRate > 0 && (B.badSwitchWinRate / B.goodSeatWinRate) >= 0.6;
-  return { lift: lift, rungLift: rungLift, relInc: relInc, causal: causal, parity: parity };
+  return { lift: lift, levelLift: levelLift, relInc: relInc, causal: causal, parity: parity };
 }
 
 if (require.main === module) {
@@ -196,6 +196,6 @@ if (require.main === module) {
 }
 
 module.exports = {
-  SR: SR, seed: seed, runArm: runArm, verdict: verdict, BASE_SEED: BASE_SEED,
+  SC: SC, seed: seed, runArm: runArm, verdict: verdict, BASE_SEED: BASE_SEED,
   BAD_ID: BAD_ID, FIELD_IDS: FIELD_IDS
 };

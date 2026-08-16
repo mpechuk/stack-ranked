@@ -1,7 +1,7 @@
 """
-STACK RANKED — Compliance Badge Token PDF Generator
+SYNERGY CORP — Compliance Badge Token PDF Generator
 =====================================================
-Builds docs/Stack_Ranked_Badges.pdf: a title cover followed by punch-out
+Builds docs/Synergy_Corp_Badges.pdf: a title cover followed by punch-out
 Compliance Badge sheets — the square seals a player takes when they resolve a
 Mandatory Training, each headed with its source-training name. Every badge sheet
 places its tokens on the SAME fixed grid, so you can stack the printed sheets and
@@ -48,7 +48,7 @@ from generate_player_mat import (
 
 ROOT = Path(__file__).resolve().parent
 BADGES_JSON = ROOT / "badges.json"
-OUTPUT_PDF = ROOT / "docs" / "Stack_Ranked_Badges.pdf"
+OUTPUT_PDF = ROOT / "docs" / "Synergy_Corp_Badges.pdf"
 
 PAGE_W, PAGE_H = letter  # portrait US Letter
 MARGIN = 40
@@ -211,7 +211,7 @@ def draw_title_page(c, badges):
     medal = emoji_png_path(COMPLIANCE_ICON)
     medal_size = 60 if medal else 0
 
-    title = Paragraph("STACK RANKED", STYLE_COVER_TITLE)
+    title = Paragraph("SYNERGY CORP", STYLE_COVER_TITLE)
     subtitle = Paragraph("COMPLIANCE BADGE TOKENS", STYLE_COVER_SUB)
     intro = Paragraph(
         "Punch-out seals — one design per Mandatory Training, each token headed "
@@ -267,7 +267,7 @@ def draw_page_footer(c, page_num, total_pages):
     c.setFont("Helvetica", 7.5)
     c.drawCentredString(
         PAGE_W / 2, max(4, MARGIN - 14),
-        f"STACK RANKED — Compliance Badge Tokens  (sheet {page_num} of {total_pages})",
+        f"SYNERGY CORP — Compliance Badge Tokens  (sheet {page_num} of {total_pages})",
     )
 
 
@@ -310,7 +310,7 @@ def main():
 
     OUTPUT_PDF.parent.mkdir(parents=True, exist_ok=True)
     c = canvas.Canvas(str(OUTPUT_PDF), pagesize=letter)
-    c.setTitle("Stack Ranked — Compliance Badge Tokens")
+    c.setTitle("Synergy Corp — Compliance Badge Tokens")
     draw_title_page(c, badges)
     draw_badges(c, badges)
     c.save()

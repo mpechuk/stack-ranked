@@ -1,4 +1,4 @@
-STACK RANKED — CARD ART GENERATION PROMPTS
+SYNERGY CORP — CARD ART GENERATION PROMPTS
 ============================================
 Generated from cards.json. One image-generation prompt per card, each preceded
 by a reference line identifying the card (category, tier/subgroup, name,
@@ -940,7 +940,7 @@ Style: retro corporate-propaganda poster art (matching the box cover) — bold b
 
 ------------------------------------------------------------
 [108] MANAGEMENT · "The Yes-Man Exec"
-Effect: Hiring Skill cards costs 1 less Productivity (minimum 1). Mandatory Training costs you 2 lost Action Points next round instead of 1.
+Effect: Picking up Skill cards costs 1 less Productivity (minimum 1). Mandatory Training costs you 2 lost Action Points next round instead of 1.
 Flavor: "Agreed with the last three people who talked to him. In the same meeting."
 PROMPT:
 Scene: An exec nods enthusiastically in quadruplicate, each nodding head aimed at a different coworker voicing a contradicting opinion around one crowded meeting table.
@@ -980,7 +980,7 @@ Style: retro corporate-propaganda poster art (matching the box cover) — bold b
 
 ------------------------------------------------------------
 [113] MANAGEMENT · "The Tenure-Not-Talent Manager"
-Effect: Compliance Badges count double toward promotion requirements. Hiring Skill cards costs 1 more Productivity.
+Effect: Compliance Badges count double toward promotion requirements. Picking up Skill cards costs 1 more Productivity.
 Flavor: "Been here 14 years. Still can't use the new expense software."
 PROMPT:
 Scene: A weathered manager proudly displays a "14 YEARS" service plaque on the wall while squinting in total confusion at a glowing modern expense-report interface on their screen.
@@ -1004,7 +1004,7 @@ Style: retro corporate-propaganda poster art (matching the box cover) — bold b
 
 ------------------------------------------------------------
 [116] MANAGEMENT · "The Peter Principle"
-Effect: Your Action Points are always 2, no matter your rung — promoted well past their competence. Hiring Skill cards costs 1 less Productivity (overcompensates by throwing tools at the problem).
+Effect: Your Action Points are always 2, no matter your level — promoted well past their competence. Picking up Skill cards costs 1 less Productivity (overcompensates by throwing tools at the problem).
 Flavor: "Promoted three times. Still can't find the deploy script."
 PROMPT:
 Scene: A boss stands proudly atop a tall ladder of three stacked promotion plaques, gazing around in visible bewilderment at a glowing terminal window, the deploy script clearly nowhere to be found.
@@ -1020,7 +1020,7 @@ Style: retro corporate-propaganda poster art (matching the box cover) — bold b
 
 ------------------------------------------------------------
 [118] MANAGEMENT · "The Nepotism Hire"
-Effect: +2 Political Capital/round (knows people); Hiring Skill cards costs 1 more Productivity (couldn't approve a headcount request to save their life).
+Effect: +2 Political Capital/round (knows people); Picking up Skill cards costs 1 more Productivity (couldn't approve a headcount request to save their life).
 Flavor: "Turns out the CEO is their uncle. Nobody has said this out loud."
 PROMPT:
 Scene: A relaxed boss figure lounges casually while an ornate family-tree portrait on the wall behind them subtly connects to a shadowy "CEO" silhouette, coworkers exchanging silent knowing glances.
@@ -1100,7 +1100,7 @@ Style: retro corporate-propaganda poster art (matching the box cover) — bold b
 Effect: +2 Political points during the Review to whoever holds this card.
 Flavor: "Has been promotion-ready for six quarters. The ladder is just crowded."
 PROMPT:
-Scene: An eager figure crouches in sprinter's starting blocks at the foot of an endless corporate ladder, a 'PROMOTION READY' sash across their chest, the rungs above hopelessly crowded.
+Scene: An eager figure crouches in sprinter's starting blocks at the foot of an endless corporate ladder, a 'PROMOTION READY' sash across their chest, the levels above hopelessly crowded.
 Style: retro corporate-propaganda poster art (matching the box cover) — bold black ink outlines, halftone screentone shading, worn paper grain, radiating sunburst background, satirical heroic composition, screen-print poster look. Palette: burnt orange, cream, and navy base with an ink-purple/indigo accent, lifted with a warm triumphant gold glow. Format: landscape banner crop (~5:2), no text/logos/watermarks.
 
 ------------------------------------------------------------

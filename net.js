@@ -1,8 +1,8 @@
 /* =============================================================================
- * STACK RANKED — networked play (PeerJS, host-authoritative)
+ * SYNERGY CORP — networked play (PeerJS, host-authoritative)
  * -----------------------------------------------------------------------------
  * Transport + protocol for online play, kept OUT of the rules engine. The game
- * stays host-authoritative: one peer (the host) runs SR.play() and every remote
+ * stays host-authoritative: one peer (the host) runs SC.play() and every remote
  * human answers its turn/decision hooks over a WebRTC DataConnection. Clients
  * are thin renderers of the pushed snapshot and send intents back.
  *
@@ -15,7 +15,7 @@
  * codec, protocol, identity, QR) run headlessly in Node — only the transport
  * (hostRoom/joinRoom) needs a browser + window.Peer.
  *
- * Public surface (window.SRNet / module.exports):
+ * Public surface (window.SCNet / module.exports):
  *   serializeState(s)/reviveState(j)     snapshot codec (card refs -> {__ref}; log/_hooks dropped)
  *   redactFor(state, viewerId) -> string per-viewer snapshot (perfect-info: trim only)
  *   MSG / msg(type,payload) / isValid(m) versioned wire envelope + guard
@@ -32,10 +32,10 @@
 
   var STUN = 'stun:stun.l.google.com:19302';
 
-  function getSR() {
-    if (typeof SR !== 'undefined' && SR) return SR;
-    if (typeof window !== 'undefined' && window.SR) return window.SR;
-    if (typeof globalThis !== 'undefined' && globalThis.SR) return globalThis.SR;
+  function getSC() {
+    if (typeof SC !== 'undefined' && SC) return SC;
+    if (typeof window !== 'undefined' && window.SC) return window.SC;
+    if (typeof globalThis !== 'undefined' && globalThis.SC) return globalThis.SC;
     if (typeof require !== 'undefined') { try { return require('./game.js'); } catch (e) { /* ignore */ } }
     return null;
   }
@@ -44,7 +44,7 @@
    * 1. State codec — fold canonical card defs to {__ref:id}; drop volatile fields
    * ------------------------------------------------------------------------ */
   function serializeState(state) {
-    var defs = (getSR() || {}).DEFS || {};
+    var defs = (getSC() || {}).DEFS || {};
     return JSON.stringify(state, function (key, val) {
       if (key === '_hooks') return undefined;   // functions, not serializable
       if (key === 'log') return undefined;       // large + sent incrementally
@@ -57,7 +57,7 @@
   }
 
   function reviveState(json) {
-    var defs = (getSR() || {}).DEFS || {};
+    var defs = (getSC() || {}).DEFS || {};
     var st = JSON.parse(json, function (key, val) {
       if (val && typeof val === 'object' && typeof val.__ref === 'string') {
         return defs[val.__ref] || { id: val.__ref, name: val.__ref };
@@ -72,14 +72,14 @@
    * host can ship `options`/`candidates` (plain today, but future-proof). */
   function packPayload(obj) { return JSON.parse(serializeAny(obj)); }
   function serializeAny(obj) {
-    var defs = (getSR() || {}).DEFS || {};
+    var defs = (getSC() || {}).DEFS || {};
     return JSON.stringify(obj, function (key, val) {
       if (val && typeof val === 'object' && typeof val.id === 'string' && defs[val.id] === val) return { __ref: val.id };
       return val;
     });
   }
   function unpackPayload(obj) {
-    var defs = (getSR() || {}).DEFS || {};
+    var defs = (getSC() || {}).DEFS || {};
     function walk(v) {
       if (!v || typeof v !== 'object') return v;
       if (typeof v.__ref === 'string') return defs[v.__ref] || v;
@@ -575,7 +575,7 @@
   /* ---------------------------------------------------------------------------
    * 6. Export
    * ------------------------------------------------------------------------ */
-  var SRNet = {
+  var SCNet = {
     STUN: STUN,
     NS: NS,
     PROTO: PROTO,
@@ -604,7 +604,7 @@
     hasBarcodeDetector: (typeof BarcodeDetector !== 'undefined')
   };
 
-  if (typeof module !== 'undefined' && module.exports) module.exports = SRNet;
-  if (typeof window !== 'undefined') window.SRNet = SRNet;
-  if (typeof globalThis !== 'undefined') globalThis.SRNet = SRNet;
+  if (typeof module !== 'undefined' && module.exports) module.exports = SCNet;
+  if (typeof window !== 'undefined') window.SCNet = SCNet;
+  if (typeof globalThis !== 'undefined') globalThis.SCNet = SCNet;
 })();

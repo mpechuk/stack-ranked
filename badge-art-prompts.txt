@@ -1,10 +1,10 @@
-STACK RANKED — COMPLIANCE BADGE ART GENERATION PROMPTS
+SYNERGY CORP — COMPLIANCE BADGE ART GENERATION PROMPTS
 =======================================================
 Generated from badges.json. One image-generation prompt per Compliance Badge —
 i.e. one per Mandatory Training card (see the `trainings` array in cards.json).
 Each Mandatory Training awards its badge when resolved; this file's art fills
 the `image` field of the matching entry in badges.json and is dropped into the
-center of each punch-out token by generate_badges.py (docs/Stack_Ranked_Badges.pdf,
+center of each punch-out token by generate_badges.py (docs/Synergy_Corp_Badges.pdf,
 6 tokens per badge type). Every prompt is preceded by a REFERENCE line
 (badge name, source training, and grant count from badges.json) so you can match
 generated art back to the right badge.

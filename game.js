@@ -1,8 +1,8 @@
 /* =============================================================================
- * STACK RANKED — game engine
+ * SYNERGY CORP — game engine
  * -----------------------------------------------------------------------------
  * A faithful, DOM-free implementation of the rules in
- * docs/STACK_RANKED_GAME_SPEC.md. This module has NO dependency on the browser
+ * docs/SYNERGY_CORP_GAME_SPEC.md. This module has NO dependency on the browser
  * so it can be exercised headlessly in Node for correctness/pacing testing.
  *
  * The UI (index.html) drives it through a small set of async "hooks":
@@ -15,7 +15,7 @@
  *   hooks.onReview(summary)   - a Quarterly Review resolved; show it
  *   hooks.onGameOver(state)   - the game ended
  *
- * All AI decisions are made inside this module (SR.aiTakeTurn / SR.aiDecide)
+ * All AI decisions are made inside this module (SC.aiTakeTurn / SC.aiDecide)
  * so the same brains run in Node tests and in the browser.
  * ========================================================================== */
 (function () {
@@ -155,17 +155,17 @@
       {"name": "The Absentee Boss", "effect": "Gain 1 free Action Point each round. You may not take the Network action — your boss is never around to introduce you to anyone.", "flavor": "Hasn't reviewed a time-off request since the reorg. Or approved one. Or seen one."},
       {"name": "The Credit-Stealing Boss", "effect": "Whenever you complete a Project, lose 1 Career Capital but gain 1 Political Capital (sympathetic coworkers notice).", "flavor": "Presented your work at the all-hands. Used the word ‘we’ a lot. Meant ‘I.’"},
       {"name": "The Chaotic Pivot-Happy Visionary", "effect": "At the start of each Quarter, flip a coin: heads, gain 2 Productivity; tails, discard 1 Skill card.", "flavor": "The strategy changed twice during this sentence."},
-      {"name": "The Yes-Man Exec", "effect": "Hiring Skill cards costs 1 less Productivity (minimum 1). Mandatory Training costs you 2 lost Action Points next round instead of 1.", "flavor": "Agreed with the last three people who talked to him. In the same meeting."},
+      {"name": "The Yes-Man Exec", "effect": "Picking up Skill cards costs 1 less Productivity (minimum 1). Mandatory Training costs you 2 lost Action Points next round instead of 1.", "flavor": "Agreed with the last three people who talked to him. In the same meeting."},
       {"name": "The Actually Supportive Manager", "effect": "Gain 1 Political Capital every Income Phase. No drawback.", "flavor": "Asked how you're doing and waited for the actual answer. Suspicious, but in a good way."},
       {"name": "The Results-at-Any-Cost Boss", "effect": "Overtime grants +1 extra Productivity, but also +1 extra Burnout, on top of its normal effect.", "flavor": "Doesn't care how you hit the number. Cares extremely if you don't."},
       {"name": "The Buzzword Machine", "effect": "Network grants +1 extra Political Capital. Your Projects cost 1 more Productivity — nobody can define the deliverable.", "flavor": "Wants to double-click on synergies before we boil the ocean."},
       {"name": "The Founder Who Refuses to Delegate", "effect": "Gain 1 free Action Point each round. Self-Care costs 2 Action Points instead of 1.", "flavor": "“We're moving fast” has justified everything since 2019."},
-      {"name": "The Tenure-Not-Talent Manager", "effect": "Compliance Badges count double toward promotion requirements. Hiring Skill cards costs 1 more Productivity.", "flavor": "Been here 14 years. Still can't use the new expense software."},
+      {"name": "The Tenure-Not-Talent Manager", "effect": "Compliance Badges count double toward promotion requirements. Picking up Skill cards costs 1 more Productivity.", "flavor": "Been here 14 years. Still can't use the new expense software."},
       {"name": "The Seagull Manager", "effect": "At the start of each Quarter, flip a coin: heads, every other player gains 1 Burnout — you swooped in and stirred things up; tails, you gain 1 Political Capital — you flew off before anyone noticed.", "flavor": "Flies in, makes a lot of noise, craps on the roadmap, and is gone before the retro."},
       {"name": "The Mushroom Manager", "effect": "+2 Productivity/round (fed on nothing, somehow still growing); −1 Political Capital/round (kept in the dark — nobody tells you anything).", "flavor": "Kept in the dark and fed manure. Thriving, weirdly."},
-      {"name": "The Peter Principle", "effect": "Your Action Points are always 2, no matter your rung — promoted well past their competence. Hiring Skill cards costs 1 less Productivity (overcompensates by throwing tools at the problem).", "flavor": "Promoted three times. Still can't find the deploy script."},
+      {"name": "The Peter Principle", "effect": "Your Action Points are always 2, no matter your level — promoted well past their competence. Picking up Skill cards costs 1 less Productivity (overcompensates by throwing tools at the problem).", "flavor": "Promoted three times. Still can't find the deploy script."},
       {"name": "The Always-On Boss", "effect": "Overtime grants +1 extra Burnout, on top of its normal effect (always expects a same-night reply). Self-Care costs 2 Action Points instead of 1 (there's no such thing as fully logging off).", "flavor": "Texts you at 11 PM. Reacts with a 👍 to your out-of-office reply."},
-      {"name": "The Nepotism Hire", "effect": "+2 Political Capital/round (knows people); Hiring Skill cards costs 1 more Productivity (couldn't approve a headcount request to save their life).", "flavor": "Turns out the CEO is their uncle. Nobody has said this out loud."},
+      {"name": "The Nepotism Hire", "effect": "+2 Political Capital/round (knows people); Picking up Skill cards costs 1 more Productivity (couldn't approve a headcount request to save their life).", "flavor": "Turns out the CEO is their uncle. Nobody has said this out loud."},
       {"name": "The Consultant Turned Manager", "effect": "Your Projects cost 1 less Productivity (loves a framework for everything); −1 Political Capital/round (nobody trusts the person who charges by the hour).", "flavor": "Drew a 2x2 matrix. Nobody asked for the 2x2 matrix."}
     ],
     "feedback": [
@@ -193,11 +193,11 @@
   /* ---------------------------------------------------------------------------
    * 2. Constants
    * ------------------------------------------------------------------------ */
-  const RUNG_NAMES = ["Intern", "Software Engineer", "Team Lead", "Manager", "Director", "VP", "CEO"];
-  const AP_BY_RUNG = [2, 2, 3, 3, 4, 4, 4];
+  const LEVEL_NAMES = ["Intern", "Software Engineer", "Team Lead", "Manager", "Director", "VP", "CEO"];
+  const AP_BY_LEVEL = [2, 2, 3, 3, 4, 4, 4];
   const CC_THRESHOLD = { 1: 8, 2: 18, 3: 30, 4: 44, 5: 60, 6: 78 };
   const BADGE_REQ = { 4: 2, 5: 4 };
-  const CEO_RUNG = 6;
+  const CEO_LEVEL = 6;
   const CEO_CC_BAR = 78;
   const BURNOUT_MAX = 10;
   const BURNOUT_CRISIS_RESET = 6;
@@ -209,10 +209,10 @@
 
   /* Rule toggles + tuning knobs for the two variant rules (Feedback deck and
    * Collaborative Projects). Defaults ON. Every numeric here is a balance dial
-   * exercised by the Monte-Carlo harness (stack_ranked_montecarlo.js); the
+   * exercised by the Monte-Carlo harness (synergy_corp_montecarlo.js); the
    * values below are the tuned defaults that harness settled on. */
   const DEFAULT_RULES = {
-    // Tuned defaults, validated by stack_ranked_montecarlo.js (see docs §9.9/§9.10).
+    // Tuned defaults, validated by synergy_corp_montecarlo.js (see docs §9.9/§9.10).
     feedback: true,          // deal ±2 Feedback cards at each Review
     feedbackMode: 'classic', // 'classic' — deal ONE card each, keep-or-give [default]
                              // 'give-one' — "360° Review": deal one Positive + one
@@ -225,7 +225,7 @@
     feedbackTarget: 'score', // who AI dumps constructive cards on:
                              //   'score' — whoever tops THIS Review (self-balancing vs the PC
                              //             strategy; BEST archetype balance) [default]
-                             //   'rung'  — the ladder / Career-Capital leader (STRONGER comeback,
+                             //   'level'  — the ladder / Career-Capital leader (STRONGER comeback,
                              //             at some archetype-balance cost — "aggressive rubber-band")
                              //   'blend'/'spread' — hybrids (see feedbackNegTarget)
     feedbackBlendPcWeight: 6,// PC weight when blending CC+PC for 'blend'/'spread' targeting
@@ -288,17 +288,17 @@
     "the-absentee-boss": { freeAp: 1, noNetwork: true },
     "the-credit-stealing-boss": { onProjectComplete: { cc: -1, pc: 1 } },
     "the-chaotic-pivot-happy-visionary": { quarterCoin: true },
-    "the-yes-man-exec": { skillHireDelta: -1, trainingApCost: 2 },
+    "the-yes-man-exec": { skillPickUpDelta: -1, trainingApCost: 2 },
     "the-actually-supportive-manager": { pcPerIncome: 1 },
     "the-results-at-any-cost-boss": { overtimeExtraP: 1, overtimeExtraBurnout: 1 },
     "the-buzzword-machine": { networkExtraPc: 1, projectCostDelta: 1 },
     "the-founder-who-refuses-to-delegate": { freeAp: 1, selfCareApCost: 2 },
-    "the-tenure-not-talent-manager": { badgesCountDouble: true, skillHireDelta: 1 },
+    "the-tenure-not-talent-manager": { badgesCountDouble: true, skillPickUpDelta: 1 },
     "the-seagull-manager": { seagullQuarterCoin: true },
     "the-mushroom-manager": { pPerIncome: 2, pcPerIncome: -1 },
-    "the-peter-principle": { apFixed: 2, skillHireDelta: -1 },
+    "the-peter-principle": { apFixed: 2, skillPickUpDelta: -1 },
     "the-always-on-boss": { overtimeExtraBurnout: 1, selfCareApCost: 2 },
-    "the-nepotism-hire": { pcPerIncome: 2, skillHireDelta: 1 },
+    "the-nepotism-hire": { pcPerIncome: 2, skillPickUpDelta: 1 },
     "the-consultant-turned-manager": { projectCostDelta: -1, pcPerIncome: -1 }
   };
 
@@ -403,7 +403,7 @@
       kind: cfg.kind,               // 'human' | 'ai'
       archetype: cfg.archetype || "balanced",
       seat: index,
-      rung: 0,
+      level: 0,
       productivity: 0,
       politicalCapital: 0,
       burnout: 0,
@@ -540,7 +540,7 @@
   // Rough "how good is this boss for me?" score (positive = helpful). Used by the
   // AI to decide whether to Request a Transfer and which of two candidates to keep,
   // and by the UI to hint at a swap. Deliberately heuristic — manager effects are
-  // heterogeneous and contextual (rung, archetype), so this only needs to be good
+  // heterogeneous and contextual (level, archetype), so this only needs to be good
   // enough to leave a clearly-bad boss and pick the better of two.
   function managerValue(player, mgrDef) {
     if (!mgrDef) return 0;
@@ -549,12 +549,12 @@
     let v = 0;
     // Action-point economy
     if (m.freeAp) v += m.freeAp * 2.0;
-    if (m.apFixed != null) v += (m.apFixed - AP_BY_RUNG[player.rung]) * 1.5;
+    if (m.apFixed != null) v += (m.apFixed - AP_BY_LEVEL[player.level]) * 1.5;
     // Income (per round)
     if (m.pcPerIncome) v += m.pcPerIncome * w.pc * 0.8;
     if (m.pPerIncome) v += m.pPerIncome * w.p * 0.8;
     // Costs — a positive delta is a penalty
-    if (m.skillHireDelta) v -= m.skillHireDelta * 1.0;
+    if (m.skillPickUpDelta) v -= m.skillPickUpDelta * 1.0;
     if (m.projectCostDelta) v -= m.projectCostDelta * 1.2;
     if (m.selfCareApCost) v -= (m.selfCareApCost - 1) * 0.6;
     if (m.trainingApCost) v -= (m.trainingApCost - 1) * 0.4;
@@ -568,8 +568,8 @@
     if (m.forceFirstActionProject) v -= 1.5;
     if (m.quarterCoin) v -= 1.0;            // 50% chance to discard a Skill
     if (m.seagullQuarterCoin) v += 0.3;     // mild net-positive for the holder
-    // Compliance badges only pay off near the rung 4-5 gates
-    if (m.badgesCountDouble) v += player.rung >= 3 ? 1.0 : 0.2;
+    // Compliance badges only pay off near the level 4-5 gates
+    if (m.badgesCountDouble) v += player.level >= 3 ? 1.0 : 0.2;
     // Credit-Stealing Boss: CC drain per project taxes the promotion gate
     if (m.onProjectComplete) {
       v += (m.onProjectComplete.cc || 0) * w.cc * 0.5;
@@ -579,8 +579,8 @@
   }
   function hasSkill(player, id) { return player.tableau.some(function (c) { return c.id === id; }); }
   function skillCount(player) { return player.tableau.length; }
-  function leaderRung(state) { return Math.max.apply(null, state.players.map(function (p) { return p.rung; })); }
-  // The player closest to winning (rung, then Career Capital, then Political
+  function leaderLevel(state) { return Math.max.apply(null, state.players.map(function (p) { return p.level; })); }
+  // The player closest to winning (level, then Career Capital, then Political
   // Capital) — the natural target for negative Feedback and the player barred
   // from recruiting collaborators when catch-up gating is on.
   function threatLeader(state, excludeId) {
@@ -588,7 +588,7 @@
     state.players.forEach(function (p) {
       if (excludeId && p.id === excludeId) return;
       if (!best) { best = p; return; }
-      if (p.rung !== best.rung) { if (p.rung > best.rung) best = p; return; }
+      if (p.level !== best.level) { if (p.level > best.level) best = p; return; }
       if (p.careerCapital !== best.careerCapital) { if (p.careerCapital > best.careerCapital) best = p; return; }
       if (p.politicalCapital > best.politicalCapital) best = p;
     });
@@ -597,9 +597,9 @@
   // Where a rational player sends a constructive-feedback card. 'score' targets
   // whoever is about to top THIS Review (provisional Review Score = CC gained
   // this Quarter + PC − tasks on hand), which naturally lands on the political
-  // front-runner; 'rung' targets the ladder/Career-Capital leader.
+  // front-runner; 'level' targets the ladder/Career-Capital leader.
   function feedbackNegTarget(state, giverId) {
-    if (state.rules.feedbackTarget === 'rung') return threatLeader(state, giverId);
+    if (state.rules.feedbackTarget === 'level') return threatLeader(state, giverId);
     const mode = state.rules.feedbackTarget;
     const kPc = state.rules.feedbackBlendPcWeight != null ? state.rules.feedbackBlendPcWeight : 2;
     let best = null, bestScore = -Infinity;
@@ -628,9 +628,9 @@
   function effectiveBadges(player) {
     return player.complianceBadges * (mm(player).badgesCountDouble ? 2 : 1);
   }
-  function meetsRequirement(player, targetRung) {
-    if (BADGE_REQ[targetRung] && effectiveBadges(player) < BADGE_REQ[targetRung]) return false;
-    return player.careerCapital >= CC_THRESHOLD[targetRung];
+  function meetsRequirement(player, targetLevel) {
+    if (BADGE_REQ[targetLevel] && effectiveBadges(player) < BADGE_REQ[targetLevel]) return false;
+    return player.careerCapital >= CC_THRESHOLD[targetLevel];
   }
 
   /* ---------------------------------------------------------------------------
@@ -678,8 +678,8 @@
   /* ---------------------------------------------------------------------------
    * 11. Cost calculators
    * ------------------------------------------------------------------------ */
-  function effectiveHireCost(player, card) {
-    let c = card.cost + (mm(player).skillHireDelta || 0);
+  function effectivePickUpCost(player, card) {
+    let c = card.cost + (mm(player).skillPickUpDelta || 0);
     return Math.max(1, c);
   }
   function effectiveProjectCost(player, slot) {
@@ -983,14 +983,14 @@
     return contributeToProject(state, contributor, owner, backlogIndex, amount != null ? amount : Math.min(contributor.productivity, need));
   }
 
-  function doHire(state, player, boardIndex) {
+  function doPickUp(state, player, boardIndex) {
     const card = state.jobBoard[boardIndex];
     if (!card) return { ok: false, reason: "No card there." };
-    const cost = effectiveHireCost(player, card);
+    const cost = effectivePickUpCost(player, card);
     if (player.productivity < cost) return { ok: false, reason: "Not enough Productivity." };
     const meta = SKILL_META[card.id] || {};
 
-    // Ships It Friday needs an affordable target project or its hire is pointless.
+    // Ships It Friday needs an affordable target project or picking it up is pointless.
     if (meta.oneShot === "shipsItFriday") {
       const hasTarget = state.kanbanBoard.some(function (slot) {
         return slot.card && player.productivity - cost >= Math.max(1, Math.ceil(slot.card.cost / 2));
@@ -1004,7 +1004,7 @@
     if (card.type === "Permanent") {
       player.tableau.push(card);
       if (meta.immuneToDemotion) player.immuneToDemotion = true;
-      log(state, player.name + " hires “" + card.name + "” for " + cost + " P.", "action");
+      log(state, player.name + " picks up “" + card.name + "” for " + cost + " P.", "action");
       return { ok: true };
     }
 
@@ -1149,7 +1149,7 @@
   function beginTurn(state, player) {
     player.overtimeUsedThisRound = false;
     const m = mm(player);
-    const baseAp = m.apFixed != null ? m.apFixed : AP_BY_RUNG[player.rung];
+    const baseAp = m.apFixed != null ? m.apFixed : AP_BY_LEVEL[player.level];
     let ap = baseAp + (m.freeAp || 0) - (player.trainingApPenaltyNextRound || 0);
     player.trainingApPenaltyNextRound = 0;
     if (ap < 0) ap = 0;
@@ -1236,7 +1236,7 @@
       log(state, "IT Outage: the Income Phase is skipped for everyone this round.", "event");
       return;
     }
-    const lead = leaderRung(state);
+    const lead = leaderLevel(state);
     state.players.forEach(function (p) {
       let dp = 0, dpc = 0, dbr = 0;
       p.tableau.forEach(function (c) {
@@ -1247,7 +1247,7 @@
       if (m.pcPerIncome) dpc += m.pcPerIncome;
       if (m.pPerIncome) dp += m.pPerIncome;
       dp += 1; // "showed up" bonus
-      if (lead - p.rung >= 2) { dpc += 1; }
+      if (lead - p.level >= 2) { dpc += 1; }
       p.productivity = Math.max(0, p.productivity + dp);
       p.politicalCapital = Math.max(0, p.politicalCapital + dpc);
       if (dbr > 0) addBurnout(state, p, dbr, "round");
@@ -1871,7 +1871,7 @@
       reviewNumber: state.reviewCount, round: state.roundNumber,
       rows: players.map(function (p) {
         return { id: p.id, name: p.name, score: score[p.id], ccGained: p.careerCapital - p.quarterMarker,
-          pc: p.politicalCapital, feedback: (fb[p.id] || 0), burnout: p.burnout, tasksOnHand: p.backlog.length, rungBefore: p.rung, rungAfter: p.rung };
+          pc: p.politicalCapital, feedback: (fb[p.id] || 0), burnout: p.burnout, tasksOnHand: p.backlog.length, levelBefore: p.level, levelAfter: p.level };
       }),
       newCeoId: null, promotedIds: [], demotedIds: [], pipIds: [], eoqIds: []
     };
@@ -1880,7 +1880,7 @@
 
     // Step 2 — CEO Board Vote (independent of Review Score; resolve first)
     let newCeo = null;
-    const ceoCandidates = players.filter(function (p) { return p.rung === 5 && p.careerCapital >= CEO_CC_BAR; });
+    const ceoCandidates = players.filter(function (p) { return p.level === 5 && p.careerCapital >= CEO_CC_BAR; });
     if (ceoCandidates.length === 1) newCeo = ceoCandidates[0];
     else if (ceoCandidates.length > 1) {
       // Feedback counts as political points here too — a well-placed
@@ -1892,8 +1892,8 @@
       })[0];
     }
     if (newCeo) {
-      newCeo.rung = CEO_RUNG;
-      rowById[newCeo.id].rungAfter = CEO_RUNG;
+      newCeo.level = CEO_LEVEL;
+      rowById[newCeo.id].levelAfter = CEO_LEVEL;
       summary.newCeoId = newCeo.id;
       log(state, "👑 CEO BOARD VOTE: " + newCeo.name + " is promoted to CEO!", "win");
       if (state.variant === "race-to-ceo") {
@@ -1904,7 +1904,7 @@
 
     // Step 3 — Standard Promotions (eligible-first, then rank by score)
     const eligible = players.filter(function (p) {
-      return p.rung < 5 && p !== newCeo && meetsRequirement(p, p.rung + 1);
+      return p.level < 5 && p !== newCeo && meetsRequirement(p, p.level + 1);
     }).sort(function (a, b) {
       if (score[b.id] !== score[a.id]) return score[b.id] - score[a.id];
       if (b.careerCapital !== a.careerCapital) return b.careerCapital - a.careerCapital;
@@ -1914,13 +1914,12 @@
     const promotedSet = new Set(promoted.map(function (p) { return p.id; }));
 
     promoted.forEach(function (p) {
-      // Exactly one rung per Review — a player must climb the ladder one level
-      // at a time and can never skip a rung, no matter how high their score.
-      p.rung += 1;
-      if (p.rung === 5 && p.firstVpReviewNumber == null) p.firstVpReviewNumber = state.reviewCount;
-      rowById[p.id].rungAfter = p.rung;
+      // Exactly one level per Review — never more, no matter how high their score.
+      p.level += 1;
+      if (p.level === 5 && p.firstVpReviewNumber == null) p.firstVpReviewNumber = state.reviewCount;
+      rowById[p.id].levelAfter = p.level;
       summary.promotedIds.push(p.id);
-      log(state, "⬆️ " + p.name + " is promoted to " + RUNG_NAMES[p.rung] + ".", "promote");
+      log(state, "⬆️ " + p.name + " is promoted to " + LEVEL_NAMES[p.level] + ".", "promote");
     });
 
     // Eligible but no slot: Employee of the Quarter consolation
@@ -1952,17 +1951,17 @@
           return;
         }
         p.hasPip = false;
-        if (p.rung === 0) {
+        if (p.level === 0) {
           p.skipActionRounds = Math.max(p.skipActionRounds, 3);
           summary.demotedIds.push(p.id);
           log(state, "⬇️ " + p.name + " enters Freelance Purgatory (skips the next Quarter).", "demote");
         } else {
-          p.rung -= 1;
-          rowById[p.id].rungAfter = p.rung;
+          p.level -= 1;
+          rowById[p.id].levelAfter = p.level;
           redrawManagement(state, p);
           syncImmunity(p);
           summary.demotedIds.push(p.id);
-          log(state, "⬇️ " + p.name + " is DEMOTED to " + RUNG_NAMES[p.rung] + ".", "demote");
+          log(state, "⬇️ " + p.name + " is DEMOTED to " + LEVEL_NAMES[p.level] + ".", "demote");
         }
       } else {
         p.hasPip = true;
@@ -1986,10 +1985,10 @@
    * 16. End-of-game scoring
    * ------------------------------------------------------------------------ */
   function finalScore(p) {
-    return (p.rung * 10) + (p.careerCapital / 2) + p.politicalCapital - p.burnout + (5 * p.employeeOfQuarterTokens);
+    return (p.level * 10) + (p.careerCapital / 2) + p.politicalCapital - p.burnout + (5 * p.employeeOfQuarterTokens);
   }
   function computeStandings(state) {
-    return state.players.map(function (p) { return { id: p.id, name: p.name, rung: p.rung, score: finalScore(p) }; })
+    return state.players.map(function (p) { return { id: p.id, name: p.name, level: p.level, score: finalScore(p) }; })
       .sort(function (a, b) { return b.score - a.score; });
   }
   function finalizeLongGame(state) {
@@ -2011,7 +2010,7 @@
     cautious:   { p: 1.0, pc: 1.0, cc: 1.9, net: 1.5, selfCareAt: 4, overtime: false, label: "Cautious" }
   };
 
-  function skillHireValue(state, player, card, w) {
+  function skillPickUpValue(state, player, card, w) {
     const meta = SKILL_META[card.id] || {};
     if (card.type !== "Permanent") {
       // AI only bothers with one Exit Interview when very burnt out.
@@ -2020,12 +2019,12 @@
     }
     if (meta.immuneToDemotion || meta.fixerPcOnOthersCrisis) {
       // Situationally handy but hard for a greedy bot to value; skip unless senior.
-      return player.rung >= 4 ? 2.5 : -Infinity;
+      return player.level >= 4 ? 2.5 : -Infinity;
     }
     let v = (meta.p || 0) * w.p + (meta.pc || 0) * w.pc;
     if (v <= 0) return -Infinity;
     v -= (meta.burnout || 0) * 0.8;
-    v -= effectiveHireCost(player, card) * 0.15;
+    v -= effectivePickUpCost(player, card) * 0.15;
     // Encourage building an engine early.
     if (skillCount(player) < 4) v += 0.6;
     return v;
@@ -2087,8 +2086,8 @@
       let bestSkill = -1, bestSkillVal = -Infinity;
       state.jobBoard.forEach(function (card, i) {
         if (!card) return;
-        if (player.productivity < effectiveHireCost(player, card)) return;
-        const v = skillHireValue(state, player, card, w);
+        if (player.productivity < effectivePickUpCost(player, card)) return;
+        const v = skillPickUpValue(state, player, card, w);
         if (v > bestSkillVal) { bestSkillVal = v; bestSkill = i; }
       });
 
@@ -2134,7 +2133,7 @@
       } else if (best === collabVal && collab) {
         contributeToProject(state, player, collab.sp.owner, collab.sp.backlogIndex, collab.pay); ap -= 1;
       } else if (best === bestSkillVal && bestSkill >= 0) {
-        const r = doHire(state, player, bestSkill); ap -= 1;
+        const r = doPickUp(state, player, bestSkill); ap -= 1;
         if (r.pending === "shipsItFriday") {
           const p2 = pickBestHalfProject(state, player);
           if (p2 >= 0) applyShipsItFriday(state, player, p2);
@@ -2297,7 +2296,7 @@
   /* ---------------------------------------------------------------------------
    * 19. Public API
    * ------------------------------------------------------------------------ */
-  const SR = {
+  const SC = {
     CARDS: CARDS,
     DEFS: DEFS,
     SKILL_META: SKILL_META,
@@ -2305,7 +2304,7 @@
     TRAINING_META: TRAINING_META,
     ARCH: ARCH,
     constants: {
-      RUNG_NAMES: RUNG_NAMES, AP_BY_RUNG: AP_BY_RUNG, CC_THRESHOLD: CC_THRESHOLD,
+      LEVEL_NAMES: LEVEL_NAMES, AP_BY_LEVEL: AP_BY_LEVEL, CC_THRESHOLD: CC_THRESHOLD,
       BADGE_REQ: BADGE_REQ, CEO_CC_BAR: CEO_CC_BAR, LONG_GAME_ROUNDS: LONG_GAME_ROUNDS
     },
     newGame: newGame,
@@ -2314,7 +2313,7 @@
     aiDecide: aiDecide,
     // action functions for the UI
     actions: {
-      hire: doHire,
+      pickUp: doPickUp,
       workProject: doWorkProject,
       network: doNetwork,
       selfCare: doSelfCare,
@@ -2327,7 +2326,7 @@
     },
     helpers: {
       beginTurn: beginTurn,
-      effectiveHireCost: effectiveHireCost,
+      effectivePickUpCost: effectivePickUpCost,
       effectiveProjectCost: effectiveProjectCost,
       effectiveBacklogItemCost: effectiveBacklogItemCost,
       selfCareApCost: selfCareApCost,
@@ -2339,7 +2338,7 @@
       skillCount: skillCount,
       meetsRequirement: meetsRequirement,
       effectiveBadges: effectiveBadges,
-      leaderRung: leaderRung,
+      leaderLevel: leaderLevel,
       turnOrder: turnOrder,
       firstPlayer: firstPlayer,
       finalScore: finalScore,
@@ -2359,7 +2358,7 @@
     }
   };
 
-  if (typeof module !== "undefined" && module.exports) module.exports = SR;
-  if (typeof window !== "undefined") window.SR = SR;
-  if (typeof globalThis !== "undefined") globalThis.SR = SR;
+  if (typeof module !== "undefined" && module.exports) module.exports = SC;
+  if (typeof window !== "undefined") window.SC = SC;
+  if (typeof globalThis !== "undefined") globalThis.SC = SC;
 })();

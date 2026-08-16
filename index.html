@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Stack Ranked — Game Simulator</title>
-<meta name="description" content="A playable browser simulator of Stack Ranked, the engine-building corporate-ladder game. Play against AI or hot-seat, race to CEO." />
+<title>Synergy Corp — Game Simulator</title>
+<meta name="description" content="A playable browser simulator of Synergy Corp, the engine-building corporate-ladder game. Play against AI or hot-seat, race to CEO." />
 <style>
   :root {
     --bg: #0e1116;
@@ -127,9 +127,9 @@
   .pcard .kind { font-size: 10px; }
   .kind.human { color: var(--accent); border-color: #2f4d80; background: #12203a; }
   .kind.ai { color: var(--accent-2); border-color: #1f4b48; background: #0f2321; }
-  .rung-line { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px; }
-  .rung-name { font-weight: 600; }
-  .rung-name.ceo { color: var(--cc); }
+  .level-line { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px; }
+  .level-name { font-weight: 600; }
+  .level-name.ceo { color: var(--cc); }
   .cc-big { font-family: var(--mono); font-size: 13px; color: var(--cc); }
   .bar { height: 6px; background: #0b0f14; border-radius: 999px; overflow: hidden; border: 1px solid var(--line); }
   .bar > i { display: block; height: 100%; border-radius: 999px; }
@@ -353,7 +353,7 @@
 <!-- ============================ SETUP ============================ -->
 <div id="setup">
   <div class="brand">
-    <h1>STACK RANKED</h1>
+    <h1>SYNERGY CORP</h1>
     <div class="sub">A Game of Corporate Ascension</div>
   </div>
 
@@ -555,10 +555,10 @@
 <script>
 (function () {
   "use strict";
-  var SR = window.SR;
-  var SRNet = window.SRNet;
-  var C = SR.constants;
-  var H = SR.helpers;
+  var SC = window.SC;
+  var SCNet = window.SCNet;
+  var C = SC.constants;
+  var H = SC.helpers;
 
   var UI = {
     activeState: null, config: null, hasHuman: false,
@@ -578,7 +578,7 @@
   };
 
   var FONT_SIZES = { small: "85%", normal: "100%", large: "115%", xlarge: "130%" };
-  var FONT_SIZE_KEY = "sr-font-size";
+  var FONT_SIZE_KEY = "sc-font-size";
   function applyFontSize(key) {
     if (!FONT_SIZES[key]) key = "normal";
     document.documentElement.style.zoom = FONT_SIZES[key];
@@ -696,7 +696,7 @@
     UI.autoAdvanceReview = false;
     UI.hasHuman = config.players.some(function (p) { return p.kind === "human"; });
     UI.speed = $("speedSel").value;
-    var state = SR.newGame(config);
+    var state = SC.newGame(config);
     UI.activeState = state;
     UI.turn = null;
     $("inviteBtn").style.display = "none";
@@ -704,7 +704,7 @@
     $("game").style.display = "flex";
     $("log").innerHTML = "";
     renderAll();
-    SR.play(state, makeHooks(state));
+    SC.play(state, makeHooks(state));
   }
 
   $("newGameBtn").addEventListener("click", function () {
@@ -805,49 +805,49 @@
     if (act === "work") {
       var item = p.backlog[idx];
       if (ctx.ap < 1 || !item || p.productivity < H.effectiveBacklogItemCost(p, item)) return { ok: false };
-      var r = SR.actions.workProject(s, p, idx);
+      var r = SC.actions.workProject(s, p, idx);
       if (r.ok) { ctx.ap -= 1; ctx.mustProjectFirst = false; }
       return { ok: !!r.ok };
     }
-    if (act === "hire") {
+    if (act === "pickup") {
       if (ctx.ap < 1 || ctx.mustProjectFirst) return { ok: false };
       var card = s.jobBoard[idx];
-      if (!card || p.productivity < H.effectiveHireCost(p, card)) return { ok: false };
-      var hr = SR.actions.hire(s, p, idx);
+      if (!card || p.productivity < H.effectivePickUpCost(p, card)) return { ok: false };
+      var hr = SC.actions.pickUp(s, p, idx);
       if (hr.ok) { ctx.ap -= 1; return { ok: true, pending: hr.pending }; }
       return { ok: false };
     }
     if (act === "network") {
       if (ctx.ap < 1 || ctx.mustProjectFirst) return { ok: false };
-      if (SR.actions.network(s, p).ok) { ctx.ap -= 1; return { ok: true }; }
+      if (SC.actions.network(s, p).ok) { ctx.ap -= 1; return { ok: true }; }
       return { ok: false };
     }
     if (act === "selfcare") {
       var cost = H.selfCareApCost(p);
       if (ctx.ap < cost || ctx.mustProjectFirst) return { ok: false };
-      if (SR.actions.selfCare(s, p).ok) { ctx.ap -= cost; return { ok: true }; }
+      if (SC.actions.selfCare(s, p).ok) { ctx.ap -= cost; return { ok: true }; }
       return { ok: false };
     }
     if (act === "overtime") {
       if (p.overtimeUsedThisRound || ctx.mustProjectFirst) return { ok: false };
-      var ot = SR.actions.overtime(s, p);
+      var ot = SC.actions.overtime(s, p);
       if (ot.ok) { ctx.ap += ot.grantAp; return { ok: true }; }
       return { ok: false };
     }
     if (act === "share") {
       // Toggling collaboration is free (no AP); allowed any time on your turn.
-      SR.actions.shareProject(s, p, idx);
+      SC.actions.shareProject(s, p, idx);
       return { ok: true };
     }
     if (act === "contribute") {
       if (ctx.ap < 1 || ctx.mustProjectFirst) return { ok: false };
-      var cr = SR.actions.contribute(s, p, owner, idx);
+      var cr = SC.actions.contribute(s, p, owner, idx);
       if (cr.ok) { ctx.ap -= 1; return { ok: true }; }
       return { ok: false };
     }
     if (act === "switchmgr") {
       if (ctx.ap < 1 || ctx.mustProjectFirst || p._transferUsedThisQuarter) return { ok: false };
-      var sm = SR.actions.switchManager(s, p);
+      var sm = SC.actions.switchManager(s, p);
       if (sm.ok) { ctx.ap -= 1; return { ok: true, pending: sm.pending }; }
       return { ok: false };
     }
@@ -919,7 +919,7 @@
 
   function openShipsModal(player) {
     return showShipsChoice(player).then(function (i) {
-      SR.actions.applyShipsItFriday(UI.activeState, player, i);
+      SC.actions.applyShipsItFriday(UI.activeState, player, i);
       hideModal(); renderAll(); hostBroadcastIfHosting(); maybeAutoEnd();
     });
   }
@@ -936,7 +936,7 @@
     return showDecision({ action: "chooseManager", playerId: player.id,
       prompt: "Choose your new manager", candidates: cands,
       options: cands.map(function (c) { return { key: c.id, label: c.name }; }) }).then(function (id) {
-      SR.actions.chooseManager(UI.activeState, player, id);
+      SC.actions.chooseManager(UI.activeState, player, id);
       hideModal(); renderAll(); hostBroadcastIfHosting(); maybeAutoEnd();
     });
   }
@@ -978,20 +978,20 @@
   }
 
   function renderPlayers(s) {
-    var lead = H.leaderRung(s);
+    var lead = H.leaderLevel(s);
     var host = $("players"); host.innerHTML = "";
     s.players.forEach(function (p) {
-      var card = el("div", "pcard" + (p.id === s.activePlayerId ? " active" : "") + (p.rung === lead && p.rung > 0 ? " leader" : ""));
-      // rung + CC progress
-      var nextRung = Math.min(p.rung + 1, 6);
-      var thr = C.CC_THRESHOLD[nextRung] || C.CC_THRESHOLD[6];
-      var pct = p.rung >= 6 ? 100 : Math.max(0, Math.min(100, (p.careerCapital / thr) * 100));
-      var badgeReq = C.BADGE_REQ[nextRung];
+      var card = el("div", "pcard" + (p.id === s.activePlayerId ? " active" : "") + (p.level === lead && p.level > 0 ? " leader" : ""));
+      // level + CC progress
+      var nextLevel = Math.min(p.level + 1, 6);
+      var thr = C.CC_THRESHOLD[nextLevel] || C.CC_THRESHOLD[6];
+      var pct = p.level >= 6 ? 100 : Math.max(0, Math.min(100, (p.careerCapital / thr) * 100));
+      var badgeReq = C.BADGE_REQ[nextLevel];
       var burnPct = (p.burnout / 10) * 100;
       var gain = p.careerCapital - p.quarterMarker;
       // Bar spans 0 → CC still needed since the last review to hit the promotion threshold.
       var gainNeeded = thr - p.quarterMarker;
-      var gainPct = p.rung >= 6 ? 100
+      var gainPct = p.level >= 6 ? 100
         : gainNeeded <= 0 ? (p.careerCapital >= thr ? 100 : 0)
         : Math.max(0, Math.min(100, (gain / gainNeeded) * 100));
       var gainLabel = (gain >= 0 ? "+" : "") + gain + " CC";
@@ -1019,18 +1019,18 @@
       }
 
       var chips = p.tableau.length ? p.tableau.map(function (cd) {
-        var meta = SR.SKILL_META[cd.id] || {};
+        var meta = SC.SKILL_META[cd.id] || {};
         return '<span class="' + chipClass(meta) + '" title="' + esc(cd.effect) + '">' + esc(cd.name) + "</span>";
       }).join("") : '<span class="no-skills">no skills yet</span>';
 
       var ms = p.managementStyle;
-      var ccToNext = p.rung >= 6 ? "CEO — maxed" :
+      var ccToNext = p.level >= 6 ? "CEO — maxed" :
         (p.careerCapital + " / " + thr + " CC" + (badgeReq ? "  ·  " + H.effectiveBadges(p) + "/" + badgeReq + " badges" : ""));
 
       card.innerHTML =
         '<div class="phead"><span class="pname">' + esc(p.name) + "</span>" +
-          '<span class="tag kind ' + p.kind + '">' + (p.kind === "human" ? "Human" : "AI · " + (SR.ARCH[p.archetype] ? SR.ARCH[p.archetype].label : p.archetype)) + "</span></div>" +
-        '<div class="rung-line"><span class="rung-name' + (p.rung === 6 ? " ceo" : "") + '">' + esc(C.RUNG_NAMES[p.rung]) + "</span>" +
+          '<span class="tag kind ' + p.kind + '">' + (p.kind === "human" ? "Human" : "AI · " + (SC.ARCH[p.archetype] ? SC.ARCH[p.archetype].label : p.archetype)) + "</span></div>" +
+        '<div class="level-line"><span class="level-name' + (p.level === 6 ? " ceo" : "") + '">' + esc(C.LEVEL_NAMES[p.level]) + "</span>" +
           '<span class="cc-big">' + p.careerCapital + " CC</span></div>" +
         '<div class="bar-name cc">Career Capital</div>' +
         '<div class="bar cc-bar"><i style="width:' + pct + '%"></i></div>' +
@@ -1060,8 +1060,8 @@
     var host = $("jobBoard"); host.innerHTML = "";
     s.jobBoard.forEach(function (card, i) {
       if (!card) { host.appendChild(el("div", "gcard empty", "—")); return; }
-      var meta = SR.SKILL_META[card.id] || {};
-      var cost = v ? H.effectiveHireCost(v, card) : card.cost;
+      var meta = SC.SKILL_META[card.id] || {};
+      var cost = v ? H.effectivePickUpCost(v, card) : card.cost;
       var afford = v && v.productivity >= cost;
       var isOne = card.type === "One-Shot";
       var canBuy = UI.turn && UI.turn.active && v && !UI.turn.mustProjectFirst && UI.turn.ap >= 1 && afford;
@@ -1073,7 +1073,7 @@
         '<div class="ce">' + esc(card.effect) + "</div>" +
         '<div class="cf">' + esc(card.flavor) + "</div>" +
         '<div class="crow"><span class="cost">' + costHtml + "</span>" +
-          (v ? '<button data-act="hire" data-idx="' + i + '"' + (canBuy ? "" : " disabled") + ">Hire</button>" : "") + "</div>";
+          (v ? '<button data-act="pickup" data-idx="' + i + '"' + (canBuy ? "" : " disabled") + ">Pick up</button>" : "") + "</div>";
       host.appendChild(g);
     });
   }
@@ -1170,7 +1170,7 @@
       }
       host.innerHTML =
         '<div class="turn-who">▸ ' + esc(p.name) + "'s turn</div>" +
-        '<div class="dim">' + esc(C.RUNG_NAMES[p.rung]) + " · " + p.productivity + " P available</div>" +
+        '<div class="dim">' + esc(C.LEVEL_NAMES[p.level]) + " · " + p.productivity + " P available</div>" +
         '<div class="ap-pips">' + (t.ap > 0 ? pips : '<span class="faint">0 AP left</span>') + '<span class="faint" style="margin-left:6px">' + t.ap + " AP</span></div>" +
         (block ? '<div class="hint" style="color:var(--warn)">Micromanager: your first action must be Work a Project.</div>' : "") +
         '<div class="bl-label">📋 Your Backlog (' + p.backlog.length + ")</div>" +
@@ -1202,7 +1202,7 @@
   function turnHint(s, p, t) {
     if (t.ap <= 0 && !p.overtimeUsedThisRound) return "Out of Action Points — take Overtime for one more, or End Turn.";
     if (t.ap <= 0) return "Out of Action Points. End your turn.";
-    return "Hire skills, Work projects, Network, or Self-Care. " + t.ap + " AP remaining.";
+    return "Pick up skills, Work projects, Network, or Self-Care. " + t.ap + " AP remaining.";
   }
 
   function renderEvent(s) {
@@ -1316,7 +1316,7 @@
       var s = UI.activeState;
       var rows = summary.rows.slice().sort(function (a, b) { return b.score - a.score; });
       var body = rows.map(function (r) {
-        var arrow = r.rungBefore !== r.rungAfter ? (" → " + C.RUNG_NAMES[r.rungAfter]) : "";
+        var arrow = r.levelBefore !== r.levelAfter ? (" → " + C.LEVEL_NAMES[r.levelAfter]) : "";
         var fb = r.feedback || 0;
         var fbCell = fb === 0 ? '<span class="faint">—</span>' : (fb > 0 ? "+" + fb : "" + fb);
         return "<tr><td>" + esc(r.name) + "</td>" +
@@ -1325,7 +1325,7 @@
           '<td class="num">' + r.pc + "</td>" +
           '<td class="num">' + fbCell + "</td>" +
           '<td class="num">' + r.tasksOnHand + "</td>" +
-          "<td>" + esc(C.RUNG_NAMES[r.rungBefore]) + arrow + "</td>" +
+          "<td>" + esc(C.LEVEL_NAMES[r.levelBefore]) + arrow + "</td>" +
           "<td>" + outcomeBadge(summary, r.id) + "</td></tr>";
       }).join("");
       var hasFb = summary.rows.some(function (r) { return (r.feedback || 0) !== 0; });
@@ -1333,7 +1333,7 @@
         '<h2>📋 Quarterly Performance Review</h2>' +
         '<div class="msub">Review #' + summary.reviewNumber + " · end of Round " + summary.round +
           "  ·  Score = CC gained this Quarter + Political Capital" + (hasFb ? " + Feedback" : "") + " − Tasks on hand</div>" +
-        '<table class="rev"><thead><tr><th>Employee</th><th>Score</th><th>ΔCC</th><th>Pol.Cap</th><th>📝</th><th>📋</th><th>Rung</th><th>Outcome</th></tr></thead>' +
+        '<table class="rev"><thead><tr><th>Employee</th><th>Score</th><th>ΔCC</th><th>Pol.Cap</th><th>📝</th><th>📋</th><th>Level</th><th>Outcome</th></tr></thead>' +
         "<tbody>" + body + "</tbody></table>" +
         '<div class="opts" style="margin-top:16px"><button class="primary" id="revContinue">Continue ▸</button></div>');
       var done = false;
@@ -1351,13 +1351,13 @@
       var standings = s.standings || H.computeStandings(s);
       var winner = s.players.find(function (p) { return p.id === s.winnerId; });
       var isRace = s.variant === "race-to-ceo";
-      var subtitle = isRace ? (winner && winner.rung === 6 ? "Promoted to CEO — the corporate ladder has a top rung after all." : "Game ended.")
+      var subtitle = isRace ? (winner && winner.level === 6 ? "Promoted to CEO — the corporate ladder has a top level after all." : "Game ended.")
         : "The Long Game — highest Final Score after 24 rounds.";
       var list = standings.map(function (st, i) {
         var p = s.players.find(function (x) { return x.id === st.id; });
         return '<div class="final-row' + (st.id === s.winnerId ? " win" : "") + '">' +
           '<span class="rk">' + (i + 1) + "</span>" +
-          "<span><b>" + esc(st.name) + "</b> <span class='faint'>· " + esc(C.RUNG_NAMES[st.rung]) +
+          "<span><b>" + esc(st.name) + "</b> <span class='faint'>· " + esc(C.LEVEL_NAMES[st.level]) +
             (p ? " · " + p.careerCapital + " CC" : "") + "</span></span>" +
           '<span class="fscore">' + (isRace && st.id === s.winnerId ? "WINNER" : st.score.toFixed(1)) + "</span></div>";
       }).join("");
@@ -1379,11 +1379,11 @@
 
   /* ==========================================================================
    * ONLINE PLAY (PeerJS, host-authoritative) — layered over the engine. The
-   * host runs SR.play; remote humans answer their turn/decision hooks over a
+   * host runs SC.play; remote humans answer their turn/decision hooks over a
    * PeerJS DataConnection. Clients are thin renderers of the pushed snapshot
    * and send intents back. Join is by short room code. See net.js for transport.
    * ======================================================================== */
-  var MSG = SRNet.MSG;
+  var MSG = SCNet.MSG;
   var AI_ARCHES = ["grinder", "politician", "balanced", "workaholic", "cautious"];
   function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
 
@@ -1423,13 +1423,13 @@
     var b = $("errOk"); if (b) b.addEventListener("click", hideModal);
   }
   function netUnavailableMsg() {
-    if (typeof SRNet === "undefined" || !SRNet) return "net.js didn't load. Make sure net.js sits next to index.html, then hard-refresh (Cmd/Ctrl+Shift+R).";
-    if (!SRNet.hasPeerJS()) return "The PeerJS library didn't load — online play needs it (and an internet connection). Check that unpkg.com is reachable and reload. Local pass-and-play still works offline.";
+    if (typeof SCNet === "undefined" || !SCNet) return "net.js didn't load. Make sure net.js sits next to index.html, then hard-refresh (Cmd/Ctrl+Shift+R).";
+    if (!SCNet.hasPeerJS()) return "The PeerJS library didn't load — online play needs it (and an internet connection). Check that unpkg.com is reachable and reload. Local pass-and-play still works offline.";
     return null;
   }
   function drawQr(canvas, text) {
     try {
-      var m = SRNet.qr.encode(text);
+      var m = SCNet.qr.encode(text);
       var quiet = 4, scale = Math.max(2, Math.floor(240 / (m.size + quiet * 2)));
       var dim = (m.size + quiet * 2) * scale;
       canvas.width = dim; canvas.height = dim;
@@ -1457,8 +1457,8 @@
     var feedbackMode = $("feedbackRow").querySelector(".variant.sel").getAttribute("data-fb");
     var maxPlayers = parseInt($("hostMax").value, 10) || 6;
     var vanity = ($("hostVanity").value || "").trim();
-    var code = vanity ? SRNet.sanitizeId(vanity) : SRNet.deriveRoomCode(hostName);
-    if (!code) code = SRNet.deriveRoomCode(hostName);
+    var code = vanity ? SCNet.sanitizeId(vanity) : SCNet.deriveRoomCode(hostName);
+    if (!code) code = SCNet.deriveRoomCode(hostName);
     Net.mode = "host";
     Net.host = {
       api: null, roomCode: code, hostName: hostName, hostPlays: !$("boardOnly").checked,
@@ -1467,8 +1467,8 @@
       reqSeq: 0, pendingDecides: {}, remoteTurn: null, heartbeat: null
     };
     UI.autoAdvanceReview = false;
-    SRNet.iceServers()
-      .then(function (ice) { return SRNet.hostRoom({ roomCode: code, iceServers: ice, handlers: hostHandlers() }); })
+    SCNet.iceServers()
+      .then(function (ice) { return SCNet.hostRoom({ roomCode: code, iceServers: ice, handlers: hostHandlers() }); })
       .then(function (api) {
         if (Net.mode !== "host" || !Net.host) { api.destroy(); return; }
         Net.host.api = api;
@@ -1523,7 +1523,7 @@
     var names = []; if (Net.host.hostPlays) names.push(Net.host.hostName + " (host)");
     Net.host.roster.forEach(function (r) { if (r.connected && !r.spectator) names.push(r.name); });
     for (var i = 0; i < Net.host.aiCount; i++) names.push(capitalize(AI_ARCHES[i % AI_ARCHES.length]) + " Bot");
-    Net.host.api.broadcast(SRNet.msg(MSG.LOBBY_UPDATE, { players: names, count: totalPlayers(), max: Net.host.maxPlayers }));
+    Net.host.api.broadcast(SCNet.msg(MSG.LOBBY_UPDATE, { players: names, count: totalPlayers(), max: Net.host.maxPlayers }));
   }
   function hostHandlers() {
     return {
@@ -1550,16 +1550,16 @@
     if (Net.host.started) {
       var pid = Net.host.playerByClient[clientId] || null; // reconnect keeps the seat
       if (existing) { existing.connected = true; existing.name = name; } else Net.host.roster.push({ clientId: clientId, name: name, spectator: !pid, connected: true, caps: caps });
-      Net.host.api.send(clientId, SRNet.msg(MSG.JOIN_ACCEPTED, { spectator: !pid, variant: Net.host.state.variant }));
-      Net.host.api.send(clientId, SRNet.msg(MSG.START_GAME, { variant: Net.host.state.variant, playerId: pid, spectator: !pid }));
-      Net.host.api.sendState(clientId, SRNet.redactFor(Net.host.state), true);
+      Net.host.api.send(clientId, SCNet.msg(MSG.JOIN_ACCEPTED, { spectator: !pid, variant: Net.host.state.variant }));
+      Net.host.api.send(clientId, SCNet.msg(MSG.START_GAME, { variant: Net.host.state.variant, playerId: pid, spectator: !pid }));
+      Net.host.api.sendState(clientId, SCNet.redactFor(Net.host.state), true);
       renderNetBanner();
       return;
     }
     var spectator = !!p.spectator || (seatTakers() >= Net.host.maxPlayers);
     if (existing) { existing.name = name; existing.spectator = spectator; existing.connected = true; existing.caps = caps; }
     else Net.host.roster.push({ clientId: clientId, name: name, spectator: spectator, connected: true, caps: caps });
-    Net.host.api.send(clientId, SRNet.msg(MSG.JOIN_ACCEPTED, { spectator: spectator, variant: Net.host.variant }));
+    Net.host.api.send(clientId, SCNet.msg(MSG.JOIN_ACCEPTED, { spectator: spectator, variant: Net.host.variant }));
     broadcastLobby(); renderLobby();
   }
   function clientDropped(clientId) {
@@ -1572,11 +1572,11 @@
       if (rt && rt.clientId === clientId) finishRemoteTurn();
       Object.keys(Net.host.pendingDecides).forEach(function (rid) {
         var e = Net.host.pendingDecides[rid];
-        if (e.clientId === clientId) { delete Net.host.pendingDecides[rid]; e.resolve(SR.aiDecide(Net.host.state, findPlayerById(e.req.playerId), e.req)); }
+        if (e.clientId === clientId) { delete Net.host.pendingDecides[rid]; e.resolve(SC.aiDecide(Net.host.state, findPlayerById(e.req.playerId), e.req)); }
       });
       var pname = r ? r.name : "A player";
       appendLog({ round: Net.host.state.roundNumber, phase: Net.host.state.phase, text: pname + " disconnected — AI will cover their turns.", cls: "muted" });
-      Net.host.api.broadcast(SRNet.msg(MSG.LOG, { round: Net.host.state.roundNumber, text: pname + " disconnected.", cls: "muted" }));
+      Net.host.api.broadcast(SCNet.msg(MSG.LOG, { round: Net.host.state.roundNumber, text: pname + " disconnected.", cls: "muted" }));
     } else { broadcastLobby(); renderLobby(); }
     renderNetBanner();
   }
@@ -1592,7 +1592,7 @@
     var plan = buildRosterPlan();
     if (plan.length < 2 || plan.length > 6) return;
     var config = { variant: Net.host.variant, players: plan.map(function (p) { return { name: p.name, kind: p.kind, archetype: p.archetype || "balanced" }; }), rules: { feedbackMode: Net.host.feedbackMode } };
-    var state = SR.newGame(config);
+    var state = SC.newGame(config);
     Net.host.state = state; Net.host.started = true; Net.host.seatOwner = {}; Net.host.playerByClient = {};
     state.players.forEach(function (pl, i) {
       var owner = plan[i].owner;
@@ -1604,19 +1604,19 @@
     Net.host.roster.forEach(function (r) {
       if (!r.connected) return;
       var pid = r.spectator ? null : (Net.host.playerByClient[r.clientId] || null);
-      Net.host.api.send(r.clientId, SRNet.msg(MSG.START_GAME, { variant: state.variant, playerId: pid, spectator: !pid }));
+      Net.host.api.send(r.clientId, SCNet.msg(MSG.START_GAME, { variant: state.variant, playerId: pid, spectator: !pid }));
     });
     $("setup").style.display = "none"; $("game").style.display = "flex"; $("inviteBtn").style.display = ""; $("log").innerHTML = "";
     renderAll();
-    Net.host.api.broadcastState(SRNet.redactFor(state));
+    Net.host.api.broadcastState(SCNet.redactFor(state));
     startHeartbeat();
-    SR.play(state, makeNetHostHooks(state));
+    SC.play(state, makeNetHostHooks(state));
   }
   function startHeartbeat() {
     if (Net.host.heartbeat) clearInterval(Net.host.heartbeat);
     Net.host.heartbeat = setInterval(function () {
       if (!Net.host || !Net.host.api) return;
-      Net.host.api.broadcast(SRNet.msg(MSG.PING));
+      Net.host.api.broadcast(SCNet.msg(MSG.PING));
       var now = Date.now();
       Net.host.api.clientIds().forEach(function (id) {
         var r = rosterOf(id);
@@ -1627,25 +1627,25 @@
   function makeNetHostHooks(state) {
     function stale() { return UI.activeState !== state || !Net.host; }
     return {
-      log: function (entry) { if (stale()) return; appendLog(entry); Net.host.api.broadcast(SRNet.msg(MSG.LOG, entry)); },
+      log: function (entry) { if (stale()) return; appendLog(entry); Net.host.api.broadcast(SCNet.msg(MSG.LOG, entry)); },
       onChange: function () { if (stale()) return; renderAll(); Net.pushState(); },
       wait: function (key) { if (stale()) return Promise.resolve(); var d = SPEEDS[UI.speed][key || "action"]; return new Promise(function (r) { setTimeout(r, d); }); },
       humanTurn: function (player) { if (stale()) return Promise.resolve(); return isLocalSeat(player.id) ? beginHumanTurn(state, player) : beginRemoteTurn(state, player); },
       decide: function (req) { if (stale()) return Promise.resolve(defaultDecision(req)); return isLocalSeat(req.playerId) ? localDecide(req) : remoteDecide(req); },
-      onEvent: function (card) { if (stale()) return Promise.resolve(); Net.host.api.broadcast(SRNet.msg(MSG.EVENT, eventPayload(card))); return showEvent(card).then(function () { if (Net.host) Net.host.api.broadcast(SRNet.msg(MSG.EVENT_DONE)); }); },
-      onReview: function (summary) { if (stale()) return Promise.resolve(); Net.host.api.broadcast(SRNet.msg(MSG.REVIEW, SRNet.packPayload(summary))); return showReview(summary).then(function () { if (Net.host) Net.host.api.broadcast(SRNet.msg(MSG.REVIEW_DONE)); }); },
-      onGameOver: function (st) { if (stale()) return Promise.resolve(); Net.host.api.broadcast(SRNet.msg(MSG.GAME_OVER, SRNet.serializeState(st))); return showGameOver(st); }
+      onEvent: function (card) { if (stale()) return Promise.resolve(); Net.host.api.broadcast(SCNet.msg(MSG.EVENT, eventPayload(card))); return showEvent(card).then(function () { if (Net.host) Net.host.api.broadcast(SCNet.msg(MSG.EVENT_DONE)); }); },
+      onReview: function (summary) { if (stale()) return Promise.resolve(); Net.host.api.broadcast(SCNet.msg(MSG.REVIEW, SCNet.packPayload(summary))); return showReview(summary).then(function () { if (Net.host) Net.host.api.broadcast(SCNet.msg(MSG.REVIEW_DONE)); }); },
+      onGameOver: function (st) { if (stale()) return Promise.resolve(); Net.host.api.broadcast(SCNet.msg(MSG.GAME_OVER, SCNet.serializeState(st))); return showGameOver(st); }
     };
   }
   function beginRemoteTurn(state, player) {
     var clientId = clientForSeat(player.id);
-    if (!clientId || !Net.host.api.isAlive(clientId)) return SR.aiTakeTurn(state, player, state._hooks); // disconnected → AI
+    if (!clientId || !Net.host.api.isAlive(clientId)) return SC.aiTakeTurn(state, player, state._hooks); // disconnected → AI
     return new Promise(function (resolve) {
       var ctx = H.beginTurn(state, player);
       var turn = { player: player, ap: ctx.ap, mustProjectFirst: ctx.mustProjectFirst, active: true };
       Net.host.remoteTurn = { turn: turn, clientId: clientId, resolve: resolve };
       state.activePlayerId = player.id;
-      Net.host.api.send(clientId, SRNet.msg(MSG.YOUR_TURN, { playerId: player.id, ap: turn.ap, mustProjectFirst: turn.mustProjectFirst }));
+      Net.host.api.send(clientId, SCNet.msg(MSG.YOUR_TURN, { playerId: player.id, ap: turn.ap, mustProjectFirst: turn.mustProjectFirst }));
       renderAll(); Net.pushState();
     });
   }
@@ -1653,13 +1653,13 @@
     var rt = Net.host.remoteTurn;
     if (!rt || rt.clientId !== clientId || !rt.turn.active) return;
     var state = Net.host.state;
-    if (payload.round !== state.roundNumber || payload.phase !== state.phase) { Net.host.api.send(clientId, SRNet.msg(MSG.ACTION_REJECTED, { reason: "stale" })); return; }
+    if (payload.round !== state.roundNumber || payload.phase !== state.phase) { Net.host.api.send(clientId, SCNet.msg(MSG.ACTION_REJECTED, { reason: "stale" })); return; }
     if (payload.act === "endturn") return finishRemoteTurn();
     var res = applyTurnAction(state, rt.turn, payload.act, payload.idx, payload.owner);
     if (res.ok && res.pending === "shipsItFriday") {
       renderAll(); Net.pushState();
       remoteDecide({ action: "shipsItFriday", playerId: rt.turn.player.id }).then(function (i) {
-        if (Net.host && Net.host.remoteTurn === rt && rt.turn.active) SR.actions.applyShipsItFriday(state, rt.turn.player, parseInt(i, 10));
+        if (Net.host && Net.host.remoteTurn === rt && rt.turn.active) SC.actions.applyShipsItFriday(state, rt.turn.player, parseInt(i, 10));
         afterRemoteAction(rt);
       });
       return;
@@ -1670,7 +1670,7 @@
       var cands = (pl._managerChoice || []).map(function (c) { return { id: c.id, name: c.name, effect: c.effect }; });
       remoteDecide({ action: "chooseManager", playerId: pl.id, prompt: "Choose your new manager",
         candidates: cands, options: cands.map(function (c) { return { key: c.id, label: c.name }; }) }).then(function (id) {
-        if (Net.host && Net.host.remoteTurn === rt && rt.turn.active) SR.actions.chooseManager(state, pl, id);
+        if (Net.host && Net.host.remoteTurn === rt && rt.turn.active) SC.actions.chooseManager(state, pl, id);
         afterRemoteAction(rt);
       });
       return;
@@ -1680,26 +1680,26 @@
   function afterRemoteAction(rt) {
     if (!Net.host || Net.host.remoteTurn !== rt || !rt.turn.active) return;
     renderAll(); Net.pushState();
-    Net.host.api.send(rt.clientId, SRNet.msg(MSG.AP_UPDATE, { playerId: rt.turn.player.id, ap: rt.turn.ap, mustProjectFirst: rt.turn.mustProjectFirst }));
+    Net.host.api.send(rt.clientId, SCNet.msg(MSG.AP_UPDATE, { playerId: rt.turn.player.id, ap: rt.turn.ap, mustProjectFirst: rt.turn.mustProjectFirst }));
     if (rt.turn.ap <= 0 && rt.turn.player.overtimeUsedThisRound) setTimeout(function () { if (Net.host && Net.host.remoteTurn === rt) finishRemoteTurn(); }, 250);
   }
   function finishRemoteTurn() {
     var rt = Net.host && Net.host.remoteTurn;
     if (!rt || !rt.turn.active) return;
     rt.turn.active = false; Net.host.remoteTurn = null;
-    Net.host.api.send(rt.clientId, SRNet.msg(MSG.TURN_ENDED, { playerId: rt.turn.player.id }));
+    Net.host.api.send(rt.clientId, SCNet.msg(MSG.TURN_ENDED, { playerId: rt.turn.player.id }));
     rt.resolve();
   }
   function remoteDecide(req) {
     return new Promise(function (resolve) {
       var clientId = clientForSeat(req.playerId);
-      if (!clientId || !Net.host.api.isAlive(clientId)) { resolve(SR.aiDecide(Net.host.state, findPlayerById(req.playerId), req)); return; }
+      if (!clientId || !Net.host.api.isAlive(clientId)) { resolve(SC.aiDecide(Net.host.state, findPlayerById(req.playerId), req)); return; }
       var reqId = ++Net.host.reqSeq;
       Net.host.pendingDecides[reqId] = { resolve: resolve, req: req, clientId: clientId };
-      Net.host.api.send(clientId, SRNet.msg(MSG.DECIDE, { reqId: reqId, req: SRNet.packPayload(req) }));
+      Net.host.api.send(clientId, SCNet.msg(MSG.DECIDE, { reqId: reqId, req: SCNet.packPayload(req) }));
     });
   }
-  Net.pushState = function () { if (Net.host && Net.host.api && Net.host.state) Net.host.api.broadcastState(SRNet.redactFor(Net.host.state)); };
+  Net.pushState = function () { if (Net.host && Net.host.api && Net.host.state) Net.host.api.broadcastState(SCNet.redactFor(Net.host.state)); };
 
   /* ---- GUEST ---- */
   function doJoin(spectator) {
@@ -1707,24 +1707,24 @@
     var code = extractRoomCode($("joinCode").value);
     if (!code) { $("joinStatus").textContent = "Enter the room code the host gave you."; return; }
     var name = ($("joinName").value || "Player").trim() || "Player";
-    try { localStorage.setItem("sr-online", JSON.stringify({ room: code, name: name })); } catch (e) { /* storage off */ }
+    try { localStorage.setItem("sc-online", JSON.stringify({ room: code, name: name })); } catch (e) { /* storage off */ }
     $("joinAsPlayerBtn").disabled = true; $("joinAsSpectatorBtn").disabled = true;
     $("joinStatus").textContent = "Connecting…";
     Net.mode = "guest";
     Net.guest = { api: null, roomCode: code, name: name, spectator: !!spectator, clientId: null, playerId: null, started: false, leaving: false, retries: 0 };
-    SRNet.iceServers().then(function (ice) { guestConnect(ice, 0); }, function () { guestConnect(undefined, 0); });
+    SCNet.iceServers().then(function (ice) { guestConnect(ice, 0); }, function () { guestConnect(undefined, 0); });
   }
   function guestConnect(ice, suffix) {
     if (!Net.guest) return;
     var code = Net.guest.roomCode, name = Net.guest.name, spectator = Net.guest.spectator;
-    var clientId = SRNet.deriveClientId(code, name, suffix || 0);
+    var clientId = SCNet.deriveClientId(code, name, suffix || 0);
     Net.guest.clientId = clientId;
     $("joinStatus").textContent = "Connecting to room " + code + "…";
-    SRNet.joinRoom({ roomCode: code, clientId: clientId, iceServers: ice, metadata: {}, handlers: guestHandlers() })
+    SCNet.joinRoom({ roomCode: code, clientId: clientId, iceServers: ice, metadata: {}, handlers: guestHandlers() })
       .then(function (api) {
         if (Net.mode !== "guest" || !Net.guest) { api.destroy(); return; }
         Net.guest.api = api;
-        api.send(SRNet.msg(MSG.JOIN_REQUEST, { name: name, spectator: spectator, clientId: clientId, caps: {} }));
+        api.send(SCNet.msg(MSG.JOIN_REQUEST, { name: name, spectator: spectator, clientId: clientId, caps: {} }));
         $("joinStatus").textContent = "Connected — waiting for the host…";
         // If the host never acknowledges, say so rather than "waiting" forever.
         Net.guest.ackTimer = setTimeout(function () {
@@ -1777,7 +1777,7 @@
       case MSG.REVIEW_DONE: hideModal(); break;
       case MSG.GAME_OVER: guestHandleGameOver(P); break;
       case MSG.KICK: guestKicked(P); break;
-      case MSG.PING: if (Net.guest && Net.guest.api) Net.guest.api.send(SRNet.msg(MSG.PONG)); break;
+      case MSG.PING: if (Net.guest && Net.guest.api) Net.guest.api.send(SCNet.msg(MSG.PONG)); break;
       default: break; // ACTION_REJECTED etc. — snapshot will reconcile
     }
   }
@@ -1790,7 +1790,7 @@
     renderAll();
   }
   function guestHandleSnapshot(content) {
-    UI.activeState = SRNet.reviveState(content);
+    UI.activeState = SCNet.reviveState(content);
     if (UI.turn && UI.turn.active) { var np = UI.activeState.players.filter(function (p) { return p.id === UI.turn.player.id; })[0]; if (np) UI.turn.player = np; }
     renderAll();
   }
@@ -1806,12 +1806,12 @@
   }
   function guestHandleTurnEnded(P) { if (UI.turn && UI.turn.player.id === P.playerId) UI.turn = null; renderAll(); }
   function guestHandleDecide(P) {
-    var req = SRNet.unpackPayload(P.req);
+    var req = SCNet.unpackPayload(P.req);
     if (req.action === "shipsItFriday") { var pl = UI.activeState.players.filter(function (x) { return x.id === req.playerId; })[0]; showShipsChoice(pl).then(function (i) { hideModal(); Net.guestSendDecide(P.reqId, i); }); return; }
     if (req.action === "claimTask") { beginClaimDecision(req).then(function (v) { Net.guestSendDecide(P.reqId, v); }); return; }
     showDecision(req).then(function (v) { Net.guestSendDecide(P.reqId, v); });
   }
-  function guestHandleGameOver(P) { UI.activeState = SRNet.reviveState(P); UI.turn = null; renderAll(); showGameOver(UI.activeState); }
+  function guestHandleGameOver(P) { UI.activeState = SCNet.reviveState(P); UI.turn = null; renderAll(); showGameOver(UI.activeState); }
   function guestKicked(P) {
     Net.teardown(); UI.activeState = null; UI.turn = null;
     $("game").style.display = "none"; $("setup").style.display = "block"; resetSetupPanels();
@@ -1825,15 +1825,15 @@
     Net.guest.retries++;
     var g = Net.guest; try { g.api && g.api.destroy(); } catch (e) {} g.api = null;
     showModalHTML('<h2>Reconnecting…</h2><div class="msub">Lost the host connection — retrying (' + g.retries + '/4).</div>');
-    setTimeout(function () { if (Net.mode === "guest" && Net.guest === g) SRNet.iceServers().then(guestReconnect, function () { guestReconnect(); }); }, 1500);
+    setTimeout(function () { if (Net.mode === "guest" && Net.guest === g) SCNet.iceServers().then(guestReconnect, function () { guestReconnect(); }); }, 1500);
   }
   function guestReconnect(ice) {
     if (!Net.guest) return;
-    SRNet.joinRoom({ roomCode: Net.guest.roomCode, clientId: Net.guest.clientId, iceServers: ice, metadata: {}, handlers: guestHandlers() })
+    SCNet.joinRoom({ roomCode: Net.guest.roomCode, clientId: Net.guest.clientId, iceServers: ice, metadata: {}, handlers: guestHandlers() })
       .then(function (api) {
         if (Net.mode !== "guest" || !Net.guest) { api.destroy(); return; }
         Net.guest.api = api; Net.guest.retries = 0; hideModal();
-        api.send(SRNet.msg(MSG.JOIN_REQUEST, { name: Net.guest.name, spectator: Net.guest.spectator, clientId: Net.guest.clientId, caps: {} }));
+        api.send(SCNet.msg(MSG.JOIN_REQUEST, { name: Net.guest.name, spectator: Net.guest.spectator, clientId: Net.guest.clientId, caps: {} }));
       })
       .catch(function () { setTimeout(function () { if (Net.mode === "guest" && Net.guest) guestOnClose(); }, 1500); });
   }
@@ -1843,16 +1843,16 @@
   }
   Net.guestSendTurnAction = function (act, idx, owner) {
     if (!Net.guest || !Net.guest.api || !UI.activeState) return;
-    Net.guest.api.send(SRNet.msg(MSG.ACTION_INTENT, { act: act, idx: idx, owner: owner, round: UI.activeState.roundNumber, phase: UI.activeState.phase }));
+    Net.guest.api.send(SCNet.msg(MSG.ACTION_INTENT, { act: act, idx: idx, owner: owner, round: UI.activeState.roundNumber, phase: UI.activeState.phase }));
   };
-  Net.guestSendDecide = function (reqId, value) { if (Net.guest && Net.guest.api) Net.guest.api.send(SRNet.msg(MSG.DECIDE_ANSWER, { reqId: reqId, value: value })); };
+  Net.guestSendDecide = function (reqId, value) { if (Net.guest && Net.guest.api) Net.guest.api.send(SCNet.msg(MSG.DECIDE_ANSWER, { reqId: reqId, value: value })); };
 
   /* ---- teardown + mid-game invite ---- */
   Net.teardown = function () {
     if (Net.host) {
       if (Net.host.heartbeat) clearInterval(Net.host.heartbeat);
       var hapi = Net.host.api;
-      if (hapi) { try { hapi.broadcast(SRNet.msg(MSG.KICK, { reason: "The host ended the game." })); } catch (e) {} setTimeout(function () { try { hapi.destroy(); } catch (e) {} }, 200); }
+      if (hapi) { try { hapi.broadcast(SCNet.msg(MSG.KICK, { reason: "The host ended the game." })); } catch (e) {} setTimeout(function () { try { hapi.destroy(); } catch (e) {} }, 200); }
       Net.host = null;
     }
     if (Net.guest) { Net.guest.leaving = true; try { Net.guest.api && Net.guest.api.destroy(); } catch (e) {} Net.guest = null; }
@@ -1891,7 +1891,7 @@
   /* ---- deep link: land here via a scanned #room=CODE URL; prefill from storage ---- */
   (function handleRoomHash() {
     var saved = {};
-    try { saved = JSON.parse(localStorage.getItem("sr-online") || "{}"); } catch (e) { saved = {}; }
+    try { saved = JSON.parse(localStorage.getItem("sc-online") || "{}"); } catch (e) { saved = {}; }
     var m = location.hash && location.hash.match(/[#&]room=([^&]+)/);
     if (m) {
       selectMode("join");

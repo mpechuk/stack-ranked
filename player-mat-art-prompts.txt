@@ -1,4 +1,4 @@
-STACK RANKED — PLAYER MAT ART GENERATION PROMPTS
+SYNERGY CORP — PLAYER MAT ART GENERATION PROMPTS
 ==================================================
 Two image-generation prompts for the optional decorative art on the Player
 Desk Mat (see generate_player_mat.py): a HEADER BANNER that sits in the top
@@ -28,13 +28,13 @@ Render at high resolution (300 DPI at print size) so the PDF stays crisp:
 ================================================================
 HEADER BANNER — table-images/player-mat-header.png
 ================================================================
-REFERENCE: Sits to the right of the navy "STACK RANKED / PLAYER DESK MAT"
+REFERENCE: Sits to the right of the navy "SYNERGY CORP / PLAYER DESK MAT"
 title plate, across the top of the mat. Same illustration family as the box
 cover (a duo triumphantly climbing a junk-office mountain into a sunrise) —
 this crop should feel like a continuation of that scene, not a new one.
 
 PROMPT:
-Scene: The same climbers from the Stack Ranked box cover — one hoisting a
+Scene: The same climbers from the Synergy Corp box cover — one hoisting a
 steaming coffee cup, the other a briefcase — now shown further along their
 ascent, striding across a wide ridge of stacked filing cabinets, monitors,
 and tangled cables toward a radiant sunrise on the horizon. Cropped as a

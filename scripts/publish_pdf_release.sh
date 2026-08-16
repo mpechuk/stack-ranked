@@ -41,15 +41,15 @@ done
 
 REPO="${REPO:-mpechuk/stack-ranked}"
 TITLE="${RELEASE_TITLE:-Printable PDFs}"
-NOTES="${RELEASE_NOTES:-Generated print-and-play PDFs for Stack Ranked. Build artifacts produced by the generate_*.py scripts, hosted here instead of tracked in the repo.}"
+NOTES="${RELEASE_NOTES:-Generated print-and-play PDFs for Synergy Corp. Build artifacts produced by the generate_*.py scripts, hosted here instead of tracked in the repo.}"
 DOCS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../docs" && pwd)"
 
 PDFS=(
-  "Stack_Ranked_Rulebook.pdf"
-  "Stack_Ranked_PrintAndPlay.pdf"
-  "Stack_Ranked_PlayerMat.pdf"
-  "Stack_Ranked_CareerLadder.pdf"
-  "Stack_Ranked_Badges.pdf"
+  "Synergy_Corp_Rulebook.pdf"
+  "Synergy_Corp_PrintAndPlay.pdf"
+  "Synergy_Corp_PlayerMat.pdf"
+  "Synergy_Corp_CareerLadder.pdf"
+  "Synergy_Corp_Badges.pdf"
 )
 
 # Verify every PDF exists before touching the release.

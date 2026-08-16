@@ -1,15 +1,15 @@
-# Stack Ranked — Digital Implementation Specification
+# Synergy Corp — Digital Implementation Specification
 
 **Purpose of this document:** everything needed to start building an online/digital
-version of *Stack Ranked* without re-deriving rules from the print rulebook. This
+version of *Synergy Corp* without re-deriving rules from the print rulebook. This
 is written for an implementer (human or AI coding agent) and is optimized for
 precision over narrative — exact numbers, exact order of operations, and the
 specific edge cases that broke earlier draft rulesets during balance testing.
 
 Companion files in this project (not required to read first, but useful):
-- `STACK_RANKED_RULEBOOK.md` — the human-facing rulebook (flavor text, full prose).
+- `SYNERGY_CORP_RULEBOOK.md` — the human-facing rulebook (flavor text, full prose).
 - `cards.json` — the raw card data, embedded verbatim in full in Section 8 below.
-- `stack_ranked_balance_simulator.py` — a Monte Carlo balance-testing script. It
+- `synergy_corp_balance_simulator.py` — a Monte Carlo balance-testing script. It
   validates the *economic shape* of the game (pacing, promotion viability across
   strategies) but does **not** implement individual cards — see Section 10 for
   exactly how to use it (and how not to).
@@ -41,8 +41,8 @@ Companion files in this project (not required to read first, but useful):
 
 | Term | Type | Range / Notes |
 |---|---|---|
-| **Rung** | persistent | 0 (Intern) through 6 (CEO). See ladder table in 7.3. |
-| **Productivity (P)** | banked, resets quarterly | Spent to Hire cards and Work Projects. Not itself Career Capital. |
+| **Level** | persistent | 0 (Intern) through 6 (CEO). See ladder table in 7.3. |
+| **Productivity (P)** | banked, resets quarterly | Spent to Pick up cards and Work Projects. Not itself Career Capital. |
 | **Political Capital (PC)** | banked, resets quarterly | Gained mainly via Networking. Never spent on anything directly — only ever compared (Review Score, CEO Board Vote). |
 | **Burnout** | persistent gauge | 0–10. At 10, triggers a **Burnout Crisis** immediately (see 5.2.5), not at end-of-round. |
 | **Career Capital (CC)** | persistent, (almost) monotonic | The permanent "résumé" score. Gates every promotion. Only known way it can ever *decrease* is the **Credit-Stealing Boss** Management Style card (−1 CC per completed Project). Otherwise strictly non-decreasing. |
@@ -51,14 +51,14 @@ Companion files in this project (not required to read first, but useful):
 | **PIP token** | boolean flag | Held or not held. A second consecutive PIP converts to a demotion. |
 | **Employee of the Quarter token** | persistent counter | Consolation for eligible-but-not-selected promotion candidates. Worth points only in the Advanced Variant. |
 | **Management Style** | card reference | One per player, asymmetric passive power. Redrawn on every promotion or demotion, and swappable at will via the **Request a Transfer** Sprint action (draw 2, keep 1; once per Quarter — see 5.2.2). |
-| **Action Points (AP)** | per-round budget | 2 / 3 / 4 depending on rung — see 6.1. |
+| **Action Points (AP)** | per-round budget | 2 / 3 / 4 depending on level — see 6.1. |
 | **First Player token** | rotating marker | Passes clockwise (i.e., to the next player in seating/turn order) every round. Determines Action Phase order and tie-breaks for several card effects ("the First Player…"). |
 
 ---
 
 ## 3. Setup
 
-1. Every player starts at Rung 0 (Intern) with Productivity 0, Political Capital 0,
+1. Every player starts at Level 0 (Intern) with Productivity 0, Political Capital 0,
    Burnout 0, Career Capital 0, Compliance Badges 0, Quarter Marker 0, no PIP
    token, empty tableau.
 2. Shuffle the Management Style deck; each player draws 1, face-up (public).
@@ -118,7 +118,7 @@ below depend on all of them.
 ```
 Player {
   id, displayName
-  rung: int                      // 0-6
+  level: int                      // 0-6
   productivity: int              // banked, resets to 0 at end of every Review
   politicalCapital: int          // banked, resets to 0 at end of every Review
   burnout: int                   // 0-10, clamped
@@ -133,7 +133,7 @@ Player {
   tableau: [CardRef]             // permanent Skill/Tool cards in play
   goldenParachuteArmed: bool     // true if holding an unused Golden Parachute Clause
   immuneToDemotion: bool         // true if holding Golden Handcuffs (Fully Vested)
-  firstVpReviewNumber: int|null  // first Review at which this player reached rung 5 (VP) — for analytics/"upset" tracking only, not required for correctness
+  firstVpReviewNumber: int|null  // first Review at which this player reached level 5 (VP) — for analytics/"upset" tracking only, not required for correctness
   overtimeUsedThisRound: bool    // resets every round
   _transferUsedThisQuarter: bool // Request-a-Transfer gate; resets at the top of each Quarter (5.2.2)
 }
@@ -184,10 +184,10 @@ For every player:
 ```
 player.productivity += sum(p.gain for p in player.tableau if p has a Productivity-per-round effect) + 1   // the flat "showed up" bonus
 player.politicalCapital += sum(p.gain for p in player.tableau if p has a PC-per-round effect)
-if (currentLeaderRung - player.rung) >= 2:                       // Mentorship Bonus
+if (currentLeaderLevel - player.level) >= 2:                       // Mentorship Bonus
     player.politicalCapital += 1
 ```
-"Current leader" = the maximum `rung` among all players at the start of this
+"Current leader" = the maximum `level` among all players at the start of this
 phase. Recompute every round (it can change).
 
 Apply any passive per-round Management Style effects here too if they're
@@ -275,18 +275,18 @@ Action Point budget before the next player begins. (This is a meaningful
 implementation choice: it means board contention — e.g. two players wanting the
 same Workplace Training board card — is resolved strictly by turn order, not simultaneously.)
 
-**5.2.1 — AP budget by rung**
+**5.2.1 — AP budget by level**
 ```
-rung 0-1 (Intern, Software Engineer): 2 AP
-rung 2-3 (Team Lead, Manager):        3 AP
-rung 4-6 (Director, VP, CEO):         4 AP
+level 0-1 (Intern, Software Engineer): 2 AP
+level 2-3 (Team Lead, Manager):        3 AP
+level 4-6 (Director, VP, CEO):         4 AP
 ```
 If a player has `skipActionRounds > 0`: they skip this entire phase this round
 (spend 0 AP), then decrement `skipActionRounds` by 1. (They still take part in
 Income/Lunch/Postmortem.)
 
 **5.2.2 — Actions** (player chooses one per AP; may repeat)
-- **Hire**: pay a Workplace Training board card's `cost` (Productivity) → remove it from the
+- **Pick up**: pay a Workplace Training board card's `cost` (Productivity) → remove it from the
   Workplace Training board. If `type == "One-Shot"`: resolve its `effect` immediately, then
   discard it. If `type == "Permanent"`: add it to the player's `tableau`
   (its ongoing effect now applies every future Income Phase / trigger).
@@ -432,46 +432,46 @@ produce a broken game (Section 9.1).
 
 ### Step 2 — CEO Board Vote (resolve before any other promotion logic)
 ```
-candidates = [p for p in players if p.rung == 5 and p.careerCapital >= 78]
+candidates = [p for p in players if p.level == 5 and p.careerCapital >= 78]
 newCeo = null
 if len(candidates) == 1:
     newCeo = candidates[0]
 elif len(candidates) > 1:
     newCeo = argmax(candidates, key = p.politicalCapital)   // ties: break randomly or by turn order, your call
 if newCeo != null:
-    newCeo.rung = 6
+    newCeo.level = 6
     gameOverAfterRound = current roundNumber
     // IMPORTANT: newCeo must be excluded from Steps 3 and 4 below.
 ```
 The Board Vote is **independent of Review Score** — a player who wasn't this
 Quarter's top scorer can still win the vote and become CEO, as long as they
-clear the Career Capital bar and hold the most Political Capital among rung-5
+clear the Career Capital bar and hold the most Political Capital among level-5
 peers. This is intentional (see Section 9.3).
 
-### Step 3 — Standard Promotions (rungs 1–5)
+### Step 3 — Standard Promotions (levels 1–5)
 Determine `promotionSlots` for the player count (Section 7.4: 1 for 2–5
 players, 2 for 6 players).
 
 ```
 eligible = [p for p in players
-            if p.rung < 5
+            if p.level < 5
             and p != newCeo
-            and meetsRequirement(p, p.rung + 1)]
+            and meetsRequirement(p, p.level + 1)]
 eligible.sort(descending by reviewScore)          // rank ONLY among the eligible
 promoted = eligible[0 : promotionSlots]
 
 for p in promoted:
-    p.rung += 1                                    // exactly one rung — never skip a level
+    p.level += 1                                    // exactly one level — never skip a level
 
 for p in eligible not in promoted:                 // eligible but slot(s) already taken
     p.employeeOfQuarterTokens += 1
     p.politicalCapital += 1
 ```
 
-`meetsRequirement(p, targetRung)`:
+`meetsRequirement(p, targetLevel)`:
 ```
-if targetRung in {4: 2 badges, 5: 4 badges} and p.complianceBadges < required: return false
-return p.careerCapital >= CC_THRESHOLD[targetRung]
+if targetLevel in {4: 2 badges, 5: 4 badges} and p.complianceBadges < required: return false
+return p.careerCapital >= CC_THRESHOLD[targetLevel]
 ```
 
 > **Critical ordering note:** filter to eligible candidates **first**, *then*
@@ -499,10 +499,10 @@ for p in forReview:
             p.hasPip = false
             continue                                 // demotion averted, card consumed
         p.hasPip = false
-        if p.rung == 0:
+        if p.level == 0:
             p.skipActionRounds = max(p.skipActionRounds, 3)   // Freelance Purgatory: skip the whole next Quarter
         else:
-            p.rung -= 1
+            p.level -= 1
             // draw a new Management Style card (see Step 5)
     else:
         p.hasPip = true
@@ -527,7 +527,7 @@ for each player:
 
 ### 6.1 — CC Thresholds (Career Ladder)
 
-| Rung | AP | CC to promote in | Badges required |
+| Level | AP | CC to promote in | Badges required |
 |---|---|---|---|
 | 0 — Intern | 2 | — | — |
 | 1 — Software Engineer | 2 | 8 | — |
@@ -588,7 +588,7 @@ to CEO — ignore the CEO Board Vote's game-ending effect entirely (a player can
 still become CEO and keep playing). At the end of round 24:
 ```
 for each player:
-    finalScore = (rung * 10) + (careerCapital / 2) + politicalCapital
+    finalScore = (level * 10) + (careerCapital / 2) + politicalCapital
                  - burnout + (5 * employeeOfQuarterTokens)
 winner = argmax(players, key = finalScore)
 ```
@@ -748,17 +748,17 @@ Field meanings:
     {"name": "The Absentee Boss", "effect": "Gain 1 free Action Point each round. You may not take the Network action \u2014 your boss is never around to introduce you to anyone.", "flavor": "Hasn't reviewed a time-off request since the reorg. Or approved one. Or seen one."},
     {"name": "The Credit-Stealing Boss", "effect": "Whenever you complete a Project, lose 1 Career Capital but gain 1 Political Capital (sympathetic coworkers notice).", "flavor": "Presented your work at the all-hands. Used the word \u2018we\u2019 a lot. Meant \u2018I.\u2019"},
     {"name": "The Chaotic Pivot-Happy Visionary", "effect": "At the start of each Quarter, flip a coin: heads, gain 2 Productivity; tails, discard 1 Skill card.", "flavor": "The strategy changed twice during this sentence."},
-    {"name": "The Yes-Man Exec", "effect": "Hiring Skill cards costs 1 less Productivity (minimum 1). Mandatory Training costs you 2 lost Action Points next round instead of 1.", "flavor": "Agreed with the last three people who talked to him. In the same meeting."},
+    {"name": "The Yes-Man Exec", "effect": "Picking up Skill cards costs 1 less Productivity (minimum 1). Mandatory Training costs you 2 lost Action Points next round instead of 1.", "flavor": "Agreed with the last three people who talked to him. In the same meeting."},
     {"name": "The Actually Supportive Manager", "effect": "Gain 1 Political Capital every Income Phase. No drawback.", "flavor": "Asked how you're doing and waited for the actual answer. Suspicious, but in a good way."},
     {"name": "The Results-at-Any-Cost Boss", "effect": "Overtime grants +1 extra Productivity, but also +1 extra Burnout, on top of its normal effect.", "flavor": "Doesn't care how you hit the number. Cares extremely if you don't."},
     {"name": "The Buzzword Machine", "effect": "Network grants +1 extra Political Capital. Your Projects cost 1 more Productivity \u2014 nobody can define the deliverable.", "flavor": "Wants to double-click on synergies before we boil the ocean."},
     {"name": "The Founder Who Refuses to Delegate", "effect": "Gain 1 free Action Point each round. Self-Care costs 2 Action Points instead of 1.", "flavor": "\u201cWe're moving fast\u201d has justified everything since 2019."},
-    {"name": "The Tenure-Not-Talent Manager", "effect": "Compliance Badges count double toward promotion requirements. Hiring Skill cards costs 1 more Productivity.", "flavor": "Been here 14 years. Still can't use the new expense software."},
+    {"name": "The Tenure-Not-Talent Manager", "effect": "Compliance Badges count double toward promotion requirements. Picking up Skill cards costs 1 more Productivity.", "flavor": "Been here 14 years. Still can't use the new expense software."},
     {"name": "The Seagull Manager", "effect": "At the start of each Quarter, flip a coin: heads, every other player gains 1 Burnout \u2014 you swooped in and stirred things up; tails, you gain 1 Political Capital \u2014 you flew off before anyone noticed.", "flavor": "Flies in, makes a lot of noise, craps on the roadmap, and is gone before the retro."},
     {"name": "The Mushroom Manager", "effect": "+2 Productivity/round (fed on nothing, somehow still growing); \u22121 Political Capital/round (kept in the dark \u2014 nobody tells you anything).", "flavor": "Kept in the dark and fed manure. Thriving, weirdly."},
-    {"name": "The Peter Principle", "effect": "Your Action Points are always 2, no matter your rung \u2014 promoted well past their competence. Hiring Skill cards costs 1 less Productivity (overcompensates by throwing tools at the problem).", "flavor": "Promoted three times. Still can't find the deploy script."},
+    {"name": "The Peter Principle", "effect": "Your Action Points are always 2, no matter your level \u2014 promoted well past their competence. Picking up Skill cards costs 1 less Productivity (overcompensates by throwing tools at the problem).", "flavor": "Promoted three times. Still can't find the deploy script."},
     {"name": "The Always-On Boss", "effect": "Overtime grants +1 extra Burnout, on top of its normal effect (always expects a same-night reply). Self-Care costs 2 Action Points instead of 1 (there's no such thing as fully logging off).", "flavor": "Texts you at 11 PM. Reacts with a \ud83d\udc4d to your out-of-office reply."},
-    {"name": "The Nepotism Hire", "effect": "+2 Political Capital/round (knows people); Hiring Skill cards costs 1 more Productivity (couldn't approve a headcount request to save their life).", "flavor": "Turns out the CEO is their uncle. Nobody has said this out loud."},
+    {"name": "The Nepotism Hire", "effect": "+2 Political Capital/round (knows people); Picking up Skill cards costs 1 more Productivity (couldn't approve a headcount request to save their life).", "flavor": "Turns out the CEO is their uncle. Nobody has said this out loud."},
     {"name": "The Consultant Turned Manager", "effect": "Your Projects cost 1 less Productivity (loves a framework for everything); \u22121 Political Capital/round (nobody trusts the person who charges by the hour).", "flavor": "Drew a 2x2 matrix. Nobody asked for the 2x2 matrix."}
   ]
 }
@@ -795,7 +795,7 @@ every qualified player a fair shot at the score-based tiebreak.
 **9.3 — The CEO Board Vote is independent of Review Score and independent of
 standard promotion.** It's evaluated separately (Step 2, before Steps 3–4), and
 a VP who wasn't this Quarter's best performer can absolutely win the vote and
-become CEO purely by holding the most Political Capital among rung-5 peers.
+become CEO purely by holding the most Political Capital among level-5 peers.
 This is an intentional satirical beat, not a bug — but it does mean **the newly
 crowned CEO must be explicitly excluded from both the Step 3 promotion pool and
 the Step 4 PIP/demotion pool of the same Review.** An early implementation bug
@@ -810,12 +810,12 @@ to `burnout`, not a once-per-round batch check.** A player can cross the
 threshold mid-Action-Phase (e.g., from Overtime) and must have the Crisis
 resolve before their next action, not queued until end of round.
 
-**9.5 — Promotions advance exactly one rung per Review; a player can never
-skip a level.** No matter how dominant a Quarter's Review Score is, Standard
-Promotion moves a player up by one rung only — you must actually stand at each
+**9.5 — Promotions advance exactly one level per Review; a player can never
+skip one.** No matter how dominant a Quarter's Review Score is, Standard
+Promotion moves a player up by one level only — you must actually stand at each
 level of the ladder before climbing to the next. The Board Vote (Step 2) is
-the sole exception path to rung 6, and it too only fires for players already
-sitting at VP (rung 5).
+the sole exception path to level 6, and it too only fires for players already
+sitting at VP (level 5).
 
 **9.6 — The Evergreen slot never depletes.** Every other Project is a
 one-time board slot; the 5th Kanban Board slot is a repeatable action
@@ -880,7 +880,7 @@ same five-archetype, one-of-each methodology as Section 10:
 
 ## 10. Relationship to the Existing Balance Simulator
 
-`stack_ranked_balance_simulator.py` (included in this project) is a Monte Carlo
+`synergy_corp_balance_simulator.py` (included in this project) is a Monte Carlo
 tool that pits five fixed bot policies (Grinder, Politician, Balanced,
 Workaholic, Cautious) against each other for tens of thousands of games to
 validate that the economy is winnable by more than one playstyle, and that
@@ -899,7 +899,7 @@ games converge in a reasonable number of rounds.
   numbers, or the Designer's Notes section of the rulebook).
 
 **What it deliberately does NOT model, and should not be copied from:**
-- Individual cards. The simulator abstracts "Hiring a Skill card" as a generic
+- Individual cards. The simulator abstracts "Picking up a Skill card" as a generic
   `invest_p` / `invest_pc` action with a diminishing-returns formula, not as
   drawing one of 30 specific named cards with specific effects. **The real
   card-by-card effects in Section 8 are the actual game** — the simulator's
@@ -915,19 +915,19 @@ games converge in a reasonable number of rounds.
   reasonable *starting point* for AI personality profiles, but should almost
   certainly be made more adaptive than the literal bot code.
 
-If you re-run or extend the simulator, `python3 stack_ranked_balance_simulator.py`
+If you re-run or extend the simulator, `python3 synergy_corp_balance_simulator.py`
 regenerates `results.json` and `balance_chart.png` from scratch (no cached
 state) — safe to modify and re-run at any time.
 
-> **Card-faithful harness (`stack_ranked_montecarlo.js`).** The Python tool
+> **Card-faithful harness (`synergy_corp_montecarlo.js`).** The Python tool
 > above is a *coarse economic* model. For the two variant rules in Section 13
 > (Feedback deck, Collaborative Projects) balance was validated instead by
-> `stack_ranked_montecarlo.js`, which drives the **real** `game.js` engine —
+> `synergy_corp_montecarlo.js`, which drives the **real** `game.js` engine —
 > every card, the exact Review, the two new rules, and the reference AI — over
 > thousands of seeded (reproducible) games. It reports (a) win-rate spread
 > across the five archetypes and (b) comeback metrics from all-Balanced
 > "mirror" games, where every seat plays identically so any mid-game lead is
-> pure luck. Run: `node stack_ranked_montecarlo.js [gamesPerCell]`. See
+> pure luck. Run: `node synergy_corp_montecarlo.js [gamesPerCell]`. See
 > Section 13.3 for its findings.
 
 ---
@@ -965,17 +965,17 @@ architecture work:
 
 ## 12. Reference Files In This Project
 
-- `STACK_RANKED_RULEBOOK.md` — full human-readable rulebook with flavor text,
+- `SYNERGY_CORP_RULEBOOK.md` — full human-readable rulebook with flavor text,
   setup narrative, and the Designer's Notes balance-testing writeup.
-- `Stack_Ranked_PrintAndPlay.pdf` — physical card sheets (not needed for the
+- `Synergy_Corp_PrintAndPlay.pdf` — physical card sheets (not needed for the
   digital build, but a useful visual cross-check of card layout/grouping).
   Published as a GitHub Release asset (tag `pdf-assets`), not tracked in the
   repo; regenerate with `generate_print_and_play.py`.
 - `cards.json` — the same card data embedded in Section 8, as a standalone file
   if you'd rather load it directly than extract the fenced block above.
-- `stack_ranked_balance_simulator.py` / `results.json` / `balance_chart.png` —
+- `synergy_corp_balance_simulator.py` / `results.json` / `balance_chart.png` —
   the coarse economic balance-testing tool and its output (Section 10).
-- `stack_ranked_montecarlo.js` — the card-faithful Monte-Carlo harness that
+- `synergy_corp_montecarlo.js` — the card-faithful Monte-Carlo harness that
   drives the real `game.js` engine; used to validate the Section 13 variant
   rules (Section 10 sidebar, Section 13.3).
 
@@ -984,7 +984,7 @@ architecture work:
 ## 13. Variant Rules — Feedback Deck & Collaborative Projects
 
 Two optional rules, implemented in `game.js` behind `state.rules` toggles
-(defaults ON) and validated by `stack_ranked_montecarlo.js`. Every numeric
+(defaults ON) and validated by `synergy_corp_montecarlo.js`. Every numeric
 below is a tunable dial in `DEFAULT_RULES`; the values shown are the tuned
 defaults.
 
@@ -1017,7 +1017,7 @@ Constructive** (−2), each worth `rules.feedbackValue` (=2) "political points".
 - `'score'` *(default)* — whoever tops *this* Review (provisional Review Score
   = CC gained this Quarter + PC − tasks on hand). Self-balancing: it lands on the
   political front-runner, so the strongest scorer eats the negatives.
-- `'rung'` — the ladder / Career-Capital leader. A **stronger comeback** lever
+- `'level'` — the ladder / Career-Capital leader. A **stronger comeback** lever
   (negatives hit whoever is literally ahead), at some archetype-balance cost —
   the "aggressive rubber-band" toggle.
 - `'blend'` / `'spread'` — hybrids (blend CC + `feedbackBlendPcWeight`×PC;
@@ -1079,7 +1079,7 @@ Any player may pour Productivity into another player's **shared** backlog entry.
 > credited the owner regardless turned collaboration into a Career-Capital
 > siphon feeding the low-Productivity archetype.
 
-### 13.3 — Balance Findings (`stack_ranked_montecarlo.js`, 3 000 games/cell)
+### 13.3 — Balance Findings (`synergy_corp_montecarlo.js`, 3 000 games/cell)
 
 5-player, all-distinct-archetype, race-to-CEO. "balSD" = std-dev of the five
 win rates (lower = more even). Comeback metrics are from all-Balanced mirror
@@ -1090,11 +1090,11 @@ the canonical `montecarlo_results.txt` run; re-run to reproduce.)
 | Ruleset | balSD | archetype win-rate range | comeback: bottom-half / dead-last wins | runaway (halftime leader wins) |
 |---|---|---|---|---|
 | **Base game** (both variant rules off) | 2.3pp | 16.3–22.6% (Workaholic) | 38% / 29% | 26% |
-| **Naive literal** (no guardrails, `rung` targeting) | 5.3pp | 15.7–30.5% (Politician) | 43% / 32% | 18% |
+| **Naive literal** (no guardrails, `level` targeting) | 5.3pp | 15.7–30.5% (Politician) | 43% / 32% | 18% |
 | **Recommended** (tuned defaults; `classic` feedback, `score` targeting) | **2.6pp** | 16.4–23.5% (Workaholic) | 39% / 28% | 26% |
-| **Aggressive rubber-band** (`classic`, `rung` targeting) | 5.2pp | 15.6–30.1% (Politician) | 42% / 31% | 18% |
+| **Aggressive rubber-band** (`classic`, `level` targeting) | 5.2pp | 15.6–30.1% (Politician) | 42% / 31% | 18% |
 | **360° Review** (`give-one` feedback, `score` targeting) | 3.3pp | 16.1–24.9% (Workaholic) | 38% / 26% | 26% |
-| **360° Review + rung** (`give-one`, `rung` targeting) | 5.1pp | 16.2–30.2% (Politician) | 45% / 33% | 18% |
+| **360° Review + level** (`give-one`, `level` targeting) | 5.1pp | 16.2–30.2% (Politician) | 45% / 33% | 18% |
 
 These numbers are the **post-change** engine: **every Project inflicts Burnout on
 completion** (roughly +1 across the board; see the deck note in Section 3 and the
@@ -1116,28 +1116,28 @@ Takeaways:
 - The **recommended tuning** (`classic` feedback, `score` targeting) is now among
   the **tightest** configurations measured (balSD 2.6pp) and ships as the default
   — for the first time the shipped texture and the balance optimum coincide.
-- **`rung` targeting now *loosens* balance — the pre-change tension has inverted
+- **`level` targeting now *loosens* balance — the pre-change tension has inverted
   again.** Because the ladder leader is now most often the burnt-out Grinder,
-  aiming the bounded negative at the rung leader over-lifts the low-output
+  aiming the bounded negative at the level leader over-lifts the low-output
   **Politician** to ~30% (balSD ~5.1–5.3pp). It still **raises** comeback
   (bottom-half 42–45%, dead-last 31–33%) and **lowers** runaway (~18%), so it
   remains the stronger *catch-up* toggle — but it is no longer the balance
   optimum. Groups who want a more aggressive rubber band can still set
-  `feedbackTarget:'rung'`; the default stays `score`, now both the tightest and
+  `feedbackTarget:'level'`; the default stays `score`, now both the tightest and
   the shipped feel.
 - **360° Review (`give-one`)** remains a table-feel choice, not a balance lever:
-  balSD 3.3pp with `score` targeting and 5.1pp with `rung`, tracking the `classic`
+  balSD 3.3pp with `score` targeting and 5.1pp with `level`, tracking the `classic`
   modes closely. The same ±`feedbackNetCap` bound governs both feedback modes;
   what changed is only *who* the bounded negative lands on.
 - The **Pareto choice** is now unambiguous: `score` targeting is simultaneously
-  the tightest balance *and* the shipped texture, so it stays the default; `rung`
+  the tightest balance *and* the shipped texture, so it stays the default; `level`
   is exposed as an optional stronger-comeback toggle, and `give-one` as a texture
   choice (secret, simultaneous, everyone-throws-one) — neither a balance lever.
 
 Design guidance drawn from published work on catch-up / leader-bashing (Sirlin
 on skill-preserving "perpetual comeback"; the runaway-leader literature; the
 kingmaker problem in perfect-information take-that; Sidereal Confluence's
-proportional, transparent trade): because Stack Ranked is perfect-information,
+proportional, transparent trade): because Synergy Corp is perfect-information,
 hidden-scoring mitigations are unavailable, so a leader-penalty's swing **must
 be bounded** (hence `feedbackNetCap`) and collaboration must be structured so
 the **helper is never exploited** (hence CC-follows-Productivity and the owner
