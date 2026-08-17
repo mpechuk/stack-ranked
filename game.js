@@ -89,19 +89,19 @@
         {"name": "Negotiate the Vendor Contract (40 Pages of Terms)", "cost": 7, "reward": "10 Career Capital; +1 Burnout.", "flavor": "Nobody read past page 3. That's where the bad clause is."}
       ],
       "evergreen": [
-        {"name": "Answer a “Quick Question” on Slack", "cost": 2, "reward": "3 Career Capital; +2 Burnout.", "flavor": "That was forty-five minutes ago. There are now six people in the thread.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
-        {"name": "Reduce Technical Debt", "cost": 4, "reward": "5 Career Capital; +2 Burnout.", "flavor": "Perpetually 80% done. It has always been 80% done. It will always be 80% done.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
-        {"name": "Untangle the Legacy Spaghetti (One More Time)", "cost": 5, "reward": "6 Career Capital; +2 Burnout.", "flavor": "Found a comment that says “DO NOT REMOVE, NOT SURE WHY.” Removed it anyway.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
-        {"name": "Reply to the Jira Comment From Six Months Ago", "cost": 1, "reward": "1 Career Capital; +2 Burnout.", "flavor": "The person who filed it left the company in Q2. The ticket did not.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
-        {"name": "Delete the Commented-Out Code From 2019", "cost": 2, "reward": "2 Career Capital; +2 Burnout.", "flavor": "It's not documentation. It was never documentation.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
-        {"name": "Un-hardcode the Hardcoded Value", "cost": 3, "reward": "3 Career Capital; +2 Burnout.", "flavor": "Replaced “prod-server-3” with a config flag that defaults to “prod-server-3.”", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
-        {"name": "Rotate the API Keys You Forgot About", "cost": 3, "reward": "4 Career Capital; +3 Burnout.", "flavor": "Rotated three keys. Broke a fourth integration nobody remembered existed.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
-        {"name": "Bump the Node Version (Nothing Breaks. Probably.)", "cost": 4, "reward": "4 Career Capital; +2 Burnout.", "flavor": "247 transitive dependencies quietly disagree.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
-        {"name": "Consolidate the Three Config Files Into One (Now Four)", "cost": 4, "reward": "4 Career Capital; +3 Burnout.", "flavor": "Progress, technically.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
-        {"name": "Archive the Zombie Microservice", "cost": 5, "reward": "7 Career Capital; +3 Burnout.", "flavor": "Nobody knows what calls it. Everybody's afraid to find out.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
-        {"name": "Migrate Off the Framework You Migrated To Last Year", "cost": 6, "reward": "7 Career Capital; +2 Burnout.", "flavor": "The last migration's postmortem recommended this framework.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
-        {"name": "Squash 40 Commits Into “misc fixes”", "cost": 6, "reward": "8 Career Capital; +3 Burnout.", "flavor": "git blame now blames everyone equally.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
-        {"name": "Finally Read the Incident Postmortem Action Items", "cost": 8, "reward": "10 Career Capital; +3 Burnout.", "flavor": "Item 1: “Add more monitoring.” Filed fourteen months ago. Still open.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."}
+        {"name": "Answer a “Quick Question” on Slack", "cost": 2, "reward": "3 Career Capital; +2 Burnout.", "flavor": "That was forty-five minutes ago. There are now six people in the thread.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again)."},
+        {"name": "Reduce Technical Debt", "cost": 4, "reward": "5 Career Capital; +2 Burnout.", "flavor": "Perpetually 80% done. It has always been 80% done. It will always be 80% done.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again)."},
+        {"name": "Untangle the Legacy Spaghetti (One More Time)", "cost": 5, "reward": "6 Career Capital; +2 Burnout.", "flavor": "Found a comment that says “DO NOT REMOVE, NOT SURE WHY.” Removed it anyway.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again)."},
+        {"name": "Reply to the Jira Comment From Six Months Ago", "cost": 1, "reward": "1 Career Capital; +2 Burnout.", "flavor": "The person who filed it left the company in Q2. The ticket did not.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again)."},
+        {"name": "Delete the Commented-Out Code From 2019", "cost": 2, "reward": "2 Career Capital; +2 Burnout.", "flavor": "It's not documentation. It was never documentation.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again)."},
+        {"name": "Un-hardcode the Hardcoded Value", "cost": 3, "reward": "3 Career Capital; +2 Burnout.", "flavor": "Replaced “prod-server-3” with a config flag that defaults to “prod-server-3.”", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again)."},
+        {"name": "Rotate the API Keys You Forgot About", "cost": 3, "reward": "4 Career Capital; +3 Burnout.", "flavor": "Rotated three keys. Broke a fourth integration nobody remembered existed.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again)."},
+        {"name": "Bump the Node Version (Nothing Breaks. Probably.)", "cost": 4, "reward": "4 Career Capital; +2 Burnout.", "flavor": "247 transitive dependencies quietly disagree.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again)."},
+        {"name": "Consolidate the Three Config Files Into One (Now Four)", "cost": 4, "reward": "4 Career Capital; +3 Burnout.", "flavor": "Progress, technically.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again)."},
+        {"name": "Archive the Zombie Microservice", "cost": 5, "reward": "7 Career Capital; +3 Burnout.", "flavor": "Nobody knows what calls it. Everybody's afraid to find out.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again)."},
+        {"name": "Migrate Off the Framework You Migrated To Last Year", "cost": 6, "reward": "7 Career Capital; +2 Burnout.", "flavor": "The last migration's postmortem recommended this framework.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again)."},
+        {"name": "Squash 40 Commits Into “misc fixes”", "cost": 6, "reward": "8 Career Capital; +3 Burnout.", "flavor": "git blame now blames everyone equally.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again)."},
+        {"name": "Finally Read the Incident Postmortem Action Items", "cost": 8, "reward": "10 Career Capital; +3 Burnout.", "flavor": "Item 1: “Add more monitoring.” Filed fourteen months ago. Still open.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again)."}
       ]
     },
     "events": [
@@ -413,7 +413,7 @@
       hasPip: false,
       employeeOfQuarterTokens: 0,
       skipActionRounds: 0,
-      backlog: [],                   // [{ card, lockedScope }] — grows by 1 every Stand-Up, paid off (any entry, any order) via Work a Project
+      backlog: [],                   // [{ card }] — grows by 1 every Stand-Up, paid off (any entry, any order) via Work a Project
       managementStyle: null,        // set at setup
       tableau: [],                  // permanent skill defs
       goldenParachuteArmed: false,
@@ -502,9 +502,9 @@
 
     // Kanban board: 4 early + evergreen fixed in slot 4
     for (let i = 0; i < 4; i++) {
-      state.kanbanBoard.push({ card: drawProject(state), scope: 0, unclaimed: 0, justRefilled: false, evergreen: false });
+      state.kanbanBoard.push({ card: drawProject(state), evergreen: false });
     }
-    state.kanbanBoard.push({ card: drawEvergreen(state), scope: 0, unclaimed: 0, justRefilled: false, evergreen: true });
+    state.kanbanBoard.push({ card: drawEvergreen(state), evergreen: true });
 
     return state;
   }
@@ -682,30 +682,19 @@
     let c = card.cost + (mm(player).skillPickUpDelta || 0);
     return Math.max(1, c);
   }
-  function effectiveProjectCost(player, slot) {
-    if (slot.evergreen) {
-      // Evergreen never scope-creeps; discounts/penalties still apply.
-      let c = slot.card.cost;
-      if (hasSkill(player, "actually-reads-the-documentation")) c -= 1;
-      if (hasSkill(player, "whiteboard-diagram-enthusiast") && skillCount(player) >= 4) c -= 1;
-      c += (mm(player).projectCostDelta || 0);
-      return Math.max(1, c);
-    }
-    let c = slot.card.cost + slot.scope;
+  function effectiveCardWorkCost(player, card) {
+    let c = card.cost;
     if (hasSkill(player, "actually-reads-the-documentation")) c -= 1;
     if (hasSkill(player, "whiteboard-diagram-enthusiast") && skillCount(player) >= 4) c -= 1;
     c += (mm(player).projectCostDelta || 0);
     return Math.max(1, c);
   }
+  function effectiveProjectCost(player, slot) {
+    return effectiveCardWorkCost(player, slot.card);
+  }
   function effectiveBacklogItemCost(player, item) {
     if (!item) return null;
-    // lockedScope is frozen at the moment the task was claimed (0 for Evergreen,
-    // which never scope-creeps); it does not keep accruing while held.
-    let c = item.card.cost + item.lockedScope;
-    if (hasSkill(player, "actually-reads-the-documentation")) c -= 1;
-    if (hasSkill(player, "whiteboard-diagram-enthusiast") && skillCount(player) >= 4) c -= 1;
-    c += (mm(player).projectCostDelta || 0);
-    return Math.max(1, c);
+    return effectiveCardWorkCost(player, item.card);
   }
   function anyAffordableProject(state, player) {
     return player.backlog.some(function (item) { return player.productivity >= effectiveBacklogItemCost(player, item); });
@@ -744,10 +733,10 @@
       (card.reward.burnout ? ", +" + card.reward.burnout + " Burnout" : "") + extra + ".", "action");
     if (slot.evergreen) {
       state.evergreenDiscardPile.push(card);
-      state.kanbanBoard[slotIndex] = { card: drawEvergreen(state), scope: 0, unclaimed: 0, justRefilled: false, evergreen: true };
+      state.kanbanBoard[slotIndex] = { card: drawEvergreen(state), evergreen: true };
     } else {
       state.projectDiscardPile.push(card);
-      state.kanbanBoard[slotIndex] = { card: null, scope: 0, unclaimed: 0, justRefilled: false, evergreen: false };
+      state.kanbanBoard[slotIndex] = { card: null, evergreen: false };
     }
     return { ok: true };
   }
@@ -760,14 +749,13 @@
     const slot = state.kanbanBoard[slotIndex];
     if (!slot || !slot.card) return { ok: false, reason: "No project there." };
     const card = slot.card;
-    player.backlog.push({ card: card, lockedScope: slot.evergreen ? 0 : slot.scope,
-      owner: player.id, shared: false, paid: 0, contribs: {} });
+    player.backlog.push({ card: card, owner: player.id, shared: false, paid: 0, contribs: {} });
     if (slot.evergreen) {
       state.evergreenDiscardPile.push(card);
-      state.kanbanBoard[slotIndex] = { card: drawEvergreen(state), scope: 0, unclaimed: 0, justRefilled: false, evergreen: true };
+      state.kanbanBoard[slotIndex] = { card: drawEvergreen(state), evergreen: true };
     } else {
       state.projectDiscardPile.push(card);
-      state.kanbanBoard[slotIndex] = { card: null, scope: 0, unclaimed: 0, justRefilled: false, evergreen: false };
+      state.kanbanBoard[slotIndex] = { card: null, evergreen: false };
     }
     log(state, player.name + " picks up “" + card.name + "” from the Kanban Board.", "muted");
     return { ok: true };
@@ -1606,34 +1594,18 @@
     }
     state.kanbanBoard.forEach(function (slot) {
       if (slot.evergreen) return;
-      if (!slot.card) {
-        slot.card = drawProject(state);
-        slot.scope = 0; slot.unclaimed = 0; slot.justRefilled = true;
-      } else {
-        slot.justRefilled = false;
-      }
+      if (!slot.card) slot.card = drawProject(state);
     });
 
-    // 2. Scope Creep: slots left unclaimed accrue; +1 cost every 2 rounds unclaimed.
-    state.kanbanBoard.forEach(function (slot) {
-      if (slot.evergreen || !slot.card) return;
-      if (slot.justRefilled) { slot.justRefilled = false; return; }
-      slot.unclaimed += 1;
-      if (slot.unclaimed % 2 === 0) {
-        slot.scope += 1;
-        log(state, "Scope Creep: “" + slot.card.name + "” now costs " + (slot.card.cost + slot.scope) + " P.", "muted");
-      }
-    });
-
-    // 3. Advance First Player
+    // 2. Advance First Player
     state.firstPlayerIndex = (state.firstPlayerIndex + 1) % state.players.length;
 
-    // 4. Quarterly Review
+    // 3. Quarterly Review
     let summary = null;
     if (state.roundNumber % 3 === 0) {
       await resolveFeedbackPhase(state, hooks);   // deal/give Feedback cards, then score
       summary = runReview(state);
-      // 5. Mandatory Training on even-numbered reviews
+      // 4. Mandatory Training on even-numbered reviews
       if (state.reviewCount % 2 === 0) {
         log(state, "Mandatory Training round (every player draws one).", "info");
         state.players.forEach(function (p) {

@@ -203,11 +203,9 @@
   .gcard .crow { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-top: auto; }
   .cost { font-family: var(--mono); font-size: 12px; }
   .cost .n { color: var(--prod); font-weight: 700; }
-  .cost .up { color: var(--bad); }
   .reward { font-family: var(--mono); font-size: 12px; color: var(--cc); }
   .ctype { position: absolute; top: 8px; right: 8px; font-size: 9px; }
   .ctype.perm { color: var(--accent-2); } .ctype.os { color: var(--warn); }
-  .scope { font-size: 10px; color: var(--bad); }
 
   /* Sidebar */
   .turn-panel { padding: 14px; border-bottom: 1px solid var(--line); }
@@ -1087,13 +1085,11 @@
     s.kanbanBoard.forEach(function (slot, i) {
       if (!slot.card) { host.appendChild(el("div", "gcard empty", "empty slot")); return; }
       var card = slot.card;
-      var cost = displayPlayer ? H.effectiveProjectCost(displayPlayer, slot) : (card.cost + slot.scope);
+      var cost = displayPlayer ? H.effectiveProjectCost(displayPlayer, slot) : card.cost;
       var canTake = !!claimingPlayer; // taking is free — no affordability check, just "is a claim pending"
       var g = el("div", "gcard" + (slot.evergreen ? " evergreen hastype" : "") + (canTake ? " affordable" : ""));
-      var baseCost = card.cost + (slot.evergreen ? 0 : slot.scope);
       var costHtml = '<span class="n">' + cost + " P</span>" +
-        (!slot.evergreen && slot.scope ? ' <span class="up">↑' + slot.scope + "</span>" : "") +
-        (displayPlayer && cost !== baseCost ? ' <span class="faint">(base ' + card.cost + ")</span>" : "");
+        (displayPlayer && cost !== card.cost ? ' <span class="faint">(base ' + card.cost + ")</span>" : "");
       var rewardTxt = "+" + card.reward.cc + " CC" +
         (card.reward.pc ? ", +" + card.reward.pc + " PC" : "") +
         (card.reward.badges ? ", +" + card.reward.badges + " Badge" : "") +
