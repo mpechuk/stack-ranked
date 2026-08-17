@@ -3,7 +3,7 @@
  * -----------------------------------------------------------------------------
  * Unlike synergy_corp_balance_simulator.py (a coarse *economic* model that
  * abstracts cards), this harness drives the REAL engine in game.js — every
- * card, the exact Review algorithm, Scope Creep, Burnout, Management Styles,
+ * card, the exact Review algorithm, Burnout, Management Styles,
  * and the two variant rules under test:
  *
  *   1. Feedback deck  (±2 political points, dealt then given at each Review)

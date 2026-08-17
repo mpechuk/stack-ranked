@@ -386,7 +386,7 @@
         "cost": 2,
         "reward": "3 Career Capital; +2 Burnout.",
         "flavor": "That was forty-five minutes ago. There are now six people in the thread.",
-        "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep.",
+        "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again).",
         "image": "cards-images/answer-a-quick-question-on-slack.png"
       },
       {
@@ -394,7 +394,7 @@
         "cost": 4,
         "reward": "5 Career Capital; +2 Burnout.",
         "flavor": "Perpetually 80% done. It has always been 80% done. It will always be 80% done.",
-        "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep.",
+        "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again).",
         "image": "cards-images/reduce-technical-debt.png"
       },
       {
@@ -402,7 +402,7 @@
         "cost": 5,
         "reward": "6 Career Capital; +2 Burnout.",
         "flavor": "Found a comment that says “DO NOT REMOVE, NOT SURE WHY.” Removed it anyway.",
-        "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep.",
+        "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again).",
         "image": "cards-images/untangle-the-legacy-spaghetti-one-more-time.png"
       },
       {
@@ -410,7 +410,7 @@
         "cost": 1,
         "reward": "1 Career Capital; +2 Burnout.",
         "flavor": "The person who filed it left the company in Q2. The ticket did not.",
-        "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep.",
+        "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again).",
         "image": "cards-images/reply-to-the-jira-comment-from-six-months-ago.png"
       },
       {
@@ -418,7 +418,7 @@
         "cost": 2,
         "reward": "2 Career Capital; +2 Burnout.",
         "flavor": "It's not documentation. It was never documentation.",
-        "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep.",
+        "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again).",
         "image": "cards-images/delete-the-commented-out-code-from-2019.png"
       },
       {
@@ -426,7 +426,7 @@
         "cost": 3,
         "reward": "3 Career Capital; +2 Burnout.",
         "flavor": "Replaced “prod-server-3” with a config flag that defaults to “prod-server-3.”",
-        "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep.",
+        "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again).",
         "image": "cards-images/un-hardcode-the-hardcoded-value.png"
       },
       {
@@ -434,7 +434,7 @@
         "cost": 3,
         "reward": "4 Career Capital; +3 Burnout.",
         "flavor": "Rotated three keys. Broke a fourth integration nobody remembered existed.",
-        "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep.",
+        "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again).",
         "image": "cards-images/rotate-the-api-keys-you-forgot-about.png"
       },
       {
@@ -442,7 +442,7 @@
         "cost": 4,
         "reward": "4 Career Capital; +2 Burnout.",
         "flavor": "247 transitive dependencies quietly disagree.",
-        "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep.",
+        "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again).",
         "image": "cards-images/bump-the-node-version-nothing-breaks-probably.png"
       },
       {
@@ -450,7 +450,7 @@
         "cost": 4,
         "reward": "4 Career Capital; +3 Burnout.",
         "flavor": "Progress, technically.",
-        "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep.",
+        "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again).",
         "image": "cards-images/consolidate-the-three-config-files-into-one-now-four.png"
       },
       {
@@ -458,7 +458,7 @@
         "cost": 5,
         "reward": "7 Career Capital; +3 Burnout.",
         "flavor": "Nobody knows what calls it. Everybody's afraid to find out.",
-        "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep.",
+        "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again).",
         "image": "cards-images/archive-the-zombie-microservice.png"
       },
       {
@@ -466,7 +466,7 @@
         "cost": 6,
         "reward": "7 Career Capital; +2 Burnout.",
         "flavor": "The last migration's postmortem recommended this framework.",
-        "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep.",
+        "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again).",
         "image": "cards-images/migrate-off-the-framework-you-migrated-to-last-year.png"
       },
       {
@@ -474,7 +474,7 @@
         "cost": 6,
         "reward": "8 Career Capital; +3 Burnout.",
         "flavor": "git blame now blames everyone equally.",
-        "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep.",
+        "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again).",
         "image": "cards-images/squash-40-commits-into-misc-fixes.png"
       },
       {
@@ -482,7 +482,7 @@
         "cost": 8,
         "reward": "10 Career Capital; +3 Burnout.",
         "flavor": "Item 1: “Add more monitoring.” Filed fourteen months ago. Still open.",
-        "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep.",
+        "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again).",
         "image": "cards-images/finally-read-the-incident-postmortem-action-items.png"
       }
     ]
