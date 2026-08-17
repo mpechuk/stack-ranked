@@ -45,7 +45,7 @@ test('recommended ruleset stays well-balanced', { timeout: 60000 }, async () => 
   // Hard invariant: every race-to-CEO game ends via a real CEO promotion.
   assert.strictEqual(r.ceoDistinct, 100, 'distinct cell must be 100% CEO endings');
   assert.strictEqual(r.ceoMirror, 100, 'mirror cell must be 100% CEO endings');
-  // Archetype balance: post-burnout the field is flat (~3.6pp here). Well under
+  // Archetype balance: post-burnout the field is flat (~3.7pp here). Well under
   // the pre-burnout ~8.6pp — reverting per-Project burnout would spike this.
   assert.ok(r.balSD < 5.5, `balSD too high (${r.balSD}pp) — archetype balance regressed`);
   // Pacing sanity.

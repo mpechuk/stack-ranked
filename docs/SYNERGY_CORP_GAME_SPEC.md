@@ -44,7 +44,7 @@ Companion files in this project (not required to read first, but useful):
 | **Level** | persistent | 0 (Intern) through 6 (CEO). See ladder table in 7.3. |
 | **Productivity (P)** | banked, resets quarterly | Spent to Pick up cards and Work Projects. Not itself Career Capital. |
 | **Political Capital (PC)** | banked, resets quarterly | Gained mainly via Networking. Never spent on anything directly — only ever compared (Review Score, CEO Board Vote). |
-| **Burnout** | persistent gauge | 0–10. At 10, triggers a **Burnout Crisis** immediately (see 5.2.5), not at end-of-round. |
+| **Burnout** | persistent gauge | 0–10. At 10, triggers a **Burnout Crisis** immediately (see 5.2.4), not at end-of-round. |
 | **Career Capital (CC)** | persistent, (almost) monotonic | The permanent "résumé" score. Gates every promotion. Only known way it can ever *decrease* is the **Credit-Stealing Boss** Management Style card (−1 CC per completed Project). Otherwise strictly non-decreasing. |
 | **Quarter Marker** | persistent pointer | A snapshot of a player's CC as of the end of the last Review. Used to compute "CC gained this Quarter" for Review Score. Moves to match current CC at the end of every Review (Step 5). |
 | **Compliance Badges** | persistent counter | Gained from Mandatory Training. Gates Director (needs 2) and VP (needs 4). Never decreases. |
@@ -93,7 +93,7 @@ odds and reshuffle-when-depleted behavior):
 > Late, and Evergreen) inflict Burnout on completion — the amount is printed in
 > each card's `reward` (roughly +1 across the board, more for the nastiest
 > tech-debt cards). Grinding Projects at volume is the game's primary Burnout
-> source, and the lever that keeps the run-hot strategies in check (see 5.2.5 for
+> source, and the lever that keeps the run-hot strategies in check (see 5.2.4 for
 > the Crisis it feeds, and 13.3 for the balance effect).
 
 > **Tier-unlock implementation note:** "Quarter 3" = once the Quarter-3 Review
@@ -128,7 +128,7 @@ Player {
   hasPip: bool
   employeeOfQuarterTokens: int
   skipActionRounds: int          // >0 means "no Action Phase this round, then decrement"
-  backlog: [{card: CardRef, lockedScope: int}]   // grows by 1 every Stand-Up (5.1.2), no size cap; any entry paid off via Work a Project, any order
+  backlog: [{card: CardRef}]     // grows by 1 every Stand-Up (5.1.2), no size cap; any entry paid off via Work a Project, any order
   managementStyle: CardRef
   tableau: [CardRef]             // permanent Skill/Tool cards in play
   goldenParachuteArmed: bool     // true if holding an unused Golden Parachute Clause
@@ -148,7 +148,6 @@ GameState {
   firstPlayerIndex: int          // rotates +1 (mod playerCount) every round
   jobBoard: [CardRef]            // 5 slots (10 at 6 players)
   kanbanBoard: [CardRef]        // 5 slots, one of which is always the Evergreen slot
-  projectUnclaimedRounds: map<boardSlotId, int>   // Scope Creep counters, per slot
   skillDrawPile / skillDiscardPile: [CardRef]
   projectDrawPile / projectDiscardPile: [CardRef]
   evergreenDrawPile / evergreenDiscardPile: [CardRef]   // own 3-card pool for the permanent 5th Kanban slot
@@ -217,7 +216,7 @@ from the shared Kanban Board — same reasoning as 5.2's Sprint):
 
 Claiming (whether mandatory or accepted voluntarily) takes exactly one card
 from the Kanban Board into `player.backlog` —
-`player.backlog.push({card, lockedScope})`. There is still no size cap and
+`player.backlog.push({card})`. There is still no size cap and
 no upper limit — a player who always accepts (or has an empty backlog every
 round) will keep accumulating entries just as before this skip option
 existed.
@@ -230,13 +229,9 @@ next Postmortem (5.4); the Evergreen slot immediately redraws a replacement
 from its own pool (5.2.3) — which is what makes it possible to satisfy every
 player's claim in the same Stand-Up even when all 4 non-Evergreen slots are
 already spoken for (the Evergreen slot can supply an unlimited number of
-sequential claims in a single Stand-Up, since it never runs out).
-`lockedScope` is set to whatever Scope Creep (5.2.4) that slot had accrued
-at the moment of claiming (always 0 for the Evergreen slot, which is
-exempt) — it is **frozen** from this point on for that specific backlog
-entry and does not keep increasing while it sits in the backlog, even after
-a new card refills that slot and *its* Scope Creep starts accruing
-independently.
+sequential claims in a single Stand-Up, since it never runs out). A card's
+Productivity cost is fixed the moment it's claimed and does not change while
+it sits in the backlog.
 
 If literally no card is available anywhere on the board to satisfy this
 (every slot — including Evergreen — is empty), skip it silently for that
@@ -292,7 +287,7 @@ Income/Lunch/Postmortem.)
   (its ongoing effect now applies every future Income Phase / trigger).
 - **Work a Project**: choose **any one entry** in the player's own backlog
   (`player.backlog` — accumulated at Stand-Up, see 5.1.2) and pay its
-  Productivity cost (`card.cost + lockedScope`, plus the same discounts as
+  Productivity cost (`card.cost`, plus the same discounts as
   before) → apply its `reward` immediately, then remove that entry from the
   backlog. This is the **only** way to pay for and complete a backlog entry
   — Stand-Up only ever adds one, never pays for one (5.1.2). The player is
@@ -312,7 +307,7 @@ Income/Lunch/Postmortem.)
 - **Request a Transfer** (once per player per Quarter — gate on a
   `_transferUsedThisQuarter` flag reset at the top of each Quarter, alongside the
   other per-Quarter usage flags): costs the AP slot **and** `burnout += 2`
-  (checking for a Crisis right away — see 5.2.5). Draw the top **2** cards of the
+  (checking for a Crisis right away — see 5.2.4). Draw the top **2** cards of the
   Management Style deck (reshuffling the discard when the draw pile empties, same
   as any deck), discard the player's current Management Style card, let the player
   **keep one** of the two drawn and discard the other, then re-sync any Skill-based
@@ -328,7 +323,7 @@ Income/Lunch/Postmortem.)
 - **Overtime** (once per player per round, doesn't consume an AP slot — check
   and clear `overtimeUsedThisRound` at the top of each player's turn): grants
   **+1 AP to spend this round**, and immediately applies `burnout += 2` (checking
-  for a Crisis right away — see 5.2.5). A player may take this before, during,
+  for a Crisis right away — see 5.2.4). A player may take this before, during,
   or after their normal AP spend; simplest implementation is to let them
   toggle it in the UI at any point during their turn and just extend their
   remaining-AP counter by 1 once.
@@ -338,9 +333,7 @@ Unlike every other Project, the 5th Kanban Board slot never empties. It is
 filled from its own **Evergreen pool** (`projects.evergreen`, 13 designs
 spanning cost 1–8, every single one carrying a Burnout cost — tech debt always
 costs you something — from cheap-and-mild filler up to pricier, nastier
-paydowns) rather than the main Project draw pile, and it is also **exempt
-from Scope Creep** (its cost never increases, regardless of which Evergreen
-card currently occupies it).
+paydowns) rather than the main Project draw pile.
 
 When the card in that slot is claimed: discard it to `evergreenDiscardPile`,
 then immediately draw the next card from `evergreenDrawPile` (reshuffling
@@ -352,14 +345,7 @@ slot itself always holds *some* Evergreen card and never sits empty.
 Functionally, treat the slot as an always-available repeatable action rather
 than a depleting board slot, whose specific cost/reward varies by draw.
 
-**5.2.4 — Scope Creep**
-Track, per Kanban Board slot (excluding Evergreen), how many full rounds it
-has sat unclaimed. Every time 2 full rounds pass with no claim, `cost += 1` for
-that slot (reward unchanged). Reset the counter to 0 whenever the slot is
-refilled with a new card. This is most simply implemented as a per-slot
-counter incremented once at Postmortem (5.4) and checked there.
-
-**5.2.5 — Burnout Crisis (interrupt, not end-of-round check)**
+**5.2.4 — Burnout Crisis (interrupt, not end-of-round check)**
 Check **immediately** every single time a player's `burnout` value changes
 (Overtime, certain Skill/Project/Event effects) — not once at the end of the
 round:
@@ -391,15 +377,12 @@ inferred.
 ### 5.4 — Postmortem
 1. Refill the Workplace Training board and Kanban Board back to full size (5 slots each,
    10 Workplace Training board slots at 6 players — see 7.4), drawing from the appropriate
-   tier-gated pool (see Section 3's tier-unlock note). Reset the Scope Creep
-   counter to 0 for any newly-filled Project slot.
-2. Increment Scope Creep counters (5.2.4) for slots that were *not* refilled
-   this Postmortem (i.e., stayed unclaimed).
-3. Advance `firstPlayerIndex` to the next player in turn order.
-4. If `roundNumber` is about to complete a **Quarter** (i.e. `roundNumber % 3
+   tier-gated pool (see Section 3's tier-unlock note).
+2. Advance `firstPlayerIndex` to the next player in turn order.
+3. If `roundNumber` is about to complete a **Quarter** (i.e. `roundNumber % 3
    == 0`), run the Quarterly Performance Review (Section 6) before moving to
    the next round.
-5. If the review that just completed is an **even-numbered** Review (2nd, 4th,
+4. If the review that just completed is an **even-numbered** Review (2nd, 4th,
    6th… — i.e. `roundNumber` is 6, 12, 18…), every player simultaneously draws
    and resolves one Mandatory Training card (see `trainings` array, Section 8)
    before the next round's Income Phase. This is otherwise identical in
@@ -612,7 +595,7 @@ mid-game option.
 This is the literal source of truth for every card's cost, effect, and reward.
 Field meanings:
 - Skills (`skills.tier1/tier2/tier3`): `cost` in Productivity, `type` is `"Permanent"` (joins tableau, effect applies every relevant trigger/round) or `"One-Shot"` (resolve `effect` once immediately, then discard).
-- Projects (`projects.early/mid/late/evergreen`): `cost` in Productivity, `reward` applied immediately on claim. The `evergreen` entries additionally have a `note` field documenting their always-available, Scope-Creep-exempt, own-pool behavior (Section 5.2.3).
+- Projects (`projects.early/mid/late/evergreen`): `cost` in Productivity, `reward` applied immediately on claim. The `evergreen` entries additionally have a `note` field documenting their always-available, own-pool behavior (Section 5.2.3).
 - `events` (Office Chaos), `trainings` (Mandatory Training), `management` (Management Style): each just has `name`, `effect`, `flavor` — no cost, since none of these are purchased.
 - `flavor` fields are display-only joke text — show them in the UI (they are part of the product) but they never affect game logic.
 
@@ -682,19 +665,19 @@ Field meanings:
       {"name": "Negotiate the Vendor Contract (40 Pages of Terms)", "cost": 7, "reward": "10 Career Capital; +1 Burnout.", "flavor": "Nobody read past page 3. That's where the bad clause is."}
     ],
     "evergreen": [
-      {"name": "Answer a “Quick Question” on Slack", "cost": 2, "reward": "3 Career Capital; +2 Burnout.", "flavor": "That was forty-five minutes ago. There are now six people in the thread.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
-      {"name": "Reduce Technical Debt", "cost": 4, "reward": "5 Career Capital; +2 Burnout.", "flavor": "Perpetually 80% done. It has always been 80% done. It will always be 80% done.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
-      {"name": "Untangle the Legacy Spaghetti (One More Time)", "cost": 5, "reward": "6 Career Capital; +2 Burnout.", "flavor": "Found a comment that says “DO NOT REMOVE, NOT SURE WHY.” Removed it anyway.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
-      {"name": "Reply to the Jira Comment From Six Months Ago", "cost": 1, "reward": "1 Career Capital; +2 Burnout.", "flavor": "The person who filed it left the company in Q2. The ticket did not.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
-      {"name": "Delete the Commented-Out Code From 2019", "cost": 2, "reward": "2 Career Capital; +2 Burnout.", "flavor": "It's not documentation. It was never documentation.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
-      {"name": "Un-hardcode the Hardcoded Value", "cost": 3, "reward": "3 Career Capital; +2 Burnout.", "flavor": "Replaced “prod-server-3” with a config flag that defaults to “prod-server-3.”", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
-      {"name": "Rotate the API Keys You Forgot About", "cost": 3, "reward": "4 Career Capital; +3 Burnout.", "flavor": "Rotated three keys. Broke a fourth integration nobody remembered existed.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
-      {"name": "Bump the Node Version (Nothing Breaks. Probably.)", "cost": 4, "reward": "4 Career Capital; +2 Burnout.", "flavor": "247 transitive dependencies quietly disagree.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
-      {"name": "Consolidate the Three Config Files Into One (Now Four)", "cost": 4, "reward": "4 Career Capital; +3 Burnout.", "flavor": "Progress, technically.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
-      {"name": "Archive the Zombie Microservice", "cost": 5, "reward": "7 Career Capital; +3 Burnout.", "flavor": "Nobody knows what calls it. Everybody's afraid to find out.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
-      {"name": "Migrate Off the Framework You Migrated To Last Year", "cost": 6, "reward": "7 Career Capital; +2 Burnout.", "flavor": "The last migration's postmortem recommended this framework.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
-      {"name": "Squash 40 Commits Into “misc fixes”", "cost": 6, "reward": "8 Career Capital; +3 Burnout.", "flavor": "git blame now blames everyone equally.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."},
-      {"name": "Finally Read the Incident Postmortem Action Items", "cost": 8, "reward": "10 Career Capital; +3 Burnout.", "flavor": "Item 1: “Add more monitoring.” Filed fourteen months ago. Still open.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again). Exempt from Scope Creep."}
+      {"name": "Answer a “Quick Question” on Slack", "cost": 2, "reward": "3 Career Capital; +2 Burnout.", "flavor": "That was forty-five minutes ago. There are now six people in the thread.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again)."},
+      {"name": "Reduce Technical Debt", "cost": 4, "reward": "5 Career Capital; +2 Burnout.", "flavor": "Perpetually 80% done. It has always been 80% done. It will always be 80% done.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again)."},
+      {"name": "Untangle the Legacy Spaghetti (One More Time)", "cost": 5, "reward": "6 Career Capital; +2 Burnout.", "flavor": "Found a comment that says “DO NOT REMOVE, NOT SURE WHY.” Removed it anyway.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again)."},
+      {"name": "Reply to the Jira Comment From Six Months Ago", "cost": 1, "reward": "1 Career Capital; +2 Burnout.", "flavor": "The person who filed it left the company in Q2. The ticket did not.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again)."},
+      {"name": "Delete the Commented-Out Code From 2019", "cost": 2, "reward": "2 Career Capital; +2 Burnout.", "flavor": "It's not documentation. It was never documentation.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again)."},
+      {"name": "Un-hardcode the Hardcoded Value", "cost": 3, "reward": "3 Career Capital; +2 Burnout.", "flavor": "Replaced “prod-server-3” with a config flag that defaults to “prod-server-3.”", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again)."},
+      {"name": "Rotate the API Keys You Forgot About", "cost": 3, "reward": "4 Career Capital; +3 Burnout.", "flavor": "Rotated three keys. Broke a fourth integration nobody remembered existed.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again)."},
+      {"name": "Bump the Node Version (Nothing Breaks. Probably.)", "cost": 4, "reward": "4 Career Capital; +2 Burnout.", "flavor": "247 transitive dependencies quietly disagree.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again)."},
+      {"name": "Consolidate the Three Config Files Into One (Now Four)", "cost": 4, "reward": "4 Career Capital; +3 Burnout.", "flavor": "Progress, technically.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again)."},
+      {"name": "Archive the Zombie Microservice", "cost": 5, "reward": "7 Career Capital; +3 Burnout.", "flavor": "Nobody knows what calls it. Everybody's afraid to find out.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again)."},
+      {"name": "Migrate Off the Framework You Migrated To Last Year", "cost": 6, "reward": "7 Career Capital; +2 Burnout.", "flavor": "The last migration's postmortem recommended this framework.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again)."},
+      {"name": "Squash 40 Commits Into “misc fixes”", "cost": 6, "reward": "8 Career Capital; +3 Burnout.", "flavor": "git blame now blames everyone equally.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again)."},
+      {"name": "Finally Read the Incident Postmortem Action Items", "cost": 8, "reward": "10 Career Capital; +3 Burnout.", "flavor": "Item 1: “Add more monitoring.” Filed fourteen months ago. Still open.", "note": "Evergreen: this slot never leaves the Kanban Board. When claimed, discard this card and immediately draw a new card from the Evergreen pool into the same slot (this one may come up again)."}
     ]
   },
   "events": [
@@ -822,9 +805,8 @@ one-time board slot; the 5th Kanban Board slot is a repeatable action
 disguised as a board slot. Claiming it just draws the next card from its own
 small Evergreen pool into the same slot — don't let it get accidentally swept
 up in the normal Kanban "refill empty slots" logic (5.4) as if it needed
-replacing from the main Project pool, and don't let it drop out of Scope Creep
-accounting into the regular path either — it draws from its own pool and
-never leaves the board.
+replacing from the main Project pool. It draws from its own pool and never
+leaves the board.
 
 **9.7 — Quarter Marker moves *after* everything else in a Review, not before.**
 Review Score (Step 1) must be computed against the marker position left over
@@ -870,9 +852,9 @@ same five-archetype, one-of-each methodology as Section 10:
   run-hot Workaholic the strongest seat (~34%). A subsequent rebalance —
   **every Project now inflicts Burnout on completion** — reined it back in: over
   a 3000-game distinct sweep (recommended ruleset, race-to-ceo) the five
-  archetypes now sit at Workaholic 24%, Politician 23%, Balanced 19%, Cautious
-  19%, Grinder 16% (balSD 2.6pp, down from 8.6pp), with comeback and runaway
-  held (bottom-half winner 39%, dead-last 28%, runaway 26%). Burnout does the
+  archetypes now sit at Politician 24%, Workaholic 24%, Grinder 18%, Balanced
+  18%, Cautious 17% (balSD 3.0pp, down from 8.6pp), with comeback and runaway
+  held (bottom-half winner 40%, dead-last 29%, runaway 25%). Burnout does the
   flattening — Crises rise to ~5/game and Self-Care to ~63 actions/game, so
   grinding at volume is now self-limiting. See §13.1 / §13.3.
 
@@ -1089,18 +1071,18 @@ the canonical `montecarlo_results.txt` run; re-run to reproduce.)
 
 | Ruleset | balSD | archetype win-rate range | comeback: bottom-half / dead-last wins | runaway (halftime leader wins) |
 |---|---|---|---|---|
-| **Base game** (both variant rules off) | 2.3pp | 16.3–22.6% (Workaholic) | 38% / 29% | 26% |
-| **Naive literal** (no guardrails, `level` targeting) | 5.3pp | 15.7–30.5% (Politician) | 43% / 32% | 18% |
-| **Recommended** (tuned defaults; `classic` feedback, `score` targeting) | **2.6pp** | 16.4–23.5% (Workaholic) | 39% / 28% | 26% |
-| **Aggressive rubber-band** (`classic`, `level` targeting) | 5.2pp | 15.6–30.1% (Politician) | 42% / 31% | 18% |
-| **360° Review** (`give-one` feedback, `score` targeting) | 3.3pp | 16.1–24.9% (Workaholic) | 38% / 26% | 26% |
-| **360° Review + level** (`give-one`, `level` targeting) | 5.1pp | 16.2–30.2% (Politician) | 45% / 33% | 18% |
+| **Base game** (both variant rules off) | 3.0pp | 14.7–23.0% (Workaholic) | 39% / 28% | 25% |
+| **Naive literal** (no guardrails, `level` targeting) | 4.6pp | 17.4–29.3% (Politician) | 45% / 32% | 17% |
+| **Recommended** (tuned defaults; `classic` feedback, `score` targeting) | **3.0pp** | 16.8–23.8% (Politician) | 40% / 29% | 25% |
+| **Aggressive rubber-band** (`classic`, `level` targeting) | 4.4pp | 17.4–28.7% (Politician) | 44% / 32% | 18% |
+| **360° Review** (`give-one` feedback, `score` targeting) | 3.3pp | 17.1–25.8% (Workaholic) | 37% / 27% | 26% |
+| **360° Review + level** (`give-one`, `level` targeting) | 4.7pp | 15.8–29.2% (Politician) | 45% / 32% | 18% |
 
 These numbers are the **post-change** engine: **every Project inflicts Burnout on
 completion** (roughly +1 across the board; see the deck note in Section 3 and the
-Crisis in 5.2.5). The headline shift from the pre-change tuning is that the field
+Crisis in 5.2.4). The headline shift from the pre-change tuning is that the field
 is now **flat** — under `score` targeting no archetype wins more than ~24% or less
-than ~16% (balSD 2.3–2.6pp, down from ~8.6). The per-Project Burnout tolls the
+than ~15% (balSD 3.0–3.3pp, down from ~8.6). The per-Project Burnout tolls the
 run-hot **Workaholic** and **Grinder** — via more Burnout Crises and the Self-Care
 they must spend Action Points on — so they fall back to the pack while the
 steadier **Balanced/Cautious/Politician** rise. Burnout load roughly doubles: ~5
@@ -1109,24 +1091,24 @@ now a resource players manage all game rather than ignore.
 
 Takeaways:
 - The **base game is comeback-friendly and now very even** — under `score`
-  targeting balSD sits at 2.3–2.6pp (was ~8.6pp). The halftime leader still wins
-  only ~26% of equal-skill games and a dead-last player ~28–29%: the per-Project
+  targeting balSD sits at 3.0pp (was ~8.6pp). The halftime leader still wins
+  only ~25% of equal-skill games and a dead-last player ~28–29%: the per-Project
   Burnout tightened archetype balance without disturbing the (already good)
   comeback/runaway profile.
-- The **recommended tuning** (`classic` feedback, `score` targeting) is now among
-  the **tightest** configurations measured (balSD 2.6pp) and ships as the default
-  — for the first time the shipped texture and the balance optimum coincide.
-- **`level` targeting now *loosens* balance — the pre-change tension has inverted
-  again.** Because the ladder leader is now most often the burnt-out Grinder,
-  aiming the bounded negative at the level leader over-lifts the low-output
-  **Politician** to ~30% (balSD ~5.1–5.3pp). It still **raises** comeback
-  (bottom-half 42–45%, dead-last 31–33%) and **lowers** runaway (~18%), so it
-  remains the stronger *catch-up* toggle — but it is no longer the balance
-  optimum. Groups who want a more aggressive rubber band can still set
-  `feedbackTarget:'level'`; the default stays `score`, now both the tightest and
-  the shipped feel.
+- The **recommended tuning** (`classic` feedback, `score` targeting) ties the
+  base game as the **tightest** configuration measured on balSD (3.0pp) and has
+  the tightest overall win-rate spread (7.0pp) — it ships as the default, so the
+  shipped texture and the balance optimum coincide.
+- **`level` targeting still *loosens* balance.** Because the ladder leader is
+  most often the burnt-out Grinder, aiming the bounded negative at the level
+  leader over-lifts the low-output **Politician** to ~29% (balSD ~4.4–4.7pp). It
+  still **raises** comeback (bottom-half 44–45%, dead-last 32%) and **lowers**
+  runaway (~17–18%), so it remains the stronger *catch-up* toggle — but it is
+  no longer the balance optimum. Groups who want a more aggressive rubber band
+  can still set `feedbackTarget:'level'`; the default stays `score`, now both
+  the tightest and the shipped feel.
 - **360° Review (`give-one`)** remains a table-feel choice, not a balance lever:
-  balSD 3.3pp with `score` targeting and 5.1pp with `level`, tracking the `classic`
+  balSD 3.3pp with `score` targeting and 4.7pp with `level`, tracking the `classic`
   modes closely. The same ±`feedbackNetCap` bound governs both feedback modes;
   what changed is only *who* the bounded negative lands on.
 - The **Pareto choice** is now unambiguous: `score` targeting is simultaneously
