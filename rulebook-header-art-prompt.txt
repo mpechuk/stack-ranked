@@ -1,0 +1,30 @@
+In the `stack-ranked` repository, add an illustrated header image to the first
+page of `docs/Synergy_Corp_Rulebook.pdf`.
+
+Create a wide banner image matching the existing Synergy Corp visual identity:
+retro mid-century corporate propaganda, burnt orange and navy palette, cream
+paper texture, bold sunburst composition, and ambitious office workers climbing
+an absurd corporate ladder toward an executive office. Keep the center-left
+visually quiet so overlaid text remains readable. Do not include words, logos,
+letters, watermarks, borders, or mock document text. Use a 5:2 landscape aspect
+ratio at print-quality resolution.
+
+Save the generated artwork as `table-images/rulebook-header.png`.
+
+Update `generate_rulebook_pdf.py` so:
+
+- The banner appears only on the rulebook's first page.
+- It spans the usable page width while preserving its aspect ratio.
+- The rulebook title and subtitle remain selectable PDF text, positioned cleanly
+  with the artwork.
+- Text has sufficient contrast, using a subtle navy panel or gradient overlay if
+  needed.
+- The cover remains balanced and print-safe within the existing margins.
+- Missing or unreadable artwork gracefully falls back to the current text-only
+  cover.
+- All later pages remain unchanged.
+
+Regenerate all affected PDFs locally, render the complete rulebook for visual
+inspection, and verify there is no clipping, distortion, unexpected blank page,
+or overlap. Preserve unrelated working-tree changes. Report the final PDF path
+and summarize the implementation.

@@ -29,7 +29,7 @@ JS and runs headlessly in Node.
 | `synergy_corp_balance_simulator.py` | Old **coarse economic** sim (abstracts cards). Reference only; does NOT model the variant rules. |
 | `montecarlo_results.txt` | Saved canonical output of the JS harness. |
 | `generate_*.py` | PDF generators (see §6). |
-| `card-art-prompts.txt`, `player-mat-art-prompts.txt`, `career-ladder-art-prompts.txt`, `badge-art-prompts.txt` | Image-gen prompts for the (mostly missing) card/mat/ladder/badge art. |
+| `card-art-prompts.txt`, `player-mat-art-prompts.txt`, `career-ladder-art-prompts.txt`, `badge-art-prompts.txt`, `rulebook-header-art-prompt.txt` | Image-gen prompts for the card, table, badge, and rulebook cover art. |
 | `cards-images/`, `table-images/` | Card / table art PNGs (**Git LFS** — see §6). Only a handful exist; every generator tolerates missing art. |
 
 ---
@@ -116,7 +116,7 @@ Deps: `pip install reportlab pillow markdown beautifulsoup4`. **Python 3.9** her
 
 | Command | Reads | Writes (git-ignored; auto-published by CI, or via the publish script) |
 |---|---|---|
-| `python3 generate_rulebook_pdf.py` | `docs/SYNERGY_CORP_RULEBOOK.md` | `docs/Synergy_Corp_Rulebook.pdf` |
+| `python3 generate_rulebook_pdf.py` | `docs/SYNERGY_CORP_RULEBOOK.md` + optional `table-images/rulebook-header.png` | `docs/Synergy_Corp_Rulebook.pdf` |
 | `python3 generate_print_and_play.py` | `cards.json` | `docs/Synergy_Corp_PrintAndPlay.pdf` |
 | `python3 generate_player_mat.py` | self-contained layout + `table-images/` | `docs/Synergy_Corp_PlayerMat.pdf` |
 | `python3 generate_career_ladder.py` | `leaderboard.md` | `docs/Synergy_Corp_CareerLadder.pdf` |
