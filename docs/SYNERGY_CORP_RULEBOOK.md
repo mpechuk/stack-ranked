@@ -163,7 +163,7 @@ there without burning out.
 ## 3. Welcome to Synergy Corp
 
 You started in the mailroom — metaphorically, or possibly literally, HR was
-vague about it. Somewhere above you, seven layers of management stand between
+vague about it. Somewhere above you, six layers of management stand between
 you and the corner office, and every one of them got there the same way
 you're about to try: performance reviews, strategic networking, and a truly
 heroic tolerance for mandatory training videos.

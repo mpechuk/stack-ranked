@@ -8,6 +8,10 @@ Markdown — the Table of Contents and the inline cross-references scattered
 through the rules — becomes a clickable jump to that heading, using the
 same slug algorithm GitHub uses so the existing anchors resolve as-is.
 
+The cover optionally uses table-images/rulebook-header.png as a full-width
+banner. If the image is missing or unreadable, the original text-only cover is
+rendered instead.
+
 Run: python3 generate_rulebook_pdf.py
 Requires: pip install reportlab markdown beautifulsoup4
 """
@@ -22,17 +26,19 @@ from reportlab.lib import colors
 from reportlab.lib.colors import HexColor
 from reportlab.lib.enums import TA_CENTER, TA_LEFT
 from reportlab.lib.pagesizes import letter
+from reportlab.lib.utils import ImageReader
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.units import inch
 from reportlab.pdfbase.pdfmetrics import stringWidth
 from reportlab.platypus import (
-    Flowable, HRFlowable, PageBreak, Paragraph, SimpleDocTemplate, Spacer,
-    Table, TableStyle,
+    Flowable, HRFlowable, PageBreakIfNotEmpty, Paragraph, SimpleDocTemplate,
+    Spacer, Table, TableStyle,
 )
 
 ROOT = Path(__file__).resolve().parent
 RULEBOOK_MD = ROOT / "docs" / "SYNERGY_CORP_RULEBOOK.md"
 OUTPUT_PDF = ROOT / "docs" / "Synergy_Corp_Rulebook.pdf"
+RULEBOOK_HEADER_IMAGE = ROOT / "table-images" / "rulebook-header.png"
 
 PAGE_W, PAGE_H = letter
 MARGIN = 0.75 * inch
@@ -44,6 +50,7 @@ MUTED = HexColor("#666666")
 RULE_COLOR = HexColor("#c9c9c9")
 TABLE_HEAD_BG = ACCENT
 TABLE_ROW_ALT = HexColor("#f2f2f2")
+COVER_NAVY = HexColor("#1b2a3a")
 
 HEADING_LEVEL = {"h2": 1, "h3": 2, "h4": 3}
 
@@ -157,6 +164,50 @@ def next_meaningful_sibling(tag):
     return sib
 
 
+class CoverBanner(Flowable):
+    """Full-width cover artwork with selectable title text overlaid."""
+
+    def __init__(self, image_path, title, subtitle):
+        super().__init__()
+        self.image = ImageReader(str(image_path))
+        image_w, image_h = self.image.getSize()
+        self.width = CONTENT_W
+        self.height = self.width * image_h / image_w
+        self.title = clean_text(title)
+        self.subtitle = clean_text(subtitle)
+
+    def draw(self):
+        canvas = self.canv
+        canvas.saveState()
+        canvas.drawImage(
+            self.image, 0, 0,
+            width=self.width, height=self.height,
+            preserveAspectRatio=True, anchor="c", mask="auto",
+        )
+
+        text_x = 18
+        title_y = self.height * 0.58
+        canvas.setFillColor(COVER_NAVY)
+        canvas.setFont("Helvetica-Bold", 27)
+        canvas.drawString(text_x, title_y, self.title)
+        canvas.setFont("Helvetica-Bold", 13.5)
+        canvas.drawString(text_x, title_y - 24, self.subtitle)
+        canvas.setStrokeColor(COVER_NAVY)
+        canvas.setLineWidth(1.2)
+        canvas.line(text_x, title_y - 34, self.width * 0.48, title_y - 34)
+        canvas.restoreState()
+
+
+def make_cover_banner(title, subtitle):
+    """Return a cover banner, or None when its optional artwork is unusable."""
+    if not RULEBOOK_HEADER_IMAGE.is_file():
+        return None
+    try:
+        return CoverBanner(RULEBOOK_HEADER_IMAGE, title, subtitle)
+    except Exception:
+        return None
+
+
 # ---------------------------------------------------------------------------
 # Block-level renderers
 # ---------------------------------------------------------------------------
@@ -243,6 +294,7 @@ def render_table(tag):
 def render_document(soup):
     flowables = []
     seen_h2 = False
+    banner_subtitle_node = None
 
     for node in soup.contents:
         if not isinstance(node, Tag):
@@ -251,17 +303,34 @@ def render_document(soup):
 
         if name == "h1":
             title_text = node.get_text()
-            flowables.append(Spacer(1, 0.6 * inch))
             flowables.append(Bookmark(slugify(title_text), title_text, 0))
-            flowables.append(Paragraph(inline_markup(node), STYLES["title"]))
+            subtitle_node = next_meaningful_sibling(node)
+            subtitle_text = (
+                subtitle_node.get_text()
+                if isinstance(subtitle_node, Tag) and subtitle_node.name == "h3"
+                else ""
+            )
+            banner = make_cover_banner(title_text, subtitle_text)
+            if banner is not None:
+                banner_subtitle_node = subtitle_node
+                flowables.append(Spacer(1, 0.12 * inch))
+                flowables.append(banner)
+                flowables.append(Spacer(1, 0.22 * inch))
+            else:
+                flowables.append(Spacer(1, 0.6 * inch))
+                flowables.append(Paragraph(inline_markup(node), STYLES["title"]))
 
         elif name == "h3" and not seen_h2:
-            flowables.append(Paragraph(inline_markup(node), STYLES["subtitle"]))
+            if node is not banner_subtitle_node:
+                flowables.append(Paragraph(inline_markup(node), STYLES["subtitle"]))
 
         elif name in HEADING_LEVEL:
             if name == "h2":
                 seen_h2 = True
-                flowables.append(PageBreak())
+                # A large preceding table can finish by flowing onto a new,
+                # otherwise empty page. Avoid adding a second break there,
+                # which would leave a blank page before this section.
+                flowables.append(PageBreakIfNotEmpty())
             heading_text = node.get_text()
             flowables.append(Bookmark(slugify(heading_text), heading_text, HEADING_LEVEL[name]))
             flowables.append(Paragraph(inline_markup(node), STYLES[name]))
@@ -294,7 +363,13 @@ def render_document(soup):
             table = render_table(node)
             if table is not None:
                 flowables.append(table)
-                flowables.append(Spacer(1, 12))
+                # Do not let decorative trailing space spill onto its own page
+                # immediately before a section-level page break.
+                nxt = next_meaningful_sibling(node)
+                if isinstance(nxt, Tag) and nxt.name == "hr":
+                    nxt = next_meaningful_sibling(nxt)
+                if not (isinstance(nxt, Tag) and nxt.name == "h2"):
+                    flowables.append(Spacer(1, 12))
 
         elif name == "blockquote":
             flowables.append(Paragraph(inline_markup(node), STYLES["tagline"]))
