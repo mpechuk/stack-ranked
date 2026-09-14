@@ -264,7 +264,7 @@ def draw_quick_reference(c, x, top, w, h):
         f"<b>Overtime</b> (1/round): +1 Action Point, +2 {icon_tag(RESOURCE_EMOJI['Burnout'], 8)}Burnout.<br/>"
         f"{icon_tag(RESOURCE_EMOJI['Burnout'], 8)}<b>Burnout Crisis</b> at 10: reset to 6, "
         "−2 Political Capital, skip next Sprint.<br/>"
-        "<b>Review Score</b> = CC gained since Quarter Marker + Political Capital "
+        "<b>Performance Review Score</b> = CC gained since Quarter Marker + Political Capital "
         "on hand + Feedback held − (Tasks on hand).<br/>"
         f"{memo_icon}<b>Feedback</b> (variant): 1 card each at Review, keep or "
         "give; ±2 pts, net capped ±4. <i>360° mode:</i> get a +/− pair, secretly "
@@ -272,7 +272,7 @@ def draw_quick_reference(c, x, top, w, h):
         f"{handshake_icon}<b>Collaborate</b> (variant): pool Productivity on a shared "
         "Project — contributors split the CC; owner takes PC in lieu."
     )
-    body = Paragraph(bullets, style("ref_bullets", 6.8, 9, color=INK))
+    body = Paragraph(bullets, style("ref_bullets", 6.6, 8.4, color=INK))
     bw, bh = body.wrapOn(c, inner_w, 200)
     body.drawOn(c, inner_x, cursor - bh)
 

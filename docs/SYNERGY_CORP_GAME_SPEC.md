@@ -32,7 +32,7 @@ Companion files in this project (not required to read first, but useful):
   human pace this maps to the target **60–90 minute** session.
 - **Perfect information game:** there is no hidden information anywhere in the
   ruleset. Every resource, every card in every tableau, every board, and every
-  Review Score is public. This matters a lot for the online implementation —
+  Performance Review Score is public. This matters a lot for the online implementation —
   see Section 7.1.
 
 ---
@@ -43,10 +43,10 @@ Companion files in this project (not required to read first, but useful):
 |---|---|---|
 | **Level** | persistent | 0 (Intern) through 6 (CEO). See ladder table in 7.3. |
 | **Productivity (P)** | banked, resets quarterly | Spent to Pick up cards and Work Projects. Not itself Career Capital. |
-| **Political Capital (PC)** | banked, resets quarterly | Gained mainly via Networking. Never spent on anything directly — only ever compared (Review Score, CEO Board Vote). |
+| **Political Capital (PC)** | banked, resets quarterly | Gained mainly via Networking. Never spent on anything directly — only ever compared (Performance Review Score, CEO Board Vote). |
 | **Burnout** | persistent gauge | 0–10. At 10, triggers a **Burnout Crisis** immediately (see 5.2.4), not at end-of-round. |
 | **Career Capital (CC)** | persistent, (almost) monotonic | The permanent "résumé" score. Gates every promotion. Only known way it can ever *decrease* is the **Credit-Stealing Boss** Management Style card (−1 CC per completed Project). Otherwise strictly non-decreasing. |
-| **Quarter Marker** | persistent pointer | A snapshot of a player's CC as of the end of the last Review. Used to compute "CC gained this Quarter" for Review Score. Moves to match current CC at the end of every Review (Step 5). |
+| **Quarter Marker** | persistent pointer | A snapshot of a player's CC as of the end of the last Review. Used to compute "CC gained this Quarter" for Performance Review Score. Moves to match current CC at the end of every Review (Step 5). |
 | **Compliance Badges** | persistent counter | Gained from Mandatory Training. Gates Director (needs 2) and VP (needs 4). Never decreases. |
 | **PIP token** | boolean flag | Held or not held. A second consecutive PIP converts to a demotion. |
 | **Employee of the Quarter token** | persistent counter | Consolation for eligible-but-not-selected promotion candidates. Worth points only in the Advanced Variant. |
@@ -247,7 +247,7 @@ FIFO/LIFO). A player's backlog grows by at most one entry every Stand-Up
 round depends entirely on how much AP and Productivity they spend Working
 entries during their Sprint.
 
-**Implementation note on the skip decision:** because the Review Score now
+**Implementation note on the skip decision:** because the Performance Review Score now
 subtracts a player's Tasks on hand (§6 Step 1), a bot that hoards work it
 can't finish would tax its own score, so the reference AI no longer claims
 unconditionally. A bot takes the mandatory pickup whenever its backlog is
@@ -397,7 +397,7 @@ part of the game and the part most likely to be implemented subtly wrong — the
 order below reflects real bugs found and fixed during balance simulation (see
 Section 9 for the "why" behind each one). Resolve in exactly this order:
 
-### Step 1 — Calculate Review Score (for every player)
+### Step 1 — Calculate Performance Review Score (for every player)
 ```
 for each player:
     ccGainedThisQuarter = player.careerCapital - player.quarterMarker
@@ -426,7 +426,7 @@ if newCeo != null:
     gameOverAfterRound = current roundNumber
     // IMPORTANT: newCeo must be excluded from Steps 3 and 4 below.
 ```
-The Board Vote is **independent of Review Score** — a player who wasn't this
+The Board Vote is **independent of Performance Review Score** — a player who wasn't this
 Quarter's top scorer can still win the vote and become CEO, as long as they
 clear the Career Capital bar and hold the most Political Capital among level-5
 peers. This is intentional (see Section 9.3).
@@ -458,10 +458,10 @@ return p.careerCapital >= CC_THRESHOLD[targetLevel]
 ```
 
 > **Critical ordering note:** filter to eligible candidates **first**, *then*
-> rank by Review Score among only that eligible pool. Do not rank all players
+> rank by Performance Review Score among only that eligible pool. Do not rank all players
 > by score first and walk down the list checking eligibility one at a time —
 > that ordering was tried and produces a game-breaking bug where a strategy
-> that reliably posts the *worst* Review Score (because it spends its
+> that reliably posts the *worst* Performance Review Score (because it spends its
 > Productivity down to zero completing Projects) can bank enormous Career
 > Capital and *still* never receive a promotion slot, because higher-scoring
 > players (even ones who are barely eligible) always get checked/take the slot
@@ -503,7 +503,7 @@ for each player:
     player.politicalCapital = 0
 ```
 
-> **Order matters here too:** compute new Review Scores in Step 1 using the
+> **Order matters here too:** compute new Performance Review Scores in Step 1 using the
 > Quarter Marker from *before* this Review (i.e., as it was left at the end of
 > the *previous* Review). Only move the Quarter Marker in Step 5, after
 > everything else has already used the old value.
@@ -580,7 +580,7 @@ game-setup-time toggle (`variant: 'race-to-ceo' | 'long-game'`), not a
 mid-game option.
 
 > **Burnout asymmetry (intentional):** `finalScore` still subtracts full
-> `burnout`. Burnout no longer affects the per-Review Score (§6 Step 1 uses
+> `burnout`. Burnout no longer affects the Performance Review Score (§6 Step 1 uses
 > Tasks on hand there), but it still tolls the end-of-game standing and still
 > triggers the Burnout Crisis at 10 — so running hot has a delayed, not a
 > per-Quarter, cost. Because **every Project inflicts Burnout on completion**,
@@ -757,7 +757,7 @@ any of these back to the more obvious-seeming version, the game breaks the same
 way it did in early testing. Consolidated here for quick reference; each is
 also called out inline at its relevant rule above.
 
-**9.1 — Review Score must count CC gained this Quarter, not just banked P/PC.**
+**9.1 — Performance Review Score must count CC gained this Quarter, not just banked P/PC.**
 Early draft: `reviewScore = productivity + politicalCapital - burnoutPenalty`,
 using only *leftover, unspent* banked resources. This catastrophically
 punishes any strategy that actually spends its Productivity completing
@@ -769,13 +769,13 @@ Capital gained since your Quarter Marker" as its own term (Step 1, Section 6).
 **9.2 — Promotion candidates must be filtered to "eligible" first, then ranked
 by score — not ranked by score first with eligibility checked one at a time.**
 The second ordering silently starves any strategy that reliably posts a low
-Review Score (see 9.1's root cause) even after 9.1 is fixed, because with a
+Performance Review Score (see 9.1's root cause) even after 9.1 is fixed, because with a
 single promotion slot shared by 5 players, some *other* eligible player almost
 always outranks the specialist by score and takes the slot first, every single
 Quarter, forever. Filtering the pool to only-the-eligible before ranking gives
 every qualified player a fair shot at the score-based tiebreak.
 
-**9.3 — The CEO Board Vote is independent of Review Score and independent of
+**9.3 — The CEO Board Vote is independent of Performance Review Score and independent of
 standard promotion.** It's evaluated separately (Step 2, before Steps 3–4), and
 a VP who wasn't this Quarter's best performer can absolutely win the vote and
 become CEO purely by holding the most Political Capital among level-5 peers.
@@ -783,7 +783,7 @@ This is an intentional satirical beat, not a bug — but it does mean **the newl
 crowned CEO must be explicitly excluded from both the Step 3 promotion pool and
 the Step 4 PIP/demotion pool of the same Review.** An early implementation bug
 let the new CEO get swept into the PIP/demotion check in the same Review they
-were crowned (because their Review Score that Quarter could be mediocre even
+were crowned (because their Performance Review Score that Quarter could be mediocre even
 though their Political Capital was high) — resulting in them being demoted
 back to VP immediately after becoming CEO, in the same function call. Exclude
 by identity, not by rank.
@@ -794,7 +794,7 @@ threshold mid-Action-Phase (e.g., from Overtime) and must have the Crisis
 resolve before their next action, not queued until end of round.
 
 **9.5 — Promotions advance exactly one level per Review; a player can never
-skip one.** No matter how dominant a Quarter's Review Score is, Standard
+skip one.** No matter how dominant a Quarter's Performance Review Score is, Standard
 Promotion moves a player up by one level only — you must actually stand at each
 level of the ladder before climbing to the next. The Board Vote (Step 2) is
 the sole exception path to level 6, and it too only fires for players already
@@ -809,13 +809,13 @@ replacing from the main Project pool. It draws from its own pool and never
 leaves the board.
 
 **9.7 — Quarter Marker moves *after* everything else in a Review, not before.**
-Review Score (Step 1) must be computed against the marker position left over
+Performance Review Score (Step 1) must be computed against the marker position left over
 from the *previous* Review. Moving the marker is explicitly the last
 sub-step (Step 5) of the current Review.
 
 **9.8 — Backlog Grooming (5.1.2) adds at most one entry per Stand-Up and Work
 a Project can pay off any entry, so the size of a player's backlog is a real
-strategic quantity — and, since the Review Score subtracts Tasks on hand (§6
+strategic quantity — and, since the Performance Review Score subtracts Tasks on hand (§6
 Step 1), one that feeds directly back into scoring, so bots deliberately keep
 it small.** The feature went through three iterations, each simulated with the
 same five-archetype, one-of-each methodology as Section 10:
@@ -839,9 +839,9 @@ same five-archetype, one-of-each methodology as Section 10:
   a large, slowly-draining backlog (Politician routinely 15-21 entries by late
   game; Workaholic usually single digits). Harmless while nothing scored the
   backlog — but see below.
-- **Current design (capacity-aware claiming):** the Review Score now subtracts
+- **Current design (capacity-aware claiming):** the Performance Review Score now subtracts
   Tasks on hand (§6 Step 1), so an ever-growing backlog is no longer free — it
-  directly drags a hoarder's Review Score. The AI claim heuristic
+  directly drags a hoarder's Performance Review Score. The AI claim heuristic
   (`pickTaskToClaim`) was updated to match: a bot still takes the mandatory
   pickup when its backlog is empty, but claims a further card voluntarily only
   when it is not already "behind" (can currently afford to complete everything
@@ -989,14 +989,14 @@ Constructive** (−2), each worth `rules.feedbackValue` (=2) "political points".
    Constructive cards to a front-runner — see targeting below.)
 3. Each player's **net feedback** = `feedbackValue × (Positives held −
    Constructive held)`, clamped to ±`rules.feedbackNetCap` (=4).
-4. That net folds into the **Review Score** (Step 1) as a political term and
+4. That net folds into the **Performance Review Score** (Step 1) as a political term and
    into the **CEO Board Vote** (Step 2) political tiebreak. It is *not* added
    to persistent Political Capital — the effect is transient to this Review
    (the quarterly PC reset would erase it anyway).
 
 **Targeting of Constructive cards (`rules.feedbackTarget`)** — who the AI (and
 `feedbackNegLeaderOnly` humans) may dump a negative on:
-- `'score'` *(default)* — whoever tops *this* Review (provisional Review Score
+- `'score'` *(default)* — whoever tops *this* Review (provisional Performance Review Score
   = CC gained this Quarter + PC − tasks on hand). Self-balancing: it lands on the
   political front-runner, so the strongest scorer eats the negatives.
 - `'level'` — the ladder / Career-Capital leader. A **stronger comeback** lever
@@ -1007,7 +1007,7 @@ Constructive** (−2), each worth `rules.feedbackValue` (=2) "political points".
 
 **Feedback mode (`rules.feedbackMode`)** — a UI-selectable choice for *how* the
 phase deals and moves cards. The downstream scoring (net × `feedbackValue`,
-±`feedbackNetCap` clamp, fold into Review Score + CEO tiebreak) and all
+±`feedbackNetCap` clamp, fold into Performance Review Score + CEO tiebreak) and all
 targeting dials above are identical in both modes:
 
 - `'classic'` *(default)* — the algorithm above: deal **one** card per player,

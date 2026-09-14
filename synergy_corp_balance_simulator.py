@@ -87,7 +87,7 @@ class Player:
         self.lifetime_pp = 0.0     # v1 gate: fed only by completed projects
         self.lifetime_netpc = 0.0  # v1 gate: fed only by Network actions
         self.cc = 0.0              # v2/v3 unified gate
-        self.quarter_cc = 0.0      # CC earned this quarter (for review score)
+        self.quarter_cc = 0.0      # CC earned this quarter (for Performance Review Score)
         self.badges = 0
         self.pip = False
         self.skip_rounds = 0
@@ -244,7 +244,7 @@ def run_review(players, review_num, cfg, rng, stats):
     promoted_idx = set()
     used_slots = 0
     if cfg.eligibility_first:
-        # v3 fix: determine WHO QUALIFIES first, then use review score only
+        # v3 fix: determine WHO QUALIFIES first, then use Performance Review Score only
         # to rank among the qualified pool. Under the old score-first
         # approach, a candidate's raw quarterly score gated whether their
         # CC was even checked — so a strategy that reliably banks the
