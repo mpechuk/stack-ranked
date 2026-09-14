@@ -220,7 +220,7 @@
                              //   simultaneous) and discard the other
     feedbackValue: 2,        // political points per held card (magnitude)
     feedbackNetCap: 4,       // clamp each player's net feedback swing to ±this per Review
-                             //   (research: keep it ≤~25-30% of a typical Review Score)
+                             //   (research: keep it ≤~25-30% of a typical Performance Review Score)
     feedbackNegLeaderOnly: false, // constructive cards may only be given to the current front-runner
     feedbackTarget: 'score', // who AI dumps constructive cards on:
                              //   'score' — whoever tops THIS Review (self-balancing vs the PC
@@ -595,7 +595,7 @@
     return best;
   }
   // Where a rational player sends a constructive-feedback card. 'score' targets
-  // whoever is about to top THIS Review (provisional Review Score = CC gained
+  // whoever is about to top THIS Review (provisional Performance Review Score = CC gained
   // this Quarter + PC − tasks on hand), which naturally lands on the political
   // front-runner; 'level' targets the ladder/Career-Capital leader.
   function feedbackNegTarget(state, giverId) {
@@ -1279,7 +1279,7 @@
   // alongside the board options. A mandatory pickup (empty backlog) always
   // proceeds; the backlog can never be left at zero.
   //
-  // AI: don't hoard unfinished work. The Review Score subtracts Tasks on hand,
+  // AI: don't hoard unfinished work. The Performance Review Score subtracts Tasks on hand,
   // so a Project a bot can't afford just lingers in the backlog and drags its
   // score. A bot therefore claims another Project voluntarily only when it
   // isn't already behind — i.e. it can currently afford to complete everything
@@ -1620,7 +1620,7 @@
   /* ---------------------------------------------------------------------------
    * 14b. Feedback phase (variant rule) — runs at the top of every Review,
    *   before scoring. Held cards are worth ±feedbackValue "political points"
-   *   folded into the Review Score (and the CEO Board Vote tiebreak), with each
+   *   folded into the Performance Review Score (and the CEO Board Vote tiebreak), with each
    *   player's net swing clamped to ±feedbackNetCap. Political-Capital-adjacent
    *   but NOT persistent PC: the effect is entirely transient to this Review,
    *   which the quarterly PC reset would erase anyway.
@@ -1830,7 +1830,7 @@
     state.reviewCount += 1;
     const players = state.players;
 
-    // Step 1 — Review Score (uses quarterMarker from the PREVIOUS review).
+    // Step 1 — Performance Review Score (uses quarterMarker from the PREVIOUS review).
     // Feedback points (variant rule) fold straight into the political term.
     const fb = state._pendingFeedback || {};
     const score = {};
@@ -1850,7 +1850,7 @@
     const rowById = {};
     summary.rows.forEach(function (r) { rowById[r.id] = r; });
 
-    // Step 2 — CEO Board Vote (independent of Review Score; resolve first)
+    // Step 2 — CEO Board Vote (independent of Performance Review Score; resolve first)
     let newCeo = null;
     const ceoCandidates = players.filter(function (p) { return p.level === 5 && p.careerCapital >= CEO_CC_BAR; });
     if (ceoCandidates.length === 1) newCeo = ceoCandidates[0];
